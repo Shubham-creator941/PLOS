@@ -215,3 +215,152 @@ CREATE TABLE interventions (
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_interventions_decision FOREIGN KEY (decision_id) REFERENCES decisions(decision_id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 11. adaptive_runtime_states
+CREATE TABLE adaptive_runtime_states (
+  runtime_id CHAR(36) PRIMARY KEY,
+  session_id CHAR(36) NOT NULL,
+  current_state ENUM('ready', 'learning', 'reviewing', 'remediation', 'waiting', 'completed') NOT NULL,
+  next_phase_id CHAR(36) NULL,
+  next_module_id CHAR(36) NULL,
+  next_objective_id CHAR(36) NULL,
+  recommendation_type ENUM('continue', 'review', 'repeat', 'unlock_next', 'complete_session') NOT NULL,
+  decision_reason VARCHAR(255) NOT NULL,
+  version INTEGER NOT NULL DEFAULT 1,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE INDEX (session_id),
+  INDEX (recommendation_type),
+  INDEX (current_state),
+  CONSTRAINT fk_adaptive_runtime_session FOREIGN KEY (session_id) REFERENCES learning_sessions(session_id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT fk_adaptive_runtime_next_phase FOREIGN KEY (next_phase_id) REFERENCES learning_phases(phase_id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT fk_adaptive_runtime_next_module FOREIGN KEY (next_module_id) REFERENCES learning_modules(module_id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT fk_adaptive_runtime_next_obj FOREIGN KEY (next_objective_id) REFERENCES learning_objectives(objective_id) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 12. adaptive_runtime_decisions
+CREATE TABLE adaptive_runtime_decisions (
+  decision_id CHAR(36) PRIMARY KEY,
+  runtime_id CHAR(36) NOT NULL,
+  session_id CHAR(36) NOT NULL,
+  decision_type ENUM('continue', 'review', 'repeat', 'unlock_next', 'complete_session') NOT NULL,
+  source ENUM('progress_engine', 'runtime_rules') NOT NULL,
+  reason VARCHAR(255) NOT NULL,
+  metadata JSON NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX (runtime_id),
+  INDEX (session_id),
+  INDEX (decision_type),
+  INDEX (created_at),
+  INDEX idx_runtime_created (runtime_id, created_at),
+  CONSTRAINT fk_adaptive_decision_runtime FOREIGN KEY (runtime_id) REFERENCES adaptive_runtime_states(runtime_id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT fk_adaptive_decision_session FOREIGN KEY (session_id) REFERENCES learning_sessions(session_id) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 13. adaptive_review_queue
+CREATE TABLE adaptive_review_queue (
+  queue_id CHAR(36) PRIMARY KEY,
+  session_id CHAR(36) NOT NULL,
+  objective_id CHAR(36) NOT NULL,
+  priority ENUM('low', 'medium', 'high') NOT NULL,
+  reason VARCHAR(255) NOT NULL,
+  scheduled_at DATETIME NOT NULL,
+  completed BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX (session_id),
+  INDEX (objective_id),
+  INDEX (priority),
+  INDEX (completed),
+  INDEX idx_review_pending (session_id, completed, scheduled_at),
+  CONSTRAINT fk_adaptive_review_session FOREIGN KEY (session_id) REFERENCES learning_sessions(session_id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT fk_adaptive_review_objective FOREIGN KEY (objective_id) REFERENCES learning_objectives(objective_id) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 14. adaptive_unlock_history
+CREATE TABLE adaptive_unlock_history (
+  unlock_id CHAR(36) PRIMARY KEY,
+  session_id CHAR(36) NOT NULL,
+  phase_id CHAR(36) NULL,
+  module_id CHAR(36) NULL,
+  objective_id CHAR(36) NULL,
+  unlocked_by ENUM('runtime_rules', 'learner_action') NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX (session_id),
+  INDEX (created_at),
+  INDEX idx_unlock_session_created (session_id, created_at),
+  CONSTRAINT fk_adaptive_unlock_session FOREIGN KEY (session_id) REFERENCES learning_sessions(session_id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT fk_adaptive_unlock_phase FOREIGN KEY (phase_id) REFERENCES learning_phases(phase_id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT fk_adaptive_unlock_module FOREIGN KEY (module_id) REFERENCES learning_modules(module_id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT fk_adaptive_unlock_objective FOREIGN KEY (objective_id) REFERENCES learning_objectives(objective_id) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 15. assessment_templates
+CREATE TABLE assessment_templates (
+  template_id CHAR(36) PRIMARY KEY,
+  module_id CHAR(36) NOT NULL,
+  title VARCHAR(150) NOT NULL,
+  description TEXT NULL,
+  passing_score INTEGER NOT NULL,
+  max_score INTEGER NOT NULL,
+  status ENUM('draft', 'published', 'archived') NOT NULL DEFAULT 'draft',
+  version INTEGER NOT NULL DEFAULT 1,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX (module_id),
+  INDEX (status),
+  CONSTRAINT fk_assessment_template_module FOREIGN KEY (module_id) REFERENCES learning_modules(module_id) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 16. assessment_questions
+CREATE TABLE assessment_questions (
+  question_id CHAR(36) PRIMARY KEY,
+  template_id CHAR(36) NOT NULL,
+  question_text TEXT NOT NULL,
+  question_type ENUM('mcq', 'true_false', 'short_answer') NOT NULL,
+  options JSON NULL,
+  correct_answer JSON NOT NULL,
+  points INTEGER NOT NULL,
+  order_no INTEGER NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX (template_id),
+  INDEX (order_no),
+  CONSTRAINT fk_assessment_question_template FOREIGN KEY (template_id) REFERENCES assessment_templates(template_id) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 17. assessment_attempts
+CREATE TABLE assessment_attempts (
+  attempt_id CHAR(36) PRIMARY KEY,
+  template_id CHAR(36) NOT NULL,
+  session_id CHAR(36) NOT NULL,
+  learner_id CHAR(36) NOT NULL,
+  score INTEGER NOT NULL DEFAULT 0,
+  percentage DECIMAL(5,2) NOT NULL DEFAULT 0,
+  status ENUM('in_progress', 'submitted', 'evaluated') NOT NULL DEFAULT 'in_progress',
+  started_at DATETIME NOT NULL,
+  submitted_at DATETIME NULL,
+  evaluated_at DATETIME NULL,
+  version INTEGER NOT NULL DEFAULT 1,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX (learner_id),
+  INDEX (session_id),
+  INDEX (status),
+  CONSTRAINT fk_assessment_attempt_template FOREIGN KEY (template_id) REFERENCES assessment_templates(template_id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT fk_assessment_attempt_session FOREIGN KEY (session_id) REFERENCES learning_sessions(session_id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT fk_assessment_attempt_learner FOREIGN KEY (learner_id) REFERENCES learners(learner_id) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 18. assessment_answers
+CREATE TABLE assessment_answers (
+  answer_id CHAR(36) PRIMARY KEY,
+  attempt_id CHAR(36) NOT NULL,
+  question_id CHAR(36) NOT NULL,
+  submitted_answer JSON NOT NULL,
+  awarded_points INTEGER NOT NULL DEFAULT 0,
+  is_correct BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX (attempt_id),
+  INDEX (question_id),
+  CONSTRAINT fk_assessment_answer_attempt FOREIGN KEY (attempt_id) REFERENCES assessment_attempts(attempt_id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT fk_assessment_answer_question FOREIGN KEY (question_id) REFERENCES assessment_questions(question_id) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
