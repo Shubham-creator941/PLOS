@@ -1,7 +1,16 @@
 import { Router } from 'express';
+import { authRoutes } from '../modules/auth/routes';
+// import { learnerRoutes } from '../learner';
+// import { journeyRoutes } from '../journey';
+// import { planningRoutes } from '../planning';
+// import { dashboardRoutes } from '../dashboard';
 
-const router = Router();
+export const router = Router();
 
-// Placeholder for main API routes
+router.use('/auth', authRoutes);
+// router.use('/learners', learnerRoutes);
+// router.use('/journeys', journeyRoutes);
+// router.use('/planning', planningRoutes);
+// router.use('/dashboard', dashboardRoutes);
 
 export default router;
