@@ -14,14 +14,14 @@ export const Loader: React.FC<LoaderProps> = ({ className = '', size = 'md', ful
   };
 
   const loaderContent = (
-    <div className={`flex flex-col items-center justify-center text-primary-600 ${className}`} {...props}>
+    <div className={`flex flex-col items-center justify-center text-primary ${className}`} {...props}>
       <Loader2 className={`animate-spin ${sizeClasses[size]}`} />
     </div>
   );
 
   if (fullScreen) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm dark:bg-neutral-950/80">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-surface/80 backdrop-blur-sm">
         {loaderContent}
       </div>
     );

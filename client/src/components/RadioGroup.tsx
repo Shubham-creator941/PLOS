@@ -24,10 +24,10 @@ export const RadioGroup = React.forwardRef<HTMLInputElement, RadioGroupProps>(
           return (
             <div key={option.value} className="flex items-start gap-3">
               <div
-                className={`relative flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-colors focus-within:ring-2 focus-within:ring-primary-500 focus-within:ring-offset-2 ${
+                className={`relative flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-colors focus-within:ring-2 focus-within:ring-primary/50 focus-within:ring-offset-2 ${
                   isChecked
-                    ? 'border-primary-600 bg-primary-600 dark:border-primary-500 dark:bg-primary-500'
-                    : 'border-neutral-300 bg-white hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:hover:bg-neutral-800'
+                    ? 'border-primary bg-primary'
+                    : 'border-border bg-surface hover:bg-surface-hover'
                 }`}
               >
                 <input
@@ -44,17 +44,17 @@ export const RadioGroup = React.forwardRef<HTMLInputElement, RadioGroupProps>(
                 {isChecked && <div className="h-2 w-2 rounded-full bg-white" />}
               </div>
               <div className="flex flex-col gap-0.5">
-                <label htmlFor={id} className="cursor-pointer text-sm font-medium text-neutral-900 dark:text-neutral-50">
+                <label htmlFor={id} className="cursor-pointer text-label text-neutral-900 dark:text-neutral-50">
                   {option.label}
                 </label>
                 {option.description && (
-                  <p className="text-xs text-neutral-500 dark:text-neutral-400">{option.description}</p>
+                  <p className="text-caption text-neutral-500">{option.description}</p>
                 )}
               </div>
             </div>
           );
         })}
-        {error && <p className="text-sm text-danger-500">{error}</p>}
+        {error && <p className="text-caption text-danger">{error}</p>}
       </div>
     );
   }

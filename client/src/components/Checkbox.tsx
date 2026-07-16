@@ -12,7 +12,7 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
 
     return (
       <div className="flex items-start gap-3">
-        <div className="relative flex h-5 w-5 shrink-0 items-center justify-center rounded border border-neutral-300 bg-white transition-colors focus-within:ring-2 focus-within:ring-primary-500 focus-within:ring-offset-2 hover:bg-neutral-50 has-[:checked]:border-primary-600 has-[:checked]:bg-primary-600 dark:border-neutral-700 dark:bg-neutral-900 dark:hover:bg-neutral-800 dark:has-[:checked]:border-primary-500 dark:has-[:checked]:bg-primary-500">
+        <div className="relative flex h-5 w-5 shrink-0 items-center justify-center rounded border border-border bg-surface transition-colors focus-within:ring-2 focus-within:ring-primary/50 focus-within:ring-offset-2 hover:bg-surface-hover has-[:checked]:border-primary has-[:checked]:bg-primary">
           <input
             ref={ref}
             type="checkbox"
@@ -23,11 +23,11 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
           <Check className="pointer-events-none hidden h-3.5 w-3.5 text-white has-[:checked]:block" strokeWidth={3} />
         </div>
         <div className="flex flex-col gap-0.5">
-          <label htmlFor={id} className="cursor-pointer text-sm font-medium text-neutral-900 dark:text-neutral-50">
+          <label htmlFor={id} className="cursor-pointer text-label text-neutral-900 dark:text-neutral-50">
             {label}
           </label>
           {description && (
-            <p className="text-xs text-neutral-500 dark:text-neutral-400">{description}</p>
+            <p className="text-caption text-neutral-500">{description}</p>
           )}
         </div>
       </div>
