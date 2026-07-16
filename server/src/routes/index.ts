@@ -9,6 +9,7 @@ import { assessmentRoutes } from '../modules/assessment/routes';
 import { intelligenceRoutes } from '../modules/intelligence/routes';
 import { dashboardRoutes } from '../modules/dashboard/routes';
 import { notificationRoutes } from '../modules/notification/routes';
+import { auditRoutes } from '../modules/audit/routes';
 
 export const router = Router();
 
@@ -22,5 +23,6 @@ router.use('/assessment', assessmentRoutes);
 router.use('/intelligence', intelligenceRoutes);
 router.use('/dashboard', dashboardRoutes);
 router.use('/notifications', notificationRoutes);
+router.use('/audit', auditRoutes);
 
 export default router;

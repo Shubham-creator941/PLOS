@@ -612,3 +612,102 @@ CREATE TABLE notification_delivery_log (
   INDEX idx_delivery_log_channel (channel),
   CONSTRAINT fk_delivery_log_notification FOREIGN KEY (notification_id) REFERENCES notifications(notification_id) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ====================================================
+-- SPRINT 12: AUDIT ENGINE
+-- ====================================================
+
+CREATE TABLE audit_logs (
+  audit_id CHAR(36) PRIMARY KEY,
+  learner_id CHAR(36) NULL,
+  action VARCHAR(100) NOT NULL,
+  resource_type ENUM(
+    'auth',
+    'learner',
+    'journey',
+    'planning',
+    'session',
+    'adaptive',
+    'assessment',
+    'intelligence',
+    'dashboard',
+    'notification',
+    'system'
+  ) NOT NULL,
+  resource_id CHAR(36) NULL,
+  status ENUM(
+    'success',
+    'failure'
+  ) NOT NULL,
+  ip_address VARCHAR(45) NULL,
+  user_agent VARCHAR(255) NULL,
+  metadata JSON NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_audit_logs_learner (learner_id),
+  INDEX idx_audit_logs_resource (resource_type),
+  INDEX idx_audit_logs_status (status),
+  INDEX idx_audit_logs_created (created_at),
+  CONSTRAINT fk_audit_logs_learner FOREIGN KEY (learner_id) REFERENCES learners(learner_id) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE activity_timeline (
+  activity_id CHAR(36) PRIMARY KEY,
+  learner_id CHAR(36) NOT NULL,
+  activity_type ENUM(
+    'learning',
+    'assessment',
+    'session',
+    'planning',
+    'recommendation',
+    'dashboard'
+  ),
+  title VARCHAR(150) NOT NULL,
+  description TEXT NOT NULL,
+  reference_id CHAR(36) NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_activity_timeline_learner (learner_id),
+  INDEX idx_activity_timeline_type (activity_type),
+  INDEX idx_activity_timeline_created (created_at),
+  CONSTRAINT fk_activity_timeline_learner FOREIGN KEY (learner_id) REFERENCES learners(learner_id) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE login_history (
+  login_id CHAR(36) PRIMARY KEY,
+  learner_id CHAR(36) NOT NULL,
+  login_at DATETIME NOT NULL,
+  logout_at DATETIME NULL,
+  ip_address VARCHAR(45) NULL,
+  user_agent VARCHAR(255) NULL,
+  status ENUM(
+    'success',
+    'failed'
+  ) NOT NULL,
+  INDEX idx_login_history_learner (learner_id),
+  INDEX idx_login_history_status (status),
+  INDEX idx_login_history_login (login_at),
+  CONSTRAINT fk_login_history_learner FOREIGN KEY (learner_id) REFERENCES learners(learner_id) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE system_activity (
+  system_activity_id CHAR(36) PRIMARY KEY,
+  module_name ENUM(
+    'planning',
+    'session',
+    'adaptive',
+    'assessment',
+    'intelligence',
+    'dashboard',
+    'notification'
+  ),
+  activity VARCHAR(150) NOT NULL,
+  severity ENUM(
+    'info',
+    'warning',
+    'critical'
+  ),
+  metadata JSON NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_system_activity_module (module_name),
+  INDEX idx_system_activity_severity (severity),
+  INDEX idx_system_activity_created (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
