@@ -444,3 +444,71 @@ CREATE TABLE knowledge_gap_analysis (
   CONSTRAINT fk_knowledge_gap_module FOREIGN KEY (module_id) REFERENCES learning_modules(module_id) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT fk_knowledge_gap_objective FOREIGN KEY (objective_id) REFERENCES learning_objectives(objective_id) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+-- TABLE: dashboard_preferences
+-- --------------------------------------------------------
+CREATE TABLE dashboard_preferences (
+  preference_id CHAR(36) PRIMARY KEY,
+  learner_id CHAR(36) NOT NULL,
+  default_view ENUM('overview', 'progress', 'assessments', 'mastery', 'recommendations') NOT NULL DEFAULT 'overview',
+  show_activity BOOLEAN NOT NULL DEFAULT TRUE,
+  show_mastery BOOLEAN NOT NULL DEFAULT TRUE,
+  show_recommendations BOOLEAN NOT NULL DEFAULT TRUE,
+  theme ENUM('light', 'dark', 'system') NOT NULL DEFAULT 'system',
+  version INTEGER NOT NULL DEFAULT 1,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX (learner_id),
+  CONSTRAINT fk_dashboard_pref_learner FOREIGN KEY (learner_id) REFERENCES learners(learner_id) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+-- TABLE: dashboard_snapshots
+-- --------------------------------------------------------
+CREATE TABLE dashboard_snapshots (
+  snapshot_id CHAR(36) PRIMARY KEY,
+  learner_id CHAR(36) NOT NULL,
+  generated_at DATETIME NOT NULL,
+  summary_json JSON NOT NULL,
+  version INTEGER NOT NULL DEFAULT 1,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX (learner_id),
+  INDEX (generated_at),
+  CONSTRAINT fk_dashboard_snap_learner FOREIGN KEY (learner_id) REFERENCES learners(learner_id) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+-- TABLE: dashboard_widget_state
+-- --------------------------------------------------------
+CREATE TABLE dashboard_widget_state (
+  widget_state_id CHAR(36) PRIMARY KEY,
+  learner_id CHAR(36) NOT NULL,
+  widget_name VARCHAR(100) NOT NULL,
+  position_no INTEGER NOT NULL,
+  visible BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY unique_widget (learner_id, widget_name),
+  INDEX (learner_id),
+  INDEX (position_no),
+  CONSTRAINT fk_dashboard_widget_learner FOREIGN KEY (learner_id) REFERENCES learners(learner_id) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+-- TABLE: dashboard_exports
+-- --------------------------------------------------------
+CREATE TABLE dashboard_exports (
+  export_id CHAR(36) PRIMARY KEY,
+  learner_id CHAR(36) NOT NULL,
+  export_type ENUM('pdf', 'csv', 'json') NOT NULL,
+  status ENUM('pending', 'completed', 'failed') NOT NULL DEFAULT 'pending',
+  generated_at DATETIME NULL,
+  file_name VARCHAR(255) NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX (learner_id),
+  INDEX (status),
+  INDEX (export_type),
+  CONSTRAINT fk_dashboard_export_learner FOREIGN KEY (learner_id) REFERENCES learners(learner_id) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
