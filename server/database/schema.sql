@@ -364,3 +364,83 @@ CREATE TABLE assessment_answers (
   CONSTRAINT fk_assessment_answer_attempt FOREIGN KEY (attempt_id) REFERENCES assessment_attempts(attempt_id) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT fk_assessment_answer_question FOREIGN KEY (question_id) REFERENCES assessment_questions(question_id) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 19. learning_analytics
+CREATE TABLE learning_analytics (
+  analytics_id CHAR(36) PRIMARY KEY,
+  learner_id CHAR(36) NOT NULL,
+  total_learning_minutes INTEGER NOT NULL DEFAULT 0,
+  completed_plans INTEGER NOT NULL DEFAULT 0,
+  completed_modules INTEGER NOT NULL DEFAULT 0,
+  completed_objectives INTEGER NOT NULL DEFAULT 0,
+  average_assessment_score DECIMAL(5,2) NOT NULL DEFAULT 0,
+  mastery_percentage DECIMAL(5,2) NOT NULL DEFAULT 0,
+  learning_velocity DECIMAL(8,2) NOT NULL DEFAULT 0,
+  last_calculated_at DATETIME NOT NULL,
+  version INTEGER NOT NULL DEFAULT 1,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX (learner_id),
+  INDEX (mastery_percentage),
+  CONSTRAINT fk_analytics_learner FOREIGN KEY (learner_id) REFERENCES learners(learner_id) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 20. learner_mastery
+CREATE TABLE learner_mastery (
+  mastery_id CHAR(36) PRIMARY KEY,
+  learner_id CHAR(36) NOT NULL,
+  module_id CHAR(36) NOT NULL,
+  mastery_score DECIMAL(5,2) NOT NULL,
+  attempts INTEGER NOT NULL DEFAULT 0,
+  last_score DECIMAL(5,2) NOT NULL,
+  status ENUM('beginner', 'developing', 'proficient', 'mastered') NOT NULL,
+  last_assessed_at DATETIME NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE INDEX idx_mastery_learner_module (learner_id, module_id),
+  INDEX (learner_id),
+  INDEX (module_id),
+  INDEX (status),
+  CONSTRAINT fk_mastery_learner FOREIGN KEY (learner_id) REFERENCES learners(learner_id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT fk_mastery_module FOREIGN KEY (module_id) REFERENCES learning_modules(module_id) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 21. recommendation_history
+CREATE TABLE recommendation_history (
+  recommendation_id CHAR(36) PRIMARY KEY,
+  learner_id CHAR(36) NOT NULL,
+  session_id CHAR(36) NULL,
+  recommendation_type ENUM('review', 'repeat_module', 'continue_learning', 'unlock_next', 'practice_assessment') NOT NULL,
+  reason VARCHAR(255) NOT NULL,
+  status ENUM('pending', 'accepted', 'dismissed', 'completed') NOT NULL DEFAULT 'pending',
+  generated_at DATETIME NOT NULL,
+  completed_at DATETIME NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX (learner_id),
+  INDEX (recommendation_type),
+  INDEX (status),
+  CONSTRAINT fk_recommendation_learner FOREIGN KEY (learner_id) REFERENCES learners(learner_id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT fk_recommendation_session FOREIGN KEY (session_id) REFERENCES learning_sessions(session_id) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 22. knowledge_gap_analysis
+CREATE TABLE knowledge_gap_analysis (
+  gap_id CHAR(36) PRIMARY KEY,
+  learner_id CHAR(36) NOT NULL,
+  module_id CHAR(36) NOT NULL,
+  objective_id CHAR(36) NULL,
+  severity ENUM('low', 'medium', 'high') NOT NULL,
+  confidence_score DECIMAL(5,2) NOT NULL,
+  reason VARCHAR(255) NOT NULL,
+  resolved BOOLEAN NOT NULL DEFAULT FALSE,
+  identified_at DATETIME NOT NULL,
+  resolved_at DATETIME NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX (learner_id),
+  INDEX (module_id),
+  INDEX (severity),
+  INDEX (resolved),
+  CONSTRAINT fk_knowledge_gap_learner FOREIGN KEY (learner_id) REFERENCES learners(learner_id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT fk_knowledge_gap_module FOREIGN KEY (module_id) REFERENCES learning_modules(module_id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT fk_knowledge_gap_objective FOREIGN KEY (objective_id) REFERENCES learning_objectives(objective_id) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

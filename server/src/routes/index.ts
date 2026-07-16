@@ -6,6 +6,7 @@ import { planningRoutes } from '../modules/planning/routes';
 import { sessionRoutes } from '../modules/session/routes';
 import { adaptiveRoutes } from '../modules/adaptive/routes';
 import { assessmentRoutes } from '../modules/assessment/routes';
+import { intelligenceRoutes } from '../modules/intelligence/routes';
 // import { dashboardRoutes } from '../dashboard';
 
 export const router = Router();
@@ -17,6 +18,7 @@ router.use('/planning', planningRoutes);
 router.use('/session', sessionRoutes);
 router.use('/adaptive', adaptiveRoutes);
 router.use('/assessment', assessmentRoutes);
+router.use('/intelligence', intelligenceRoutes);
 // router.use('/dashboard', dashboardRoutes);
 
 export default router;
