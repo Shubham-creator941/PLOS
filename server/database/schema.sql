@@ -88,21 +88,70 @@ CREATE TABLE learning_tasks (
 
 -- 6. learning_sessions
 CREATE TABLE learning_sessions (
-    session_id CHAR(36) PRIMARY KEY,
-    journey_id CHAR(36) NOT NULL,
-    started_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    ended_at DATETIME NULL,
-    duration_minutes INT NULL,
-    energy_level TINYINT NOT NULL DEFAULT 5,
-    confidence_level TINYINT NOT NULL DEFAULT 5,
-    difficulty_level ENUM('too_easy', 'optimal', 'too_hard') NOT NULL,
-    reflection TEXT NULL,
+    session_id CHAR(36) NOT NULL,
+    plan_id CHAR(36) NOT NULL,
+    learner_id CHAR(36) NOT NULL,
+    current_phase_id CHAR(36) NULL,
+    current_module_id CHAR(36) NULL,
+    current_objective_id CHAR(36) NULL,
+    status ENUM('not_started', 'active', 'paused', 'completed', 'abandoned') NOT NULL DEFAULT 'not_started',
+    started_at DATETIME NULL,
+    last_activity_at DATETIME NULL,
+    completed_at DATETIME NULL,
+    total_minutes INTEGER NOT NULL DEFAULT 0,
+    version INTEGER NOT NULL DEFAULT 1,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_sessions_journey FOREIGN KEY (journey_id) REFERENCES learning_journeys(journey_id) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT chk_session_energy CHECK (energy_level BETWEEN 1 AND 10),
-    CONSTRAINT chk_session_confidence CHECK (confidence_level BETWEEN 1 AND 10),
-    CONSTRAINT chk_session_times CHECK (ended_at IS NULL OR ended_at >= started_at),
-    CONSTRAINT chk_session_duration CHECK (duration_minutes IS NULL OR duration_minutes >= 0)
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (session_id),
+    CONSTRAINT fk_sessions_plan FOREIGN KEY (plan_id) REFERENCES learning_plans(plan_id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+    CONSTRAINT fk_sessions_learner FOREIGN KEY (learner_id) REFERENCES learners(learner_id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+    CONSTRAINT fk_sessions_phase FOREIGN KEY (current_phase_id) REFERENCES learning_phases(phase_id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+    CONSTRAINT fk_sessions_module FOREIGN KEY (current_module_id) REFERENCES learning_modules(module_id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+    CONSTRAINT fk_sessions_objective FOREIGN KEY (current_objective_id) REFERENCES learning_objectives(objective_id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+    INDEX idx_sessions_learner_id (learner_id),
+    INDEX idx_sessions_plan_id (plan_id),
+    INDEX idx_sessions_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 6a. learning_session_events
+CREATE TABLE learning_session_events (
+    event_id CHAR(36) NOT NULL,
+    session_id CHAR(36) NOT NULL,
+    event_type ENUM(
+        'session_started',
+        'session_paused',
+        'session_resumed',
+        'objective_started',
+        'objective_completed',
+        'module_completed',
+        'phase_completed',
+        'session_completed',
+        'session_abandoned'
+    ) NOT NULL,
+    payload JSON NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (event_id),
+    CONSTRAINT fk_events_session FOREIGN KEY (session_id) REFERENCES learning_sessions(session_id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+    INDEX idx_events_session_id (session_id),
+    INDEX idx_events_session_created (session_id, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 6b. learning_session_checkpoints
+CREATE TABLE learning_session_checkpoints (
+    checkpoint_id CHAR(36) NOT NULL,
+    session_id CHAR(36) NOT NULL,
+    phase_id CHAR(36) NOT NULL,
+    module_id CHAR(36) NOT NULL,
+    objective_id CHAR(36) NOT NULL,
+    elapsed_minutes INTEGER NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (checkpoint_id),
+    CONSTRAINT fk_checkpoints_session FOREIGN KEY (session_id) REFERENCES learning_sessions(session_id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+    CONSTRAINT fk_checkpoints_phase FOREIGN KEY (phase_id) REFERENCES learning_phases(phase_id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+    CONSTRAINT fk_checkpoints_module FOREIGN KEY (module_id) REFERENCES learning_modules(module_id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+    CONSTRAINT fk_checkpoints_objective FOREIGN KEY (objective_id) REFERENCES learning_objectives(objective_id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+    INDEX idx_checkpoints_session_id (session_id),
+    INDEX idx_checkpoints_objective_id (objective_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 7. evidence
