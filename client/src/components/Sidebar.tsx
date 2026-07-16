@@ -4,57 +4,64 @@ import { LayoutDashboard, Target, Route, BookOpen, CheckSquare, BrainCircuit, Se
 
 export const Sidebar: React.FC = () => {
   const navItems = [
-    { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard className="h-5 w-5" /> },
-    { name: 'Goal Setup', path: '/goals', icon: <Target className="h-5 w-5" /> },
-    { name: 'Journey', path: '/journey', icon: <Route className="h-5 w-5" /> },
-    { name: 'Learning Plan', path: '/plan', icon: <BookOpen className="h-5 w-5" /> },
-    { name: 'Tasks', path: '/tasks', icon: <CheckSquare className="h-5 w-5" /> },
-    { name: 'Reflection', path: '/reflection', icon: <BrainCircuit className="h-5 w-5" /> },
+    { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard className="h-4 w-4" /> },
+    { name: 'Goal Setup', path: '/goals', icon: <Target className="h-4 w-4" /> },
+    { name: 'Journey', path: '/journey', icon: <Route className="h-4 w-4" /> },
+    { name: 'Learning Plan', path: '/plan', icon: <BookOpen className="h-4 w-4" /> },
+    { name: 'Tasks', path: '/tasks', icon: <CheckSquare className="h-4 w-4" /> },
+    { name: 'Reflection', path: '/reflection', icon: <BrainCircuit className="h-4 w-4" /> },
   ];
 
   return (
-    <aside className="hidden h-screen w-64 flex-col border-r border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950 md:flex">
-      <div className="flex h-16 items-center border-b border-neutral-200 px-6 dark:border-neutral-800">
-        <h1 className="text-title text-primary-600 dark:text-primary-500">PLOS</h1>
+    <aside className="hidden h-screen w-60 flex-col bg-surface md:flex border-r border-border">
+      <div className="flex h-14 items-center px-5">
+        <h1 className="text-sm font-bold tracking-tight text-text-primary">PLOS</h1>
       </div>
       
-      <nav className="flex-1 space-y-1 overflow-y-auto p-4">
+      <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-2">
+        <div className="mb-4 px-2 text-xs font-semibold uppercase tracking-wider text-text-muted">Workspace</div>
         {navItems.map((item) => (
           <NavLink
             key={item.name}
             to={item.path}
             className={({ isActive }) =>
-              `flex items-center gap-3 rounded-md px-3 py-2 text-label transition-colors ${
+              `group flex items-center gap-3 rounded-md px-2 py-1.5 text-sm transition-colors ${
                 isActive
-                  ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400'
-                  : 'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-50'
+                  ? 'text-text-primary font-medium bg-surface-active'
+                  : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'
               }`
             }
           >
-            {item.icon}
-            {item.name}
+            {({ isActive }) => (
+              <>
+                <span className={`${isActive ? 'text-text-primary' : 'text-text-muted group-hover:text-text-primary'} transition-colors`}>
+                  {item.icon}
+                </span>
+                {item.name}
+              </>
+            )}
           </NavLink>
         ))}
       </nav>
 
-      <div className="border-t border-neutral-200 p-4 dark:border-neutral-800">
+      <div className="p-3">
         <NavLink
           to="/settings"
           className={({ isActive }) =>
-            `flex items-center gap-3 rounded-md px-3 py-2 text-label transition-colors mb-1 ${
+            `group flex items-center gap-3 rounded-md px-2 py-1.5 text-sm transition-colors mb-1 ${
               isActive
-                ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400'
-                : 'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-50'
+                ? 'text-text-primary font-medium bg-surface-active'
+                : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'
             }`
           }
         >
-          <Settings className="h-5 w-5" />
+          <Settings className="h-4 w-4 text-text-muted group-hover:text-text-primary transition-colors" />
           Settings
         </NavLink>
         <button
-          className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-label text-danger-600 hover:bg-danger-50 dark:text-danger-500 dark:hover:bg-danger-950/50"
+          className="group flex w-full items-center gap-3 rounded-md px-2 py-1.5 text-sm text-text-secondary hover:text-danger hover:bg-danger/10 transition-colors"
         >
-          <LogOut className="h-5 w-5" />
+          <LogOut className="h-4 w-4 text-text-muted group-hover:text-danger transition-colors" />
           Logout
         </button>
       </div>
