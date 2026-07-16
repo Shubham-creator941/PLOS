@@ -794,3 +794,71 @@ CREATE TABLE resource_tags (
   INDEX idx_resource_tags_name (tag_name),
   CONSTRAINT fk_resource_tags_resource FOREIGN KEY (resource_id) REFERENCES learning_resources(resource_id) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ====================================================
+-- SPRINT 14: PLATFORM ADMINISTRATION
+-- ====================================================
+
+CREATE TABLE platform_settings (
+  setting_id CHAR(36) PRIMARY KEY,
+  setting_key VARCHAR(100) NOT NULL UNIQUE,
+  setting_value TEXT NOT NULL,
+  description VARCHAR(255) NULL,
+  is_public BOOLEAN NOT NULL DEFAULT FALSE,
+  version INTEGER NOT NULL DEFAULT 1,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_platform_settings_key (setting_key),
+  INDEX idx_platform_settings_public (is_public)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE feature_flags (
+  feature_flag_id CHAR(36) PRIMARY KEY,
+  feature_name VARCHAR(100) NOT NULL UNIQUE,
+  enabled BOOLEAN NOT NULL DEFAULT TRUE,
+  description VARCHAR(255) NULL,
+  version INTEGER NOT NULL DEFAULT 1,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_feature_flags_name (feature_name),
+  INDEX idx_feature_flags_enabled (enabled)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE platform_announcements (
+  announcement_id CHAR(36) PRIMARY KEY,
+  title VARCHAR(150) NOT NULL,
+  message TEXT NOT NULL,
+  status ENUM(
+    'draft',
+    'published',
+    'archived'
+  ),
+  starts_at DATETIME NULL,
+  expires_at DATETIME NULL,
+  created_by CHAR(36) NOT NULL,
+  version INTEGER NOT NULL DEFAULT 1,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_platform_announcements_status (status),
+  INDEX idx_platform_announcements_starts (starts_at),
+  INDEX idx_platform_announcements_expires (expires_at),
+  CONSTRAINT fk_platform_announcements_creator FOREIGN KEY (created_by) REFERENCES learners(learner_id) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE system_health_snapshots (
+  snapshot_id CHAR(36) PRIMARY KEY,
+  active_sessions INTEGER NOT NULL,
+  active_learners INTEGER NOT NULL,
+  running_plans INTEGER NOT NULL,
+  pending_notifications INTEGER NOT NULL,
+  failed_logins INTEGER NOT NULL,
+  system_status ENUM(
+    'healthy',
+    'warning',
+    'critical'
+  ) NOT NULL,
+  recorded_at DATETIME NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_system_health_status (system_status),
+  INDEX idx_system_health_recorded (recorded_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
