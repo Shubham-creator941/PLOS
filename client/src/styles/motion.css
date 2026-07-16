@@ -1,0 +1,17 @@
+/* ==========================================================================
+   MOTION
+   Maps transition durations and easing curves.
+   ========================================================================== */
+
+:root {
+  /* Durations */
+  --motion-duration-fast: var(--primitive-duration-fast);
+  --motion-duration-normal: var(--primitive-duration-normal);
+  --motion-duration-slow: var(--primitive-duration-slow);
+
+  /* Easings */
+  --motion-ease-standard: var(--primitive-ease-standard);
+  --motion-ease-emphasized: var(--primitive-ease-emphasized);
+  --motion-ease-decelerate: var(--primitive-ease-decelerate);
+  --motion-ease-accelerate: var(--primitive-ease-accelerate);
+}

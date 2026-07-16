@@ -9,9 +9,9 @@ interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export const Avatar: React.FC<AvatarProps> = ({ className = '', src, alt, initials, size = 'md', ...props }) => {
   const sizeClasses = {
-    sm: 'h-8 w-8 text-xs',
-    md: 'h-10 w-10 text-sm',
-    lg: 'h-12 w-12 text-base',
+    sm: 'h-8 w-8 text-label',
+    md: 'h-10 w-10 text-caption',
+    lg: 'h-12 w-12 text-body',
   };
 
   return (
@@ -22,7 +22,7 @@ export const Avatar: React.FC<AvatarProps> = ({ className = '', src, alt, initia
       {src ? (
         <img className="aspect-square h-full w-full object-cover" src={src} alt={alt || 'Avatar'} />
       ) : (
-        <span className="flex h-full w-full items-center justify-center font-medium text-neutral-600 dark:text-neutral-300">
+        <span className="flex h-full w-full items-center justify-center text-neutral-600 dark:text-neutral-300">
           {initials}
         </span>
       )}

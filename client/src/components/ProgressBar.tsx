@@ -12,7 +12,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({ className = '', value,
   return (
     <div className={`w-full ${className}`} {...props}>
       {showLabel && (
-        <div className="mb-1.5 flex justify-between text-sm font-medium text-neutral-700 dark:text-neutral-300">
+        <div className="mb-1.5 flex justify-between text-label text-neutral-700 dark:text-neutral-300">
           <span>Progress</span>
           <span>{Math.round(percentage)}%</span>
         </div>

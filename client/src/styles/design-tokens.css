@@ -1,0 +1,163 @@
+/* ==========================================================================
+   PLOS DESIGN TOKENS
+   Contains ONLY raw primitive values. No semantic meaning.
+   ========================================================================== */
+
+:root {
+  /* Raw Color Primitives - Slate/Neutral */
+  --primitive-slate-50: #fafafa;
+  --primitive-slate-100: #f4f4f5;
+  --primitive-slate-200: #e4e4e7;
+  --primitive-slate-300: #d4d4d8;
+  --primitive-slate-400: #a1a1aa;
+  --primitive-slate-500: #71717a;
+  --primitive-slate-600: #52525b;
+  --primitive-slate-700: #3f3f46;
+  --primitive-slate-800: #27272a;
+  --primitive-slate-900: #18181b;
+  --primitive-slate-950: #121212; /* Softer premium dark */
+
+  /* Raw Color Primitives - Blue (Primary) */
+  --primitive-blue-50: #eff6ff;
+  --primitive-blue-100: #dbeafe;
+  --primitive-blue-200: #bfdbfe;
+  --primitive-blue-300: #93c5fd;
+  --primitive-blue-400: #60a5fa;
+  --primitive-blue-500: #3b82f6;
+  --primitive-blue-600: #2563eb;
+  --primitive-blue-700: #1d4ed8;
+  --primitive-blue-800: #1e40af;
+  --primitive-blue-900: #1e3a8a;
+  --primitive-blue-950: #172554;
+
+  /* Raw Color Primitives - Green (Accent/Success) */
+  --primitive-green-50: #f0fdf4;
+  --primitive-green-100: #dcfce7;
+  --primitive-green-200: #bbf7d0;
+  --primitive-green-300: #86efac;
+  --primitive-green-400: #4ade80;
+  --primitive-green-500: #22c55e;
+  --primitive-green-600: #16a34a;
+  --primitive-green-700: #15803d;
+  --primitive-green-800: #166534;
+  --primitive-green-900: #14532d;
+  --primitive-green-950: #052e16;
+
+  /* Raw Color Primitives - Orange (Warning) */
+  --primitive-orange-50: #fff7ed;
+  --primitive-orange-100: #ffedd5;
+  --primitive-orange-200: #fed7aa;
+  --primitive-orange-300: #fdba74;
+  --primitive-orange-400: #fb923c;
+  --primitive-orange-500: #f97316;
+  --primitive-orange-600: #ea580c;
+  --primitive-orange-700: #c2410c;
+  --primitive-orange-800: #9a3412;
+  --primitive-orange-900: #7c2d12;
+  --primitive-orange-950: #431407;
+
+  /* Raw Color Primitives - Red (Danger) */
+  --primitive-red-50: #fef2f2;
+  --primitive-red-100: #fee2e2;
+  --primitive-red-200: #fecaca;
+  --primitive-red-300: #fca5a5;
+  --primitive-red-400: #f87171;
+  --primitive-red-500: #ef4444;
+  --primitive-red-600: #dc2626;
+  --primitive-red-700: #b91c1c;
+  --primitive-red-800: #991b1b;
+  --primitive-red-900: #7f1d1d;
+  --primitive-red-950: #450a0a;
+
+  /* Spacing Primitives (px to rem) */
+  --primitive-space-4: 0.25rem;
+  --primitive-space-8: 0.5rem;
+  --primitive-space-12: 0.75rem;
+  --primitive-space-16: 1rem;
+  --primitive-space-20: 1.25rem;
+  --primitive-space-24: 1.5rem;
+  --primitive-space-32: 2rem;
+  --primitive-space-40: 2.5rem;
+  --primitive-space-48: 3rem;
+  --primitive-space-64: 4rem;
+
+  /* Font Families */
+  --primitive-font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --primitive-font-display: "Outfit", "Inter", system-ui, sans-serif;
+  --primitive-font-mono: "JetBrains Mono", "Fira Code", monospace;
+
+  /* Font Weights */
+  --primitive-weight-normal: 400;
+  --primitive-weight-medium: 500;
+  --primitive-weight-semibold: 600;
+  --primitive-weight-bold: 700;
+
+  /* Font Sizes */
+  --primitive-text-xs: 0.75rem;
+  --primitive-text-sm: 0.875rem;
+  --primitive-text-base: 1rem;
+  --primitive-text-lg: 1.125rem;
+  --primitive-text-xl: 1.25rem;
+  --primitive-text-2xl: 1.5rem;
+  --primitive-text-3xl: 1.875rem;
+  --primitive-text-4xl: 2.25rem;
+  --primitive-text-5xl: 3rem;
+
+  /* Line Heights */
+  --primitive-leading-none: 1;
+  --primitive-leading-tight: 1.25;
+  --primitive-leading-snug: 1.375;
+  --primitive-leading-normal: 1.5;
+  --primitive-leading-relaxed: 1.625;
+  --primitive-leading-loose: 2;
+
+  /* Letter Spacing */
+  --primitive-tracking-tighter: -0.05em;
+  --primitive-tracking-tight: -0.025em;
+  --primitive-tracking-normal: 0em;
+  --primitive-tracking-wide: 0.025em;
+  --primitive-tracking-wider: 0.05em;
+  --primitive-tracking-widest: 0.1em;
+
+  /* Motion Primitives */
+  --primitive-duration-fast: 150ms;
+  --primitive-duration-normal: 300ms;
+  --primitive-duration-slow: 500ms;
+  
+  --primitive-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --primitive-ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --primitive-ease-decelerate: cubic-bezier(0, 0, 0, 1);
+  --primitive-ease-accelerate: cubic-bezier(0.3, 0, 1, 1);
+
+  /* Radius Primitives */
+  --primitive-radius-xs: 0.125rem;
+  --primitive-radius-sm: 0.25rem;
+  --primitive-radius-md: 0.375rem;
+  --primitive-radius-lg: 0.5rem;
+  --primitive-radius-xl: 0.75rem;
+  --primitive-radius-2xl: 1rem;
+  --primitive-radius-full: 9999px;
+
+  /* Z-Index Primitives */
+  --primitive-z-base: 0;
+  --primitive-z-dropdown: 40;
+  --primitive-z-sticky: 50;
+  --primitive-z-overlay: 100;
+  --primitive-z-modal: 200;
+  --primitive-z-toast: 300;
+  --primitive-z-tooltip: 400;
+
+  /* Layout Widths */
+  --primitive-width-reading: 65ch;
+  --primitive-width-content: 800px;
+  --primitive-width-dashboard: 1200px;
+  --primitive-width-wide: 1440px;
+  --primitive-width-full: 100%;
+
+  /* Breakpoints */
+  --primitive-bp-sm: 640px;
+  --primitive-bp-md: 768px;
+  --primitive-bp-lg: 1024px;
+  --primitive-bp-xl: 1280px;
+  --primitive-bp-2xl: 1536px;
+}

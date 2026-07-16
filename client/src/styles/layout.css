@@ -1,0 +1,29 @@
+/* ==========================================================================
+   LAYOUT
+   Maps z-indices, container widths, and breakpoints.
+   ========================================================================== */
+
+:root {
+  /* Z-Index Scale */
+  --z-index-base: var(--primitive-z-base);
+  --z-index-sticky: var(--primitive-z-sticky);
+  --z-index-dropdown: var(--primitive-z-dropdown);
+  --z-index-overlay: var(--primitive-z-overlay);
+  --z-index-modal: var(--primitive-z-modal);
+  --z-index-toast: var(--primitive-z-toast);
+  --z-index-tooltip: var(--primitive-z-tooltip);
+
+  /* Container Widths */
+  --container-width-reading: var(--primitive-width-reading);
+  --container-width-content: var(--primitive-width-content);
+  --container-width-dashboard: var(--primitive-width-dashboard);
+  --container-width-wide: var(--primitive-width-wide);
+  --container-width-full: var(--primitive-width-full);
+
+  /* Breakpoints */
+  --breakpoint-sm: var(--primitive-bp-sm);
+  --breakpoint-md: var(--primitive-bp-md);
+  --breakpoint-lg: var(--primitive-bp-lg);
+  --breakpoint-xl: var(--primitive-bp-xl);
+  --breakpoint-2xl: var(--primitive-bp-2xl);
+}

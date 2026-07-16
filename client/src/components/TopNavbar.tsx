@@ -16,7 +16,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({ onMenuClick }) => {
         >
           <Menu className="h-5 w-5" />
         </button>
-        <h2 className="text-lg font-semibold text-neutral-900 md:hidden dark:text-neutral-50">PLOS</h2>
+        <h2 className="text-title text-neutral-900 md:hidden dark:text-neutral-50">PLOS</h2>
       </div>
 
       <div className="flex items-center gap-4">

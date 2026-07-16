@@ -1,0 +1,123 @@
+/* ==========================================================================
+   THEME SEMANTICS & COLORS
+   Maps primitives to semantic variables and establishes theme selectors.
+   ========================================================================== */
+
+/* Base & Light Theme */
+:root, [data-theme="light"] {
+  /* Semantic Colors - Backgrounds & Surfaces */
+  --color-bg-primary: var(--primitive-slate-50);
+  --color-surface: #ffffff;
+  --color-surface-elevated: #ffffff;
+  --color-surface-hover: var(--primitive-slate-100);
+  
+  /* Semantic Colors - Borders */
+  --color-border: var(--primitive-slate-200);
+  --color-border-hover: var(--primitive-slate-300);
+
+  /* Semantic Colors - Text */
+  --color-text-primary: var(--primitive-slate-900);
+  --color-text-secondary: var(--primitive-slate-600);
+  --color-text-muted: var(--primitive-slate-400);
+  --color-text-inverse: #ffffff;
+
+  /* Semantic Colors - Action (Brand) */
+  --color-primary: var(--primitive-blue-600);
+  --color-primary-hover: var(--primitive-blue-700);
+  --color-primary-active: var(--primitive-blue-800);
+
+  /* Semantic Colors - Feedback */
+  --color-success: var(--primitive-green-500);
+  --color-warning: var(--primitive-orange-500);
+  --color-danger: var(--primitive-red-500);
+  --color-info: var(--primitive-blue-500);
+
+  /* Shadow Variables */
+  --shadow-color: rgba(0, 0, 0, 0.08);
+  --shadow-color-strong: rgba(0, 0, 0, 0.12);
+
+  /* LEGACY TAILWIND COLOR MAPPING (To ensure existing UI doesn't break) */
+  --color-neutral-50: var(--primitive-slate-50);
+  --color-neutral-100: var(--primitive-slate-100);
+  --color-neutral-200: var(--primitive-slate-200);
+  --color-neutral-300: var(--primitive-slate-300);
+  --color-neutral-400: var(--primitive-slate-400);
+  --color-neutral-500: var(--primitive-slate-500);
+  --color-neutral-600: var(--primitive-slate-600);
+  --color-neutral-700: var(--primitive-slate-700);
+  --color-neutral-800: var(--primitive-slate-800);
+  --color-neutral-900: var(--primitive-slate-900);
+  --color-neutral-950: var(--primitive-slate-950);
+
+  --color-primary-50: var(--primitive-blue-50);
+  --color-primary-100: var(--primitive-blue-100);
+  --color-primary-200: var(--primitive-blue-200);
+  --color-primary-300: var(--primitive-blue-300);
+  --color-primary-400: var(--primitive-blue-400);
+  --color-primary-500: var(--primitive-blue-500);
+  --color-primary-600: var(--primitive-blue-600);
+  --color-primary-700: var(--primitive-blue-700);
+  --color-primary-800: var(--primitive-blue-800);
+  --color-primary-900: var(--primitive-blue-900);
+
+  --color-accent-50: var(--primitive-green-50);
+  --color-accent-100: var(--primitive-green-100);
+  --color-accent-200: var(--primitive-green-200);
+  --color-accent-300: var(--primitive-green-300);
+  --color-accent-400: var(--primitive-green-400);
+  --color-accent-500: var(--primitive-green-500);
+  --color-accent-600: var(--primitive-green-600);
+  --color-accent-700: var(--primitive-green-700);
+  --color-accent-800: var(--primitive-green-800);
+  --color-accent-900: var(--primitive-green-900);
+
+  --color-warning-50: var(--primitive-orange-50);
+  --color-warning-100: var(--primitive-orange-100);
+  --color-warning-200: var(--primitive-orange-200);
+  --color-warning-300: var(--primitive-orange-300);
+  --color-warning-400: var(--primitive-orange-400);
+  --color-warning-500: var(--primitive-orange-500);
+  --color-warning-600: var(--primitive-orange-600);
+  --color-warning-700: var(--primitive-orange-700);
+  --color-warning-800: var(--primitive-orange-800);
+  --color-warning-900: var(--primitive-orange-900);
+
+  --color-danger-50: var(--primitive-red-50);
+  --color-danger-100: var(--primitive-red-100);
+  --color-danger-200: var(--primitive-red-200);
+  --color-danger-300: var(--primitive-red-300);
+  --color-danger-400: var(--primitive-red-400);
+  --color-danger-500: var(--primitive-red-500);
+  --color-danger-600: var(--primitive-red-600);
+  --color-danger-700: var(--primitive-red-700);
+  --color-danger-800: var(--primitive-red-800);
+  --color-danger-900: var(--primitive-red-900);
+}
+
+/* Dark Theme */
+[data-theme="dark"] {
+  /* Semantic Colors - Backgrounds & Surfaces */
+  --color-bg-primary: var(--primitive-slate-950);
+  --color-surface: var(--primitive-slate-900);
+  --color-surface-elevated: var(--primitive-slate-800);
+  --color-surface-hover: var(--primitive-slate-800);
+  
+  /* Semantic Colors - Borders */
+  --color-border: var(--primitive-slate-800);
+  --color-border-hover: var(--primitive-slate-700);
+
+  /* Semantic Colors - Text */
+  --color-text-primary: var(--primitive-slate-50);
+  --color-text-secondary: var(--primitive-slate-300);
+  --color-text-muted: var(--primitive-slate-500);
+  --color-text-inverse: var(--primitive-slate-950);
+
+  /* Semantic Colors - Action (Brand) */
+  --color-primary: var(--primitive-blue-500);
+  --color-primary-hover: var(--primitive-blue-400);
+  --color-primary-active: var(--primitive-blue-300);
+
+  /* Shadow Variables - Stronger for dark mode */
+  --shadow-color: rgba(0, 0, 0, 0.5);
+  --shadow-color-strong: rgba(0, 0, 0, 0.7);
+}

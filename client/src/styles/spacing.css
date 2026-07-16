@@ -1,0 +1,29 @@
+/* ==========================================================================
+   SPACING
+   Maps spacing primitives to layout/component semantics.
+   ========================================================================== */
+
+:root {
+  /* Generic spacing scale */
+  --spacing-4: var(--primitive-space-4);
+  --spacing-8: var(--primitive-space-8);
+  --spacing-12: var(--primitive-space-12);
+  --spacing-16: var(--primitive-space-16);
+  --spacing-20: var(--primitive-space-20);
+  --spacing-24: var(--primitive-space-24);
+  --spacing-32: var(--primitive-space-32);
+  --spacing-40: var(--primitive-space-40);
+  --spacing-48: var(--primitive-space-48);
+  --spacing-64: var(--primitive-space-64);
+
+  /* Semantic spacing (Optional architecture for future use) */
+  --spacing-component-padding-sm: var(--spacing-8);
+  --spacing-component-padding-md: var(--spacing-16);
+  --spacing-component-padding-lg: var(--spacing-24);
+  
+  --spacing-gap-sm: var(--spacing-8);
+  --spacing-gap-md: var(--spacing-16);
+  --spacing-gap-lg: var(--spacing-24);
+  
+  --spacing-section-y: var(--spacing-48);
+}
