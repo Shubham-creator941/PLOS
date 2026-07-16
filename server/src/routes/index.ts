@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { authRoutes } from '../modules/auth/routes';
-// import { learnerRoutes } from '../learner';
+import { learnerRoutes } from '../modules/learner/routes';
 // import { journeyRoutes } from '../journey';
 // import { planningRoutes } from '../planning';
 // import { dashboardRoutes } from '../dashboard';
@@ -8,7 +8,7 @@ import { authRoutes } from '../modules/auth/routes';
 export const router = Router();
 
 router.use('/auth', authRoutes);
-// router.use('/learners', learnerRoutes);
+router.use('/learner', learnerRoutes);
 // router.use('/journeys', journeyRoutes);
 // router.use('/planning', planningRoutes);
 // router.use('/dashboard', dashboardRoutes);
