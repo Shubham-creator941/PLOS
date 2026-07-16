@@ -6,27 +6,27 @@
 /* Base & Light Theme */
 :root, [data-theme="light"] {
   /* Semantic Colors - Backgrounds & Surfaces */
-  --color-bg-primary: var(--primitive-slate-50);
-  --color-surface: #ffffff;
-  --color-surface-secondary: var(--primitive-slate-50);
-  --color-surface-elevated: #ffffff;
-  --color-surface-hover: var(--primitive-slate-100);
-  --color-surface-active: var(--primitive-slate-200);
+  --color-bg-primary: #FFFFFF;
+  --color-surface: #FFFFFF;
+  --color-surface-secondary: #F9FAFB;
+  --color-surface-elevated: #FFFFFF;
+  --color-surface-hover: #F3F4F6;
+  --color-surface-active: #E5E7EB;
   
   /* Semantic Colors - Borders */
-  --color-border: var(--primitive-slate-200);
-  --color-border-hover: var(--primitive-slate-300);
+  --color-border: #E5E7EB;
+  --color-border-hover: #D1D5DB;
 
   /* Semantic Colors - Text */
-  --color-text-primary: var(--primitive-slate-900);
-  --color-text-secondary: var(--primitive-slate-600);
-  --color-text-muted: var(--primitive-slate-400);
-  --color-text-inverse: #ffffff;
+  --color-text-primary: #111827;
+  --color-text-secondary: #4B5563;
+  --color-text-muted: #9CA3AF;
+  --color-text-inverse: #FFFFFF;
 
   /* Semantic Colors - Action (Brand) */
-  --color-primary: var(--primitive-blue-600);
-  --color-primary-hover: var(--primitive-blue-700);
-  --color-primary-active: var(--primitive-blue-800);
+  --color-primary: #4F46E5;
+  --color-primary-hover: #4338CA;
+  --color-primary-active: #3730A3;
 
   /* Semantic Colors - Feedback */
   --color-success: var(--primitive-green-500);
