@@ -10,6 +10,7 @@ import { intelligenceRoutes } from '../modules/intelligence/routes';
 import { dashboardRoutes } from '../modules/dashboard/routes';
 import { notificationRoutes } from '../modules/notification/routes';
 import { auditRoutes } from '../modules/audit/routes';
+import { resourceRoutes } from '../modules/resource/routes';
 
 export const router = Router();
 
@@ -24,5 +25,6 @@ router.use('/intelligence', intelligenceRoutes);
 router.use('/dashboard', dashboardRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/audit', auditRoutes);
+router.use('/resources', resourceRoutes);
 
 export default router;

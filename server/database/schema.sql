@@ -711,3 +711,86 @@ CREATE TABLE system_activity (
   INDEX idx_system_activity_severity (severity),
   INDEX idx_system_activity_created (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ====================================================
+-- SPRINT 13: LEARNING RESOURCES
+-- ====================================================
+
+CREATE TABLE learning_resources (
+  resource_id CHAR(36) PRIMARY KEY,
+  module_id CHAR(36) NOT NULL,
+  title VARCHAR(150) NOT NULL,
+  description TEXT NULL,
+  resource_type ENUM(
+    'video',
+    'pdf',
+    'article',
+    'link',
+    'image',
+    'code',
+    'attachment'
+  ) NOT NULL,
+  storage_type ENUM(
+    'local',
+    'external'
+  ) NOT NULL,
+  resource_url VARCHAR(500) NOT NULL,
+  estimated_minutes INTEGER NOT NULL DEFAULT 0,
+  visibility ENUM(
+    'draft',
+    'published',
+    'archived'
+  ) NOT NULL DEFAULT 'draft',
+  version INTEGER NOT NULL DEFAULT 1,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_learning_resources_module (module_id),
+  INDEX idx_learning_resources_type (resource_type),
+  INDEX idx_learning_resources_visibility (visibility),
+  CONSTRAINT fk_learning_resources_module FOREIGN KEY (module_id) REFERENCES learning_modules(module_id) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE resource_versions (
+  resource_version_id CHAR(36) PRIMARY KEY,
+  resource_id CHAR(36) NOT NULL,
+  version_no INTEGER NOT NULL,
+  resource_url VARCHAR(500) NOT NULL,
+  change_summary VARCHAR(255) NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_resource_versions_resource (resource_id),
+  INDEX idx_resource_versions_no (version_no),
+  CONSTRAINT fk_resource_versions_resource FOREIGN KEY (resource_id) REFERENCES learning_resources(resource_id) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE learner_resource_progress (
+  progress_id CHAR(36) PRIMARY KEY,
+  learner_id CHAR(36) NOT NULL,
+  resource_id CHAR(36) NOT NULL,
+  status ENUM(
+    'not_started',
+    'in_progress',
+    'completed'
+  ),
+  progress_percentage DECIMAL(5,2) NOT NULL DEFAULT 0,
+  last_accessed_at DATETIME NULL,
+  completed_at DATETIME NULL,
+  version INTEGER NOT NULL DEFAULT 1,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_learner_resource_progress_learner (learner_id),
+  INDEX idx_learner_resource_progress_resource (resource_id),
+  INDEX idx_learner_resource_progress_status (status),
+  UNIQUE INDEX uq_learner_resource_progress (learner_id, resource_id),
+  CONSTRAINT fk_learner_resource_progress_learner FOREIGN KEY (learner_id) REFERENCES learners(learner_id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT fk_learner_resource_progress_resource FOREIGN KEY (resource_id) REFERENCES learning_resources(resource_id) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE resource_tags (
+  tag_id CHAR(36) PRIMARY KEY,
+  resource_id CHAR(36) NOT NULL,
+  tag_name VARCHAR(100) NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_resource_tags_resource (resource_id),
+  INDEX idx_resource_tags_name (tag_name),
+  CONSTRAINT fk_resource_tags_resource FOREIGN KEY (resource_id) REFERENCES learning_resources(resource_id) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
