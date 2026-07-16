@@ -512,3 +512,103 @@ CREATE TABLE dashboard_exports (
   INDEX (export_type),
   CONSTRAINT fk_dashboard_export_learner FOREIGN KEY (learner_id) REFERENCES learners(learner_id) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ====================================================
+-- SPRINT 11: NOTIFICATION ENGINE
+-- ====================================================
+
+CREATE TABLE notification_events (
+  event_id CHAR(36) PRIMARY KEY,
+  learner_id CHAR(36) NOT NULL,
+  event_type ENUM(
+    'plan_created',
+    'plan_completed',
+    'phase_completed',
+    'module_completed',
+    'objective_completed',
+    'session_started',
+    'session_paused',
+    'session_completed',
+    'assessment_completed',
+    'recommendation_generated',
+    'dashboard_export_completed'
+  ) NOT NULL,
+  source_module ENUM(
+    'planning',
+    'session',
+    'adaptive',
+    'assessment',
+    'intelligence',
+    'dashboard'
+  ) NOT NULL,
+  reference_id CHAR(36) NOT NULL,
+  payload JSON NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_notification_events_learner (learner_id),
+  INDEX idx_notification_events_type (event_type),
+  INDEX idx_notification_events_source (source_module),
+  INDEX idx_notification_events_created (created_at),
+  CONSTRAINT fk_notification_events_learner FOREIGN KEY (learner_id) REFERENCES learners(learner_id) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE notifications (
+  notification_id CHAR(36) PRIMARY KEY,
+  learner_id CHAR(36) NOT NULL,
+  event_id CHAR(36) NOT NULL,
+  title VARCHAR(150) NOT NULL,
+  message TEXT NOT NULL,
+  notification_type ENUM(
+    'info',
+    'success',
+    'warning',
+    'error'
+  ) NOT NULL,
+  status ENUM(
+    'unread',
+    'read',
+    'archived'
+  ) NOT NULL DEFAULT 'unread',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  read_at DATETIME NULL,
+  INDEX idx_notifications_learner (learner_id),
+  INDEX idx_notifications_status (status),
+  INDEX idx_notifications_type (notification_type),
+  CONSTRAINT fk_notifications_learner FOREIGN KEY (learner_id) REFERENCES learners(learner_id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT fk_notifications_event FOREIGN KEY (event_id) REFERENCES notification_events(event_id) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE notification_preferences (
+  preference_id CHAR(36) PRIMARY KEY,
+  learner_id CHAR(36) NOT NULL,
+  in_app_enabled BOOLEAN NOT NULL DEFAULT TRUE,
+  email_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+  push_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+  quiet_hours_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+  version INTEGER NOT NULL DEFAULT 1,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE INDEX idx_notification_preferences_learner (learner_id),
+  CONSTRAINT fk_notification_preferences_learner FOREIGN KEY (learner_id) REFERENCES learners(learner_id) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE notification_delivery_log (
+  delivery_id CHAR(36) PRIMARY KEY,
+  notification_id CHAR(36) NOT NULL,
+  channel ENUM(
+    'in_app',
+    'email',
+    'push'
+  ) NOT NULL,
+  status ENUM(
+    'pending',
+    'sent',
+    'failed'
+  ) NOT NULL,
+  attempts INTEGER NOT NULL DEFAULT 0,
+  sent_at DATETIME NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_delivery_log_notification (notification_id),
+  INDEX idx_delivery_log_status (status),
+  INDEX idx_delivery_log_channel (channel),
+  CONSTRAINT fk_delivery_log_notification FOREIGN KEY (notification_id) REFERENCES notifications(notification_id) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

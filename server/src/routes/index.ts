@@ -8,6 +8,7 @@ import { adaptiveRoutes } from '../modules/adaptive/routes';
 import { assessmentRoutes } from '../modules/assessment/routes';
 import { intelligenceRoutes } from '../modules/intelligence/routes';
 import { dashboardRoutes } from '../modules/dashboard/routes';
+import { notificationRoutes } from '../modules/notification/routes';
 
 export const router = Router();
 
@@ -20,5 +21,6 @@ router.use('/adaptive', adaptiveRoutes);
 router.use('/assessment', assessmentRoutes);
 router.use('/intelligence', intelligenceRoutes);
 router.use('/dashboard', dashboardRoutes);
+router.use('/notifications', notificationRoutes);
 
 export default router;
