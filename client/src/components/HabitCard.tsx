@@ -11,11 +11,11 @@ interface HabitCardProps {
 
 export const HabitCard: React.FC<HabitCardProps> = ({ title, streak, isCompletedToday, onToggle }) => {
   return (
-    <Card className="transition-all hover:border-primary-500/50">
-      <CardContent className="flex items-center justify-between p-4">
+    <Card className="hover:-translate-y-[2px] transition-all duration-normal ease-standard hover:shadow-md hover:border-border-hover cursor-pointer bg-surface hover:bg-surface-hover">
+      <CardContent className="flex items-center justify-between p-6">
         <div>
-          <h4 className="font-medium text-neutral-900 dark:text-neutral-50">{title}</h4>
-          <p className="text-sm text-neutral-500 dark:text-neutral-400">🔥 {streak} day streak</p>
+          <h4 className="text-title">{title}</h4>
+          <p className="text-body text-neutral-500 mt-1">🔥 {streak} day streak</p>
         </div>
         <button
           onClick={onToggle}

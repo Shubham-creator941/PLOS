@@ -8,8 +8,10 @@
   /* Semantic Colors - Backgrounds & Surfaces */
   --color-bg-primary: var(--primitive-slate-50);
   --color-surface: #ffffff;
+  --color-surface-secondary: var(--primitive-slate-50);
   --color-surface-elevated: #ffffff;
   --color-surface-hover: var(--primitive-slate-100);
+  --color-surface-active: var(--primitive-slate-200);
   
   /* Semantic Colors - Borders */
   --color-border: var(--primitive-slate-200);
@@ -99,8 +101,10 @@
   /* Semantic Colors - Backgrounds & Surfaces */
   --color-bg-primary: var(--primitive-slate-950);
   --color-surface: var(--primitive-slate-900);
+  --color-surface-secondary: var(--primitive-slate-950);
   --color-surface-elevated: var(--primitive-slate-800);
   --color-surface-hover: var(--primitive-slate-800);
+  --color-surface-active: var(--primitive-slate-700);
   
   /* Semantic Colors - Borders */
   --color-border: var(--primitive-slate-800);

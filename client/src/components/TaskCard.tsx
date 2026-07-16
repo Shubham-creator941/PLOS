@@ -17,14 +17,14 @@ export const TaskCard: React.FC<TaskCardProps> = ({ title, description, status, 
   };
 
   return (
-    <Card className="hover:border-primary-500/50 hover:shadow-md transition-all cursor-pointer">
-      <CardContent className="p-5">
+    <Card className="hover:-translate-y-[2px] transition-all duration-normal ease-standard hover:shadow-md hover:border-border-hover cursor-pointer bg-surface hover:bg-surface-hover">
+      <CardContent className="p-6">
         <div className="flex justify-between items-start mb-2">
-          <h4 className="font-semibold text-neutral-900 dark:text-neutral-50">{title}</h4>
+          <h4 className="text-title">{title}</h4>
           <Badge variant={statusConfig[status].variant}>{statusConfig[status].label}</Badge>
         </div>
         {description && (
-          <p className="text-sm text-neutral-500 dark:text-neutral-400 line-clamp-2 mb-4">
+          <p className="text-body text-neutral-500 line-clamp-2 mb-4">
             {description}
           </p>
         )}

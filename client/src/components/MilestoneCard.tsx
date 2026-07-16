@@ -10,10 +10,10 @@ interface MilestoneCardProps {
 
 export const MilestoneCard: React.FC<MilestoneCardProps> = ({ title, targetDate, progress }) => {
   return (
-    <Card>
-      <CardContent className="p-5">
-        <h4 className="font-semibold text-neutral-900 dark:text-neutral-50 mb-1">{title}</h4>
-        <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-4">Target: {targetDate}</p>
+    <Card className="hover:-translate-y-[2px] transition-all duration-normal ease-standard hover:shadow-md hover:border-border-hover bg-surface hover:bg-surface-hover">
+      <CardContent className="p-6">
+        <h4 className="text-title mb-1">{title}</h4>
+        <p className="text-caption text-neutral-500 mb-4">Target: {targetDate}</p>
         <ProgressBar value={progress} showLabel />
       </CardContent>
     </Card>

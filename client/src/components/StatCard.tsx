@@ -13,12 +13,12 @@ interface StatCardProps {
 
 export const StatCard: React.FC<StatCardProps> = ({ title, value, icon, trend }) => {
   return (
-    <Card>
+    <Card className="hover:-translate-y-[2px] transition-all duration-normal ease-standard hover:shadow-md hover:border-border-hover bg-surface hover:bg-surface-hover">
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">{title}</p>
-            <p className="mt-2 text-3xl font-bold text-neutral-900 dark:text-neutral-50">{value}</p>
+            <p className="text-label text-neutral-500">{title}</p>
+            <p className="mt-2 text-h2">{value}</p>
           </div>
           {icon && (
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary-100 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400">

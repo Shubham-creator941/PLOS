@@ -28,8 +28,10 @@
   /* Semantic Colors */
   --color-background: var(--color-bg-primary);
   --color-surface: var(--color-surface);
+  --color-surface-secondary: var(--color-surface-secondary);
   --color-surface-elevated: var(--color-surface-elevated);
   --color-surface-hover: var(--color-surface-hover);
+  --color-surface-active: var(--color-surface-active);
   
   --color-border: var(--color-border);
   --color-border-hover: var(--color-border-hover);
