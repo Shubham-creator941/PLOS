@@ -1,7 +1,13 @@
+/**
+ * src/database/query.ts
+ * Parameterised query helper.
+ * Errors logged via structured logger; params redacted in production.
+ */
+
 import { pool } from './mysql';
-import { RowDataPacket, ResultSetHeader } from 'mysql2';
-// We don't import ExecuteValues if it causes an error, let's see. Wait, I'll import it.
-import { ExecuteValues } from 'mysql2';
+import { RowDataPacket, ResultSetHeader, ExecuteValues } from 'mysql2';
+import { logger } from '../utils/logger';
+import { env } from '../config/env';
 
 export const query = async <T extends RowDataPacket[] | ResultSetHeader>(
   sql: string,
@@ -11,11 +17,12 @@ export const query = async <T extends RowDataPacket[] | ResultSetHeader>(
     const [rows] = await pool.execute<T>(sql, params);
     return rows;
   } catch (error) {
-    if (error instanceof Error) {
-      console.error('SQL Execution Error:', { message: error.message, sql, params });
-    } else {
-      console.error('Unexpected SQL Error:', error);
-    }
+    logger.exception('SQL execution error', {
+      message: error instanceof Error ? error.message : String(error),
+      sql,
+      // Redact bound values in production — schema structure (sql) is safe to log
+      params: env.NODE_ENV === 'production' ? '[REDACTED]' : params
+    });
     throw error;
   }
 };

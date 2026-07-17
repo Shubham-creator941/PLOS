@@ -1,0 +1,230 @@
+# =============================================================================
+# PLOS Backend — GitHub Actions CI/CD Pipeline
+# =============================================================================
+#
+# Jobs (all run in parallel after setup):
+#   typecheck   — tsc --noEmit
+#   lint        — ESLint (zero warnings policy)
+#   test:unit   — Jest unit tests (services, utils, validators)
+#   test:int    — Supertest integration tests (spun up with a real MySQL DB)
+#   build       — tsc production build + Docker image build
+#
+# Secrets expected in the repository (Settings → Secrets → Actions):
+#   DOCKERHUB_USERNAME   – Docker Hub login
+#   DOCKERHUB_TOKEN      – Docker Hub access token
+# =============================================================================
+
+name: Backend CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'server/**'
+      - '.github/workflows/backend.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'server/**'
+      - '.github/workflows/backend.yml'
+
+defaults:
+  run:
+    working-directory: server
+
+env:
+  NODE_VERSION: '20'
+  IMAGE_NAME: plos-api
+
+# ── Jobs ──────────────────────────────────────────────────────────────────────
+
+jobs:
+
+  # ── 1. Type Check ────────────────────────────────────────────────────────────
+  typecheck:
+    name: TypeScript — typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tsc --noEmit
+        run: npm run typecheck
+
+  # ── 2. Lint ──────────────────────────────────────────────────────────────────
+  lint:
+    name: ESLint — lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint (zero warnings)
+        run: npm run lint
+
+  # ── 3. Unit Tests ─────────────────────────────────────────────────────────────
+  test-unit:
+    name: Jest — unit tests
+    runs-on: ubuntu-latest
+    env:
+      NODE_ENV: test
+      JWT_SECRET: ci-test-secret-minimum-32-chars-long
+      LOG_LEVEL: silent
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests with coverage
+        run: npm run test:unit -- --coverage --coverageReporters=text-summary
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: unit-coverage
+          path: server/coverage/
+          retention-days: 7
+
+  # ── 4. Integration Tests ──────────────────────────────────────────────────────
+  test-integration:
+    name: Supertest — integration tests
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: plos_test
+          MYSQL_USER: plos_ci
+          MYSQL_PASSWORD: plos_ci_pass
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -u root -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+          --health-start-period=30s
+
+    env:
+      NODE_ENV: test
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_USER: plos_ci
+      DB_PASSWORD: plos_ci_pass
+      DB_NAME: plos_test
+      JWT_SECRET: ci-test-secret-minimum-32-chars-long
+      LOG_LEVEL: silent
+      PORT: 3001
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Wait for MySQL to be ready
+        run: |
+          until mysqladmin ping -h 127.0.0.1 -u plos_ci -pplos_ci_pass --silent; do
+            echo "Waiting for MySQL..."
+            sleep 2
+          done
+
+      - name: Run integration tests
+        run: npm run test:integration -- --forceExit
+
+  # ── 5. Build ──────────────────────────────────────────────────────────────────
+  build:
+    name: TypeScript build + Docker image
+    runs-on: ubuntu-latest
+    needs: [typecheck, lint, test-unit]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build TypeScript
+        run: npm run build
+
+      - name: Verify dist/ exists and contains server.js
+        run: test -f dist/server.js && echo "✅ Build artefact verified"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image (no push on PR)
+        uses: docker/build-push-action@v5
+        with:
+          context: ./server
+          file: ./server/Dockerfile
+          target: production
+          push: false
+          tags: ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # ── Push only on main branch merge ──────────────────────────────────────
+      - name: Login to Docker Hub
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Push Docker image to Docker Hub
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: docker/build-push-action@v5
+        with:
+          context: ./server
+          file: ./server/Dockerfile
+          target: production
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

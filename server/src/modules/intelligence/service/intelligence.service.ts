@@ -132,9 +132,10 @@ export class IntelligenceService {
 
     if (existingMastery) {
       masteryRecord = await this.intelligenceRepo.updateMastery(existingMastery.mastery_id, {
-        mastery_score: dto.score,
-        attempts: existingMastery.attempts + 1,
-        last_score: dto.score,
+        version:          existingMastery.version ?? 0,
+        mastery_score:    dto.score,
+        attempts:         existingMastery.attempts + 1,
+        last_score:       dto.score,
         status,
         last_assessed_at: new Date()
       });

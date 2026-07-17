@@ -1,0 +1,1232 @@
+openapi: 3.1.0
+info:
+  title: Learning Platform API
+  version: 1.0.0
+  description: Enterprise Learning Platform API Specification
+servers:
+  - url: http://localhost:3000/api
+    description: Local development server
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    SuccessResponse:
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+        errors:
+          type: array
+          items:
+            type: string
+security:
+  - bearerAuth: []
+paths:
+  # ==========================================
+  # AUTHENTICATION
+  # ==========================================
+  /auth/register:
+    post:
+      tags: [Authentication]
+      summary: Register a new learner
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
+                full_name: { type: string }
+      responses:
+        '201': { $ref: '#/components/responses/SuccessResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: Login to the platform
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /auth/logout:
+    post:
+      tags: [Authentication]
+      summary: Logout
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /auth/refresh:
+    post:
+      tags: [Authentication]
+      summary: Refresh JWT token
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /auth/me:
+    get:
+      tags: [Authentication]
+      summary: Get current authenticated user
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+
+  # ==========================================
+  # LEARNER
+  # ==========================================
+  /learners/profile:
+    get:
+      tags: [Learner]
+      summary: Get learner profile
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+    patch:
+      tags: [Learner]
+      summary: Update learner profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                full_name: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /learners/preferences:
+    get:
+      tags: [Learner]
+      summary: Get learner preferences
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+    patch:
+      tags: [Learner]
+      summary: Update learner preferences
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                theme: { type: string }
+                language: { type: string }
+                timezone: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+
+  # ==========================================
+  # JOURNEY
+  # ==========================================
+  /journeys:
+    post:
+      tags: [Journey]
+      summary: Create a new journey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                description: { type: string }
+      responses:
+        '201': { $ref: '#/components/responses/SuccessResponse' }
+    get:
+      tags: [Journey]
+      summary: List all journeys
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /journeys/{journey_id}:
+    get:
+      tags: [Journey]
+      summary: Get a journey by ID
+      parameters:
+        - in: path
+          name: journey_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+    patch:
+      tags: [Journey]
+      summary: Update a journey
+      parameters:
+        - in: path
+          name: journey_id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                description: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /journeys/{journey_id}/activate:
+    post:
+      tags: [Journey]
+      summary: Activate a journey
+      parameters:
+        - in: path
+          name: journey_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /journeys/{journey_id}/complete:
+    post:
+      tags: [Journey]
+      summary: Complete a journey
+      parameters:
+        - in: path
+          name: journey_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+
+  # ==========================================
+  # PLANNING
+  # ==========================================
+  /plans:
+    post:
+      tags: [Planning]
+      summary: Create a plan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                journey_id: { type: string, format: uuid }
+                title: { type: string }
+      responses:
+        '201': { $ref: '#/components/responses/SuccessResponse' }
+    get:
+      tags: [Planning]
+      summary: List all plans
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /plans/active:
+    get:
+      tags: [Planning]
+      summary: Get active plan
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /plans/{plan_id}:
+    patch:
+      tags: [Planning]
+      summary: Update a plan
+      parameters:
+        - in: path
+          name: plan_id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /plans/{plan_id}/cancel:
+    post:
+      tags: [Planning]
+      summary: Cancel a plan
+      parameters:
+        - in: path
+          name: plan_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /plans/{plan_id}/complete:
+    post:
+      tags: [Planning]
+      summary: Complete a plan
+      parameters:
+        - in: path
+          name: plan_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /plans/{plan_id}/milestones:
+    get:
+      tags: [Planning]
+      summary: Get milestones for a plan
+      parameters:
+        - in: path
+          name: plan_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /plans/milestones/{milestone_id}/progress:
+    patch:
+      tags: [Planning]
+      summary: Update milestone progress
+      parameters:
+        - in: path
+          name: milestone_id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status: { type: string, enum: [not_started, in_progress, completed] }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+
+  # ==========================================
+  # LEARNING SESSION
+  # ==========================================
+  /sessions:
+    post:
+      tags: [Session]
+      summary: Start a session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                plan_id: { type: string, format: uuid }
+                module_id: { type: string, format: uuid }
+      responses:
+        '201': { $ref: '#/components/responses/SuccessResponse' }
+    get:
+      tags: [Session]
+      summary: List sessions
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /sessions/{session_id}:
+    get:
+      tags: [Session]
+      summary: Get session by ID
+      parameters:
+        - in: path
+          name: session_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /sessions/{session_id}/pause:
+    post:
+      tags: [Session]
+      summary: Pause a session
+      parameters:
+        - in: path
+          name: session_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /sessions/{session_id}/resume:
+    post:
+      tags: [Session]
+      summary: Resume a session
+      parameters:
+        - in: path
+          name: session_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /sessions/{session_id}/complete:
+    post:
+      tags: [Session]
+      summary: Complete a session
+      parameters:
+        - in: path
+          name: session_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /sessions/{session_id}/events:
+    post:
+      tags: [Session]
+      summary: Log a session event
+      parameters:
+        - in: path
+          name: session_id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                event_type: { type: string }
+                event_data: { type: string }
+      responses:
+        '201': { $ref: '#/components/responses/SuccessResponse' }
+  /sessions/{session_id}/metrics:
+    get:
+      tags: [Session]
+      summary: Get session metrics
+      parameters:
+        - in: path
+          name: session_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+
+  # ==========================================
+  # ADAPTIVE RUNTIME
+  # ==========================================
+  /adaptive/assessments:
+    post:
+      tags: [Adaptive]
+      summary: Initialize adaptive assessment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                module_id: { type: string, format: uuid }
+      responses:
+        '201': { $ref: '#/components/responses/SuccessResponse' }
+  /adaptive/assessments/{assessment_id}/submit:
+    post:
+      tags: [Adaptive]
+      summary: Submit adaptive assessment
+      parameters:
+        - in: path
+          name: assessment_id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                responses: { type: object }
+                time_spent_seconds: { type: integer }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /adaptive/assessments/{assessment_id}/results:
+    get:
+      tags: [Adaptive]
+      summary: Get adaptive assessment results
+      parameters:
+        - in: path
+          name: assessment_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /adaptive/nodes/{node_id}/recommendations:
+    get:
+      tags: [Adaptive]
+      summary: Get learning node recommendations
+      parameters:
+        - in: path
+          name: node_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /adaptive/knowledge-state/update:
+    post:
+      tags: [Adaptive]
+      summary: Update global knowledge state
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                node_id: { type: string, format: uuid }
+                confidence_delta: { type: number }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /adaptive/knowledge-state:
+    get:
+      tags: [Adaptive]
+      summary: Get knowledge state map
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+
+  # ==========================================
+  # ASSESSMENT
+  # ==========================================
+  /assessments:
+    post:
+      tags: [Assessment]
+      summary: Create an assessment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                module_id: { type: string, format: uuid }
+                title: { type: string }
+                description: { type: string }
+                assessment_type: { type: string, enum: [quiz, exam, project, peer_review] }
+      responses:
+        '201': { $ref: '#/components/responses/SuccessResponse' }
+    get:
+      tags: [Assessment]
+      summary: List assessments
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /assessments/{assessment_id}:
+    get:
+      tags: [Assessment]
+      summary: Get assessment
+      parameters:
+        - in: path
+          name: assessment_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+    patch:
+      tags: [Assessment]
+      summary: Update assessment
+      parameters:
+        - in: path
+          name: assessment_id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /assessments/{assessment_id}/publish:
+    post:
+      tags: [Assessment]
+      summary: Publish assessment
+      parameters:
+        - in: path
+          name: assessment_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /assessments/{assessment_id}/archive:
+    post:
+      tags: [Assessment]
+      summary: Archive assessment
+      parameters:
+        - in: path
+          name: assessment_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /assessments/items:
+    post:
+      tags: [Assessment]
+      summary: Add an item to assessment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                assessment_id: { type: string, format: uuid }
+                item_type: { type: string, enum: [multiple_choice, coding, open_ended] }
+                content: { type: object }
+                points: { type: integer }
+      responses:
+        '201': { $ref: '#/components/responses/SuccessResponse' }
+  /assessments/items/{item_id}:
+    patch:
+      tags: [Assessment]
+      summary: Update assessment item
+      parameters:
+        - in: path
+          name: item_id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content: { type: object }
+                points: { type: integer }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /assessments/{assessment_id}/items:
+    get:
+      tags: [Assessment]
+      summary: List items for assessment
+      parameters:
+        - in: path
+          name: assessment_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /assessments/{assessment_id}/rules:
+    post:
+      tags: [Assessment]
+      summary: Add grading rule
+      parameters:
+        - in: path
+          name: assessment_id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                rule_type: { type: string, enum: [auto_grade, manual_review, ai_assisted] }
+                rule_config: { type: object }
+      responses:
+        '201': { $ref: '#/components/responses/SuccessResponse' }
+    get:
+      tags: [Assessment]
+      summary: List grading rules
+      parameters:
+        - in: path
+          name: assessment_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+
+  # ==========================================
+  # LEARNING INTELLIGENCE
+  # ==========================================
+  /intelligence/insights:
+    post:
+      tags: [Intelligence]
+      summary: Generate intelligence insight
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                insight_type: { type: string, enum: [performance_drop, engagement_spike, churn_risk] }
+                content: { type: object }
+                confidence_score: { type: number }
+      responses:
+        '201': { $ref: '#/components/responses/SuccessResponse' }
+    get:
+      tags: [Intelligence]
+      summary: List insights
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /intelligence/insights/{insight_id}/dismiss:
+    post:
+      tags: [Intelligence]
+      summary: Dismiss an insight
+      parameters:
+        - in: path
+          name: insight_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /intelligence/recommendations:
+    get:
+      tags: [Intelligence]
+      summary: Get AI recommendations
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /intelligence/recommendations/{recommendation_id}/apply:
+    post:
+      tags: [Intelligence]
+      summary: Apply recommendation
+      parameters:
+        - in: path
+          name: recommendation_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /intelligence/health:
+    get:
+      tags: [Intelligence]
+      summary: Get global learner health score
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /intelligence/knowledge-graph/sync:
+    post:
+      tags: [Intelligence]
+      summary: Sync knowledge graph embedding
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                node_id: { type: string, format: uuid }
+                embedding_vector: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+
+  # ==========================================
+  # DASHBOARD
+  # ==========================================
+  /dashboard/summary:
+    get:
+      tags: [Dashboard]
+      summary: Get general dashboard summary
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /dashboard/progress:
+    get:
+      tags: [Dashboard]
+      summary: Get comprehensive progress report
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /dashboard/activity:
+    get:
+      tags: [Dashboard]
+      summary: Get user activity timeline
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /dashboard/upcoming:
+    get:
+      tags: [Dashboard]
+      summary: Get upcoming milestones and deadlines
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /dashboard/recommendations:
+    get:
+      tags: [Dashboard]
+      summary: Get top learning recommendations
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /dashboard/insights:
+    get:
+      tags: [Dashboard]
+      summary: Get dashboard actionable insights
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+
+  # ==========================================
+  # NOTIFICATION
+  # ==========================================
+  /notifications:
+    post:
+      tags: [Notification]
+      summary: Send a notification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                recipient_id: { type: string, format: uuid }
+                title: { type: string }
+                message: { type: string }
+                notification_type: { type: string, enum: [system, alert, reminder, message] }
+                priority: { type: string, enum: [low, normal, high, urgent] }
+      responses:
+        '201': { $ref: '#/components/responses/SuccessResponse' }
+    get:
+      tags: [Notification]
+      summary: List all notifications
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /notifications/unread:
+    get:
+      tags: [Notification]
+      summary: Get unread notifications
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /notifications/{notification_id}/read:
+    patch:
+      tags: [Notification]
+      summary: Mark notification as read
+      parameters:
+        - in: path
+          name: notification_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /notifications/read-all:
+    post:
+      tags: [Notification]
+      summary: Mark all notifications as read
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /notifications/preferences:
+    get:
+      tags: [Notification]
+      summary: Get notification preferences
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+    patch:
+      tags: [Notification]
+      summary: Update notification preferences
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email_enabled: { type: boolean }
+                push_enabled: { type: boolean }
+                in_app_enabled: { type: boolean }
+                quiet_hours_start: { type: string }
+                quiet_hours_end: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+
+  # ==========================================
+  # AUDIT
+  # ==========================================
+  /audit:
+    get:
+      tags: [Audit]
+      summary: List general audit logs
+      parameters:
+        - in: query
+          name: startDate
+          schema: { type: string, format: date }
+        - in: query
+          name: endDate
+          schema: { type: string, format: date }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /audit/activity:
+    get:
+      tags: [Audit]
+      summary: List user activity logs
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /audit/login-history:
+    get:
+      tags: [Audit]
+      summary: List login history
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /audit/system:
+    get:
+      tags: [Audit]
+      summary: List system-level audit logs
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+
+  # ==========================================
+  # RESOURCE
+  # ==========================================
+  /resources:
+    post:
+      tags: [Resource]
+      summary: Create a learning resource
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                module_id: { type: string, format: uuid }
+                title: { type: string }
+                description: { type: string }
+                resource_type: { type: string, enum: [video, pdf, article, link, image, code, attachment] }
+                storage_type: { type: string, enum: [local, external] }
+                resource_url: { type: string }
+                estimated_minutes: { type: integer }
+      responses:
+        '201': { $ref: '#/components/responses/SuccessResponse' }
+    get:
+      tags: [Resource]
+      summary: List learning resources
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /resources/{resource_id}:
+    get:
+      tags: [Resource]
+      summary: Get resource
+      parameters:
+        - in: path
+          name: resource_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+    patch:
+      tags: [Resource]
+      summary: Update resource
+      parameters:
+        - in: path
+          name: resource_id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                description: { type: string }
+                estimated_minutes: { type: integer }
+                version: { type: integer }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /resources/{resource_id}/publish:
+    post:
+      tags: [Resource]
+      summary: Publish resource
+      parameters:
+        - in: path
+          name: resource_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /resources/{resource_id}/archive:
+    post:
+      tags: [Resource]
+      summary: Archive resource
+      parameters:
+        - in: path
+          name: resource_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /resources/{resource_id}/version:
+    post:
+      tags: [Resource]
+      summary: Create resource version
+      parameters:
+        - in: path
+          name: resource_id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                resource_url: { type: string }
+                version_summary: { type: string }
+      responses:
+        '201': { $ref: '#/components/responses/SuccessResponse' }
+  /resources/{resource_id}/versions:
+    get:
+      tags: [Resource]
+      summary: List resource versions
+      parameters:
+        - in: path
+          name: resource_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /resources/{resource_id}/progress:
+    patch:
+      tags: [Resource]
+      summary: Update learner progress
+      parameters:
+        - in: path
+          name: resource_id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                progress_percentage: { type: number }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /resources/{resource_id}/complete:
+    post:
+      tags: [Resource]
+      summary: Mark resource complete
+      parameters:
+        - in: path
+          name: resource_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /resources/{resource_id}/tags:
+    get:
+      tags: [Resource]
+      summary: Get resource tags
+      parameters:
+        - in: path
+          name: resource_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+
+  # ==========================================
+  # PLATFORM ADMINISTRATION
+  # ==========================================
+  /platform/settings:
+    post:
+      tags: [Platform]
+      summary: Create platform setting
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                setting_key: { type: string }
+                setting_value: { type: string }
+                description: { type: string }
+                is_public: { type: boolean }
+      responses:
+        '201': { $ref: '#/components/responses/SuccessResponse' }
+    get:
+      tags: [Platform]
+      summary: List platform settings
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /platform/settings/{setting_key}:
+    patch:
+      tags: [Platform]
+      summary: Update platform setting
+      parameters:
+        - in: path
+          name: setting_key
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                setting_value: { type: string }
+                description: { type: string }
+                is_public: { type: boolean }
+                version: { type: integer }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /platform/features:
+    get:
+      tags: [Platform]
+      summary: List feature flags
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /platform/features/{feature_name}/enable:
+    patch:
+      tags: [Platform]
+      summary: Enable feature flag
+      parameters:
+        - in: path
+          name: feature_name
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                version: { type: integer }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /platform/features/{feature_name}/disable:
+    patch:
+      tags: [Platform]
+      summary: Disable feature flag
+      parameters:
+        - in: path
+          name: feature_name
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                version: { type: integer }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /platform/announcements:
+    post:
+      tags: [Platform]
+      summary: Create announcement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                message: { type: string }
+                status: { type: string, enum: [draft, published, archived] }
+                starts_at: { type: string, format: date-time }
+                expires_at: { type: string, format: date-time }
+      responses:
+        '201': { $ref: '#/components/responses/SuccessResponse' }
+    get:
+      tags: [Platform]
+      summary: List announcements
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /platform/announcements/{announcement_id}/publish:
+    patch:
+      tags: [Platform]
+      summary: Publish announcement
+      parameters:
+        - in: path
+          name: announcement_id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                version: { type: integer }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /platform/announcements/{announcement_id}/archive:
+    patch:
+      tags: [Platform]
+      summary: Archive announcement
+      parameters:
+        - in: path
+          name: announcement_id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                version: { type: integer }
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }
+  /platform/health:
+    post:
+      tags: [Platform]
+      summary: Record system health snapshot
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                active_sessions: { type: integer }
+                active_learners: { type: integer }
+                running_plans: { type: integer }
+                pending_notifications: { type: integer }
+                failed_logins: { type: integer }
+                system_status: { type: string, enum: [healthy, warning, critical] }
+                recorded_at: { type: string, format: date-time }
+      responses:
+        '201': { $ref: '#/components/responses/SuccessResponse' }
+  /platform/health/latest:
+    get:
+      tags: [Platform]
+      summary: Get latest health snapshot
+      responses:
+        '200': { $ref: '#/components/responses/SuccessResponse' }

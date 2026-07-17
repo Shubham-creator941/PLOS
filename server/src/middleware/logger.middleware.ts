@@ -1,7 +1,13 @@
-import { Request, Response, NextFunction } from 'express';
+/**
+ * src/middleware/logger.middleware.ts
+ * Request logger middleware — superseded by the inline logging in app.ts.
+ * Kept for compatibility; delegates to the structured logger.
+ */
 
-export const requestLogger = (req: Request, res: Response, next: NextFunction) => {
-  // Placeholder logger logic
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+import { Request, Response, NextFunction } from 'express';
+import { logger } from '../utils/logger';
+
+export const requestLogger = (req: Request, _res: Response, next: NextFunction): void => {
+  logger.debug('Incoming request', { method: req.method, url: req.url });
   next();
 };

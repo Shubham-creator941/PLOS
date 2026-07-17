@@ -16,6 +16,12 @@ export const badRequest = (res: Response, message = 'Bad Request', errors?: unkn
   return res.status(400).json(response);
 };
 
+export const unprocessable = (res: Response, message = 'Unprocessable Entity', errors?: unknown): Response => {
+  const errorsArray = errors !== undefined ? (Array.isArray(errors) ? errors : [errors]) : undefined;
+  const response: ApiResponse = { success: false, message, errors: errorsArray };
+  return res.status(422).json(response);
+};
+
 export const unauthorized = (res: Response, message = 'Unauthorized'): Response => {
   const response: ApiResponse = { success: false, message };
   return res.status(401).json(response);

@@ -105,10 +105,11 @@ export interface CreateMasteryDTO {
 }
 
 export interface UpdateMasteryDTO {
-  readonly mastery_score?: number;
-  readonly attempts?: number;
-  readonly last_score?: number;
-  readonly status?: MasteryStatus;
+  readonly version:          number;   // required for optimistic locking
+  readonly mastery_score?:   number;
+  readonly attempts?:        number;
+  readonly last_score?:      number;
+  readonly status?:          MasteryStatus;
   readonly last_assessed_at?: Date;
 }
 

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { PlatformController } from '../controller';
-import { authMiddleware } from '../../../middleware/auth.middleware';
+import { authMiddleware }  from '../../../middleware/auth.middleware';
+import { roleMiddleware }  from '../../../middleware/role.middleware';
 import { validateRequest } from '../../../middleware/validate.middleware';
 import {
   setSettingValidators,
@@ -17,16 +18,17 @@ import {
   featureNameParamValidator
 } from '../validator';
 
-const router = Router();
+const router     = Router();
 const controller = new PlatformController();
 
-// ====================================================
-// PLATFORM SETTINGS
-// ====================================================
+// Shorthand: every mutating platform route requires authenticated admin
+const adminOnly  = [authMiddleware, roleMiddleware(['admin'])];
+
+// ── PLATFORM SETTINGS ────────────────────────────────────────────────────────
 
 router.post(
   '/settings',
-  authMiddleware,
+  ...adminOnly,
   setSettingValidators,
   validateRequest,
   controller.createSetting
@@ -34,7 +36,7 @@ router.post(
 
 router.get(
   '/settings',
-  authMiddleware,
+  authMiddleware,           // read-only: any authenticated user
   listSettingsValidators,
   validateRequest,
   controller.listSettings
@@ -42,26 +44,25 @@ router.get(
 
 router.patch(
   '/settings/:setting_key',
-  authMiddleware,
+  ...adminOnly,
+  settingKeyParamValidator,
   updateSettingValidators,
   validateRequest,
   controller.updateSetting
 );
 
-// ====================================================
-// FEATURE FLAGS
-// ====================================================
+// ── FEATURE FLAGS ─────────────────────────────────────────────────────────────
 
 router.get(
   '/features',
-  authMiddleware,
+  authMiddleware,           // read-only: any authenticated user
   validateRequest,
   controller.listFeatures
 );
 
 router.patch(
   '/features/:feature_name/enable',
-  authMiddleware,
+  ...adminOnly,
   featureNameParamValidator,
   versionControlValidators,
   validateRequest,
@@ -70,20 +71,18 @@ router.patch(
 
 router.patch(
   '/features/:feature_name/disable',
-  authMiddleware,
+  ...adminOnly,
   featureNameParamValidator,
   versionControlValidators,
   validateRequest,
   controller.disableFeature
 );
 
-// ====================================================
-// ANNOUNCEMENTS
-// ====================================================
+// ── ANNOUNCEMENTS ─────────────────────────────────────────────────────────────
 
 router.post(
   '/announcements',
-  authMiddleware,
+  ...adminOnly,
   createAnnouncementValidators,
   validateRequest,
   controller.createAnnouncement
@@ -91,7 +90,7 @@ router.post(
 
 router.get(
   '/announcements',
-  authMiddleware,
+  authMiddleware,           // read-only: any authenticated user
   listAnnouncementsValidators,
   validateRequest,
   controller.listAnnouncements
@@ -99,7 +98,7 @@ router.get(
 
 router.patch(
   '/announcements/:announcement_id/publish',
-  authMiddleware,
+  ...adminOnly,
   announcementIdValidator,
   versionControlValidators,
   validateRequest,
@@ -108,20 +107,18 @@ router.patch(
 
 router.patch(
   '/announcements/:announcement_id/archive',
-  authMiddleware,
+  ...adminOnly,
   announcementIdValidator,
   versionControlValidators,
   validateRequest,
   controller.archiveAnnouncement
 );
 
-// ====================================================
-// SYSTEM HEALTH
-// ====================================================
+// ── SYSTEM HEALTH ─────────────────────────────────────────────────────────────
 
 router.post(
   '/health',
-  authMiddleware,
+  ...adminOnly,
   recordSnapshotValidators,
   validateRequest,
   controller.recordHealthSnapshot
@@ -129,7 +126,7 @@ router.post(
 
 router.get(
   '/health/latest',
-  authMiddleware,
+  authMiddleware,           // read-only: any authenticated user
   validateRequest,
   controller.latestHealthSnapshot
 );

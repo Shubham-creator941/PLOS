@@ -1,0 +1,89 @@
+# =============================================================================
+# PLOS — docker-compose.yml
+# Orchestrates: MySQL 8, plos-api (production image)
+#
+# Usage:
+#   cp .env.example .env          # fill in secrets
+#   docker compose up -d          # start all services
+#   docker compose logs -f api    # tail API logs
+#   docker compose down -v        # stop and remove volumes
+# =============================================================================
+
+version: "3.9"
+
+services:
+
+  # ── MySQL 8 ────────────────────────────────────────────────────────────────
+  db:
+    image: mysql:8.0
+    container_name: plos_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+      # Run schema migrations on first start
+      - ./database/migrations:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "${DB_USER}", "-p${DB_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - plos_net
+
+  # ── PLOS API ────────────────────────────────────────────────────────────────
+  api:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+      target: production
+    container_name: plos_api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: ${PORT:-3000}
+      # Database — references db service via service name
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      # Auth
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      # Uploads (optional; mount a volume if using local storage)
+      UPLOAD_DIR: /app/uploads
+    ports:
+      - "${PORT:-3000}:3000"
+    volumes:
+      - uploads:/app/uploads
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    networks:
+      - plos_net
+
+# ── Named Volumes ──────────────────────────────────────────────────────────────
+volumes:
+  db_data:
+    driver: local
+  uploads:
+    driver: local
+
+# ── Network ────────────────────────────────────────────────────────────────────
+networks:
+  plos_net:
+    driver: bridge

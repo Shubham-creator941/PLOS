@@ -25,7 +25,7 @@ const ANALYTICS_COLUMNS = `
 
 const MASTERY_COLUMNS = `
   mastery_id, learner_id, module_id, mastery_score, attempts, last_score, 
-  status, last_assessed_at, created_at, updated_at
+  status, last_assessed_at, version, created_at, updated_at
 `;
 
 const RECOMMENDATION_COLUMNS = `
@@ -277,12 +277,17 @@ export class IntelligenceRepository {
     }
 
     if (updates.length > 0) {
+      // Optimistic locking: version must match and is incremented atomically
+      updates.push('version = version + 1');
       values.push(masteryId);
+      values.push(dto.version);  // ← guard
       const result = await query<ResultSetHeader>(
-        `UPDATE learner_mastery SET ${updates.join(', ')} WHERE mastery_id = ?`,
+        `UPDATE learner_mastery SET ${updates.join(', ')} WHERE mastery_id = ? AND version = ?`,
         values
       );
-      if (result.affectedRows === 0) throw new Error(MESSAGES.SERVER_ERROR || 'Update failed');
+      if (result.affectedRows === 0) {
+        throw new Error('Concurrent update detected: learner_mastery version mismatch');
+      }
     }
 
     const rows = await query<RowDataPacket[]>(

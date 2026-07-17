@@ -1,0 +1,45 @@
+# =============================================================================
+# PLOS — .gitignore
+# =============================================================================
+
+# ── Secrets — NEVER commit ────────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+server/.env
+server/.env.local
+
+# ── Node ──────────────────────────────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp/
+.pnp.js
+
+# ── Build outputs ─────────────────────────────────────────────────────────────
+dist/
+build/
+.next/
+out/
+
+# ── Test / Coverage ───────────────────────────────────────────────────────────
+coverage/
+.nyc_output/
+
+# ── TypeScript ────────────────────────────────────────────────────────────────
+*.tsbuildinfo
+
+# ── Uploads (local dev only) ──────────────────────────────────────────────────
+uploads/
+
+# ── OS / editor ───────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ── Docker volumes (if using local bind mounts during dev) ────────────────────
+mysql_data/
