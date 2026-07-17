@@ -1,6 +1,6 @@
 import React from 'react';
-import { PageHeader } from '../../widgets/PageHeader';
-import { MilestoneCard } from '../../widgets/MilestoneCard';
+import { PageHeader } from '@/widgets';
+import { MilestoneCard } from '@/widgets';
 
 export const LearningPlan: React.FC = () => {
  return (

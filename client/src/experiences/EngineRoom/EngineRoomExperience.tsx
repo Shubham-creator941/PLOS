@@ -1,7 +1,7 @@
 import React from 'react';
-import { PageHeader } from '../../widgets/PageHeader';
-import { Card, CardContent, CardHeader, CardTitle } from '../../primitives/Card';
-import { Button } from '../../primitives/Button';
+import { PageHeader } from '@/widgets';
+import { Card, CardContent, CardHeader, CardTitle } from '@/primitives';
+import { Button } from '@/primitives';
 import { User, Palette, Link as LinkIcon } from 'lucide-react';
 
 export const Settings: React.FC = () => {

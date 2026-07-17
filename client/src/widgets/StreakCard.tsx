@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardContent } from '../primitives/Card';
+import { Card, CardContent } from '@/primitives';
 import { Flame } from 'lucide-react';
 
 interface StreakCardProps {

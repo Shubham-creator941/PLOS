@@ -1,5 +1,5 @@
 import React from 'react';
-import { Loader } from '../primitives/Loader';
+import { Loader } from '@/primitives';
 
 export const Loading: React.FC = () => {
  return (

@@ -1,5 +1,5 @@
 import React from 'react';
-import { EmptyState } from '../primitives/EmptyState';
+import { EmptyState } from '@/primitives';
 import { AlertOctagon } from 'lucide-react';
 
 export const ErrorPage: React.FC = () => {

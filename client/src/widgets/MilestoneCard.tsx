@@ -1,6 +1,6 @@
 import React from 'react';
-import { Card, CardContent } from '../primitives/Card';
-import { ProgressBar } from '../primitives/ProgressBar';
+import { Card, CardContent } from '@/primitives';
+import { ProgressBar } from '@/primitives';
 
 interface MilestoneCardProps {
  title: string;

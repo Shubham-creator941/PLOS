@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Clock, BookOpen, MessageSquare, Target, Check, ChevronDown, ChevronUp, Brain } from 'lucide-react';
-import { Card, CardContent } from '../../primitives/Card';
-import { ProgressRing } from '../../primitives/ProgressRing';
+import { Card, CardContent } from '@/primitives';
+import { ProgressRing } from '@/primitives';
 import { learningJourneyData } from '../../tests/mocks/learningJourney';
 
 // ==========================================

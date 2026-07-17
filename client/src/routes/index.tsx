@@ -1,58 +1,76 @@
-import { createBrowserRouter, Navigate } from 'react-router-dom';
-import { AuthLayout } from '../layouts/AuthLayout';
-import { DashboardLayout } from '../layouts/DashboardLayout';
-
-import { Landing } from '../experiences/Landing/LandingExperience';
-import { Login } from '../experiences/Authentication/LoginExperience';
-import { Dashboard } from '../experiences/MissionControl/MissionControlExperience';
-import { GoalSetup } from '../experiences/Onboarding/OnboardingExperience';
-import { Journey } from '../experiences/Map/MapExperience';
-import { LearningPlan } from '../experiences/Map/LearningPlan';
-import { TaskDetails } from '../experiences/Studio/StudioExperience';
-import { Reflection } from '../experiences/Mirror/MirrorExperience';
-import { Settings } from '../experiences/EngineRoom/EngineRoomExperience';
-import { LibraryExperience } from '../experiences/Library/LibraryExperience';
+import React, { Suspense } from 'react';
+import { createBrowserRouter } from 'react-router-dom';
+import { AuthLayout } from '@/layouts/AuthLayout';
+import { DashboardLayout } from '@/layouts/DashboardLayout';
+import { ProtectedRoute } from './ProtectedRoute';
+import { GuestRoute } from './GuestRoute';
 import { NotFound } from './NotFound';
 import { ErrorPage } from './Error';
+import { Loader } from '@/primitives/Loader';
 
-// Protected Route placeholder logic
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
- const isAuthenticated = true; // Placeholder for real auth logic
- return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
-};
+// Lazy load experiences
+const Landing = React.lazy(() => import('@/experiences/Landing/LandingExperience').then(m => ({ default: m.Landing })));
+const Login = React.lazy(() => import('@/experiences/Authentication/LoginExperience').then(m => ({ default: m.Login })));
+const Dashboard = React.lazy(() => import('@/experiences/MissionControl/MissionControlExperience').then(m => ({ default: m.Dashboard })));
+const GoalSetup = React.lazy(() => import('@/experiences/Onboarding/OnboardingExperience').then(m => ({ default: m.GoalSetup })));
+const Journey = React.lazy(() => import('@/experiences/Map/MapExperience').then(m => ({ default: m.Journey })));
+const LearningPlan = React.lazy(() => import('@/experiences/Map/LearningPlan').then(m => ({ default: m.LearningPlan })));
+const TaskDetails = React.lazy(() => import('@/experiences/Studio/StudioExperience').then(m => ({ default: m.TaskDetails })));
+const Reflection = React.lazy(() => import('@/experiences/Mirror/MirrorExperience').then(m => ({ default: m.Reflection })));
+const Settings = React.lazy(() => import('@/experiences/EngineRoom/EngineRoomExperience').then(m => ({ default: m.Settings })));
+const LibraryExperience = React.lazy(() => import('@/experiences/Library/LibraryExperience').then(m => ({ default: m.LibraryExperience })));
+
+const SuspenseWrapper = ({ children }: { children: React.ReactNode }) => (
+  <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader /></div>}>
+    {children}
+  </Suspense>
+);
 
 export const router = createBrowserRouter([
- {
- path: '/',
- element: <Landing />,
- errorElement: <ErrorPage />,
- },
- {
- element: <AuthLayout />,
- children: [
- { path: 'login', element: <Login /> },
- ],
- },
- {
- element: (
- <ProtectedRoute>
- <DashboardLayout />
- </ProtectedRoute>
- ),
- children: [
- { path: 'dashboard', element: <Dashboard /> },
- { path: 'goals', element: <GoalSetup /> },
- { path: 'journey', element: <Journey /> },
- { path: 'plan', element: <LearningPlan /> },
- { path: 'tasks', element: <Dashboard /> }, // Fallback to dashboard for tasks list
- { path: 'tasks/:id', element: <TaskDetails /> },
- { path: 'reflection', element: <Reflection /> },
- { path: 'library', element: <LibraryExperience /> },
- { path: 'settings', element: <Settings /> },
- ],
- },
- {
- path: '*',
- element: <NotFound />,
- },
+  {
+    path: '/',
+    element: (
+      <SuspenseWrapper>
+        <Landing />
+      </SuspenseWrapper>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  {
+    element: <AuthLayout />,
+    children: [
+      { 
+        path: 'login', 
+        element: (
+          <GuestRoute>
+            <SuspenseWrapper>
+              <Login />
+            </SuspenseWrapper>
+          </GuestRoute>
+        ) 
+      },
+    ],
+  },
+  {
+    element: (
+      <ProtectedRoute>
+        <DashboardLayout />
+      </ProtectedRoute>
+    ),
+    children: [
+      { path: 'dashboard', element: <SuspenseWrapper><Dashboard /></SuspenseWrapper> },
+      { path: 'goals', element: <SuspenseWrapper><GoalSetup /></SuspenseWrapper> },
+      { path: 'journey', element: <SuspenseWrapper><Journey /></SuspenseWrapper> },
+      { path: 'plan', element: <SuspenseWrapper><LearningPlan /></SuspenseWrapper> },
+      { path: 'tasks', element: <SuspenseWrapper><Dashboard /></SuspenseWrapper> }, // Fallback
+      { path: 'tasks/:id', element: <SuspenseWrapper><TaskDetails /></SuspenseWrapper> },
+      { path: 'reflection', element: <SuspenseWrapper><Reflection /></SuspenseWrapper> },
+      { path: 'library', element: <SuspenseWrapper><LibraryExperience /></SuspenseWrapper> },
+      { path: 'settings', element: <SuspenseWrapper><Settings /></SuspenseWrapper> },
+    ],
+  },
+  {
+    path: '*',
+    element: <NotFound />,
+  },
 ]);

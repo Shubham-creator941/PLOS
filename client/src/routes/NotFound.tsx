@@ -1,5 +1,5 @@
 import React from 'react';
-import { EmptyState } from '../primitives/EmptyState';
+import { EmptyState } from '@/primitives';
 
 import { FileWarning } from 'lucide-react';
 

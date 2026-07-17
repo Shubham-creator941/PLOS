@@ -5,14 +5,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { ArrowLeft, ArrowRight, CheckCircle2 } from 'lucide-react';
 
-import { PageHeader } from '../../widgets/PageHeader';
-import { Button } from '../../primitives/Button';
-import { Input } from '../../primitives/Input';
-import { Textarea } from '../../primitives/Textarea';
-import { Select } from '../../primitives/Select';
+import { PageHeader } from '@/widgets';
+import { Button } from '@/primitives';
+import { Input } from '@/primitives';
+import { Textarea } from '@/primitives';
+import { Select } from '@/primitives';
 
-import { RadioGroup } from '../../primitives/RadioGroup';
-import { Card, CardContent } from '../../primitives/Card';
+import { RadioGroup } from '@/primitives';
+import { Card, CardContent } from '@/primitives';
 
 // ==========================================
 // Zod Schema

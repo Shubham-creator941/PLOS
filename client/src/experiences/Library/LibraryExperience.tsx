@@ -1,6 +1,6 @@
 import React from 'react';
-import { PageHeader } from '../../widgets/PageHeader';
-import { Card, CardContent } from '../../primitives/Card';
+import { PageHeader } from '@/widgets';
+import { Card, CardContent } from '@/primitives';
 import { BookOpen, Layers } from 'lucide-react';
 
 export const LibraryExperience: React.FC = () => {

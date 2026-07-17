@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Play, Pause, RotateCcw, CheckCircle2, Circle, Clock, Target, BookOpen, ChevronRight, FileText, Video, MessageSquare } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '../../primitives/Card';
-import { Badge } from '../../primitives/Badge';
-import { Button } from '../../primitives/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/primitives';
+import { Badge } from '@/primitives';
+import { Button } from '@/primitives';
 import { sessionData } from '../../tests/mocks/session';
 
 // ==========================================

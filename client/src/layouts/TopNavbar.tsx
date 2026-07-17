@@ -1,7 +1,7 @@
 import React from 'react';
 import { Bell, Menu, Moon, Sun } from 'lucide-react';
-import { Avatar } from '../primitives/Avatar';
-import { useTheme } from '../providers/ThemeContext';
+import { Avatar } from '@/primitives';
+import { useTheme } from '@/providers';
 
 interface TopNavbarProps {
  onMenuClick?: () => void;

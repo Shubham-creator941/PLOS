@@ -1,8 +1,8 @@
 import React from 'react';
 import { dashboardData } from '../../tests/mocks/dashboard';
 import { ArrowRight, Zap, Clock, Brain } from 'lucide-react';
-import { Card, CardContent } from '../../primitives/Card';
-import { Button } from '../../primitives/Button';
+import { Card, CardContent } from '@/primitives';
+import { Button } from '@/primitives';
 
 export const Dashboard: React.FC = () => {
  const data = dashboardData;

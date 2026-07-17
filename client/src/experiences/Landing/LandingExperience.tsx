@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Button } from '../../primitives/Button';
+import { Button } from '@/primitives';
 import { Link } from 'react-router-dom';
 
 export const Landing: React.FC = () => {

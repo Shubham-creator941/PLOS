@@ -1,6 +1,6 @@
 import React from 'react';
-import { Card, CardContent } from '../primitives/Card';
-import { Badge } from '../primitives/Badge';
+import { Card, CardContent } from '@/primitives';
+import { Badge } from '@/primitives';
 
 interface TaskCardProps {
  title: string;
