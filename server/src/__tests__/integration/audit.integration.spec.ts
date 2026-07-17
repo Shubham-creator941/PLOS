@@ -6,12 +6,13 @@
 process.env.JWT_SECRET = 'test-secret';
 
 import request from 'supertest';
+
 import { buildApp } from './helpers/testApp';
 import { makeAuthToken, TEST_LEARNER_ID } from './helpers/auth.helper';
 
 jest.mock('../../modules/audit/repository/audit.repository');
 jest.mock('../../database/mysql', () => ({ pool: {} }));
-jest.mock('../../database/query', () => ({ query: jest.fn() }));
+jest.mock('../../database/query', () => ({ query: jest.fn().mockResolvedValue([]) }));
 
 import { AuditRepository } from '../../modules/audit/repository/audit.repository';
 const AuditRepoMock = AuditRepository as jest.MockedClass<typeof AuditRepository>;

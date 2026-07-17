@@ -1,4 +1,5 @@
-import { body, param, query, ValidationChain } from 'express-validator';
+import type { ValidationChain } from 'express-validator';
+import { body, param, query } from 'express-validator';
 
 // ====================================================
 // SHARED VALIDATORS

@@ -4,10 +4,12 @@
  * Errors logged via structured logger; params redacted in production.
  */
 
-import { pool } from './mysql';
-import { RowDataPacket, ResultSetHeader, ExecuteValues } from 'mysql2';
+import type { RowDataPacket, ResultSetHeader, ExecuteValues } from 'mysql2';
+
 import { logger } from '../utils/logger';
 import { env } from '../config/env';
+
+import { pool } from './mysql';
 
 export const query = async <T extends RowDataPacket[] | ResultSetHeader>(
   sql: string,

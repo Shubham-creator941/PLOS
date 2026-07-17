@@ -1,5 +1,6 @@
-import { NextFunction, Response } from 'express';
-import { AuthenticatedRequest } from '../../../shared/types';
+import type { NextFunction, Response } from 'express';
+
+import type { AuthenticatedRequest } from '../../../shared/types';
 import { LearnerService } from '../service/learner.service';
 import { success, created } from '../../../shared/response';
 import { MESSAGES } from '../../../shared/messages';

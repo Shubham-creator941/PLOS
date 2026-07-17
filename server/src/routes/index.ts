@@ -1,4 +1,5 @@
 import { Router } from 'express';
+
 import { authRoutes } from '../modules/auth/routes';
 import { learnerRoutes } from '../modules/learner/routes';
 import { journeyRoutes } from '../modules/journey/routes';

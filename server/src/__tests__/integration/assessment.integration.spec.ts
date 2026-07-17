@@ -6,15 +6,24 @@
 process.env.JWT_SECRET = 'test-secret';
 
 import request from 'supertest';
+
 import { buildApp } from './helpers/testApp';
 import { makeAuthToken, TEST_LEARNER_ID } from './helpers/auth.helper';
 
 jest.mock('../../modules/assessment/repository/assessment.repository');
+jest.mock('../../modules/session/repository/session.repository');
+jest.mock('../../modules/planning/repository/planning.repository');
+
 jest.mock('../../database/mysql', () => ({ pool: {} }));
-jest.mock('../../database/query', () => ({ query: jest.fn() }));
+jest.mock('../../database/query', () => ({ query: jest.fn().mockResolvedValue([]) }));
 
 import { AssessmentRepository } from '../../modules/assessment/repository/assessment.repository';
 const AssessmentRepoMock = AssessmentRepository as jest.MockedClass<typeof AssessmentRepository>;
+import { SessionRepository } from '../../modules/session/repository/session.repository';
+const SessionRepoMock = SessionRepository as jest.MockedClass<typeof SessionRepository>;
+import { PlanningRepository } from '../../modules/planning/repository/planning.repository';
+const PlanningRepoMock = PlanningRepository as jest.MockedClass<typeof PlanningRepository>;
+
 
 const TEMPLATE_ID = 'cccccccc-cccc-4ccc-accc-cccccccccccc';
 const QUESTION_ID = 'cccccccc-cccc-4ccc-accc-cccccccccccc';
@@ -60,7 +69,7 @@ describe('Assessment Integration', () => {
 
     // Actual method names from AssessmentRepository
     AssessmentRepoMock.prototype.createTemplate.mockResolvedValue(TEMPLATE as any);
-    AssessmentRepoMock.prototype.findTemplate.mockResolvedValue(TEMPLATE as any);
+    AssessmentRepoMock.prototype.findTemplate.mockResolvedValue({ ...TEMPLATE, status: 'draft' } as any);
     AssessmentRepoMock.prototype.listTemplates.mockResolvedValue([TEMPLATE] as any);
     AssessmentRepoMock.prototype.updateTemplate.mockResolvedValue({ ...TEMPLATE, title: 'Updated' } as any);
     AssessmentRepoMock.prototype.publishTemplate.mockResolvedValue({ ...TEMPLATE, status: 'published' } as any);
@@ -76,6 +85,8 @@ describe('Assessment Integration', () => {
     AssessmentRepoMock.prototype.listAnswers.mockResolvedValue([]);
     AssessmentRepoMock.prototype.submitAttempt.mockResolvedValue({ ...ATTEMPT, status: 'submitted' } as any);
     AssessmentRepoMock.prototype.evaluateAttempt.mockResolvedValue({ ...ATTEMPT, score: 85, passed: true } as any);
+    SessionRepoMock.prototype.findById.mockResolvedValue({ session_id: 'cccccccc-cccc-4ccc-accc-cccccccccccc', learner_id: TEST_LEARNER_ID, status: 'active' } as any);
+    PlanningRepoMock.prototype.findModule.mockResolvedValue({ module_id: MODULE_ID } as any);
   });
 
   it('401 – unauthenticated', async () => {
@@ -89,7 +100,7 @@ describe('Assessment Integration', () => {
       const res = await request(app)
         .post('/api/assessment')
         .set('Authorization', TOKEN)
-        .send({ module_id: MODULE_ID, title: 'Quiz', assessment_type: 'quiz' });
+        .send({ module_id: MODULE_ID, title: 'Quiz', passing_score: 80, max_score: 100 });
       expect(res.status).toBe(201);
     });
 
@@ -153,7 +164,7 @@ describe('Assessment Integration', () => {
       const res = await request(app)
         .post(`/api/assessment/${TEMPLATE_ID}/questions`)
         .set('Authorization', TOKEN)
-        .send({ question_text: 'What is Node.js?', question_type: 'multiple_choice', points: 10 });
+        .send({ question_text: 'What is Node.js?', question_type: 'mcq', points: 10, correct_answer: { text: 'A runtime' }, order_no: 1 });
       expect(res.status).toBe(201);
     });
   });
@@ -170,10 +181,12 @@ describe('Assessment Integration', () => {
   // ── Attempts ──────────────────────────────────────────────────
   describe('POST /api/assessment/attempts', () => {
     it('201 – starts attempt', async () => {
+      AssessmentRepoMock.prototype.findTemplate.mockResolvedValue({ ...TEMPLATE, status: 'published' } as any);
+      const SESSION_ID = 'cccccccc-cccc-4ccc-accc-cccccccccccc';
       const res = await request(app)
-        .post('/api/assessment/attempts')
+        .post(`/api/assessment/${TEMPLATE_ID}/attempts`)
         .set('Authorization', TOKEN)
-        .send({ template_id: TEMPLATE_ID });
+        .send({ session_id: SESSION_ID });
       expect(res.status).toBe(201);
     });
   });
@@ -189,6 +202,7 @@ describe('Assessment Integration', () => {
 
   describe('POST /api/assessment/attempts/:attempt_id/evaluate', () => {
     it('200 – evaluates attempt', async () => {
+      AssessmentRepoMock.prototype.findTemplate.mockResolvedValue({ ...TEMPLATE, status: 'published' } as any);
       AssessmentRepoMock.prototype.findAttempt.mockResolvedValue({ ...ATTEMPT, status: 'submitted' } as any);
       const res = await request(app)
         .post(`/api/assessment/attempts/${ATTEMPT_ID}/evaluate`)

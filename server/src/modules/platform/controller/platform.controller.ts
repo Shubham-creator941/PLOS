@@ -1,6 +1,7 @@
-import { NextFunction, Response } from 'express';
+import type { NextFunction, Response } from 'express';
+
 import { PlatformService } from '../service';
-import { AuthenticatedRequest } from '../../../shared/types';
+import type { AuthenticatedRequest } from '../../../shared/types';
 import { created, success } from '../../../shared/response';
 
 export class PlatformController {

@@ -10,6 +10,7 @@
 process.env.JWT_SECRET = 'test-secret';
 
 import request from 'supertest';
+
 import { buildApp } from './helpers/testApp';
 
 // ── Mock the repository so no DB is required ────────────────────────────────
@@ -48,7 +49,7 @@ describe('Auth Integration', () => {
     RepoMock.prototype.emailExists.mockResolvedValue(false);
     RepoMock.prototype.findByEmail.mockResolvedValue(null);
     RepoMock.prototype.createUser.mockResolvedValue(EXISTING_USER.learner_id);
-    RepoMock.prototype.findById.mockResolvedValue(EXISTING_USER as any);
+    RepoMock.prototype.findById.mockResolvedValue(EXISTING_USER);
     RepoMock.prototype.touchUser.mockResolvedValue(undefined);
   });
 
@@ -109,7 +110,7 @@ describe('Auth Integration', () => {
       RepoMock.prototype.findByEmail.mockResolvedValue({
         ...EXISTING_USER,
         password_hash: hash
-      } as any);
+      });
 
       const res = await request(app).post('/api/auth/login').send({
         email: 'existing@example.com',
@@ -136,7 +137,7 @@ describe('Auth Integration', () => {
       RepoMock.prototype.findByEmail.mockResolvedValue({
         ...EXISTING_USER,
         password_hash: hash
-      } as any);
+      });
 
       const res = await request(app).post('/api/auth/login').send({
         email: 'existing@example.com',

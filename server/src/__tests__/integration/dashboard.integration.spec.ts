@@ -6,12 +6,13 @@
 process.env.JWT_SECRET = 'test-secret';
 
 import request from 'supertest';
+
 import { buildApp } from './helpers/testApp';
 import { makeAuthToken, TEST_LEARNER_ID } from './helpers/auth.helper';
 
 jest.mock('../../modules/dashboard/repository/dashboard.repository');
 jest.mock('../../database/mysql', () => ({ pool: {} }));
-jest.mock('../../database/query', () => ({ query: jest.fn() }));
+jest.mock('../../database/query', () => ({ query: jest.fn().mockResolvedValue([]) }));
 
 import { DashboardRepository } from '../../modules/dashboard/repository/dashboard.repository';
 const DashboardRepoMock = DashboardRepository as jest.MockedClass<typeof DashboardRepository>;
@@ -55,6 +56,7 @@ describe('Dashboard Integration', () => {
 
   it('200 – GET /timeline', async () => {
     const res = await request(app).get('/api/dashboard/timeline').set('Authorization', TOKEN);
+    if (res.status === 500) console.log("TIMELINE 500 BODY:", res.body);
     expect(res.status).toBe(200);
   });
 
@@ -93,7 +95,7 @@ describe('Dashboard Integration', () => {
     const res = await request(app)
       .post('/api/dashboard/exports')
       .set('Authorization', TOKEN)
-      .send({ format: 'pdf', period: 'monthly' });
+      .send({ export_type: 'pdf', period: 'monthly' });
     expect(res.status).toBe(201);
   });
 });

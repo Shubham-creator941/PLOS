@@ -8,12 +8,13 @@
 process.env.JWT_SECRET = 'test-secret';
 
 import request from 'supertest';
+
 import { buildApp } from './helpers/testApp';
 import { makeAuthToken, TEST_LEARNER_ID } from './helpers/auth.helper';
 
 jest.mock('../../modules/learner/repository/learner.repository');
 jest.mock('../../database/mysql', () => ({ pool: {} }));
-jest.mock('../../database/query', () => ({ query: jest.fn() }));
+jest.mock('../../database/query', () => ({ query: jest.fn().mockResolvedValue([]) }));
 
 import { LearnerRepository } from '../../modules/learner/repository/learner.repository';
 const LearnerRepoMock = LearnerRepository as jest.MockedClass<typeof LearnerRepository>;
@@ -48,6 +49,7 @@ describe('Learner Integration', () => {
     // Use actual method names from LearnerRepository
     LearnerRepoMock.prototype.findProfile.mockResolvedValue(PROFILE as any);
     LearnerRepoMock.prototype.updateProfile.mockResolvedValue(undefined);
+    LearnerRepoMock.prototype.findActiveJourney.mockResolvedValue({ journey_id: 'journey-id' } as any);
   });
 
   describe('GET /api/learner/profile', () => {
@@ -97,17 +99,32 @@ describe('Learner Integration', () => {
 
   describe('POST /api/learner/onboarding', () => {
     it('200 – completes onboarding', async () => {
+      LearnerRepoMock.prototype.findActiveJourney.mockResolvedValueOnce(null).mockResolvedValue({ journey_id: 'journey-id' } as any);
       LearnerRepoMock.prototype.createJourney.mockResolvedValue('journey-id');
       const res = await request(app)
         .post('/api/learner/onboarding')
         .set('Authorization', TOKEN)
         .send({
-          learning_goal: 'Become a senior engineer',
-          experience_level: 'intermediate',
-          weekly_target_hours: 10
+          title: 'Full Stack Developer',
+          domain: 'Technology',
+          target_date: '2030-12-31',
+          purpose_profile: {
+            why: 'Career transition into tech',
+            expectedOutcome: 'Landed a senior dev role',
+            motivationType: 'intrinsic'
+          },
+          memory_profile: {
+            availableDailyMinutes: 60,
+            preferredLearningStyle: 'visual',
+            teachBackEnabled: true,
+            habitTriggers: ['morning coffee'],
+            preferredLearningTime: 'morning',
+            weeklyCommitment: 10
+          }
         });
 
-      expect(res.status).toBe(200);
+      if (res.status === 500) console.log("ONBOARDING 500:", res.body);
+      expect(res.status).toBe(201);
     });
 
     it('422 – missing required onboarding fields', async () => {

@@ -1,5 +1,5 @@
-import { BaseEntity } from '../../../shared/types';
-import { PurposeProfile, MemoryProfile } from '../../learner/types/learner.types';
+import type { BaseEntity } from '../../../shared/types';
+import type { PurposeProfile, MemoryProfile } from '../../learner/types/learner.types';
 
 export type JourneyStatus = 'active' | 'completed' | 'paused' | 'abandoned';
 export type MilestoneDifficulty = 'easy' | 'medium' | 'hard' | 'expert';

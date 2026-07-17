@@ -1,4 +1,5 @@
-import { body, param, ValidationChain } from 'express-validator';
+import type { ValidationChain } from 'express-validator';
+import { body, param } from 'express-validator';
 
 const buildPurposeProfileValidators = (): ValidationChain[] => {
   const prefix = body('purpose_profile')
@@ -7,7 +8,7 @@ const buildPurposeProfileValidators = (): ValidationChain[] => {
     .bail();
   
   const validateStringField = (field: string, options: { min?: number, max: number }) => {
-    let chain = body(`purpose_profile.${field}`)
+    const chain = body(`purpose_profile.${field}`)
       .optional()
       .notEmpty().withMessage(`purpose_profile.${field} cannot be empty`).bail()
       .isString().withMessage(`purpose_profile.${field} must be a string`).bail()
@@ -35,7 +36,7 @@ const buildMemoryProfileValidators = (): ValidationChain[] => {
     .bail();
   
   const validateStringField = (field: string, options: { min?: number, max: number }) => {
-    let chain = body(`memory_profile.${field}`)
+    const chain = body(`memory_profile.${field}`)
       .optional()
       .notEmpty().withMessage(`memory_profile.${field} cannot be empty`).bail()
       .isString().withMessage(`memory_profile.${field} must be a string`).bail()

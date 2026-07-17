@@ -6,7 +6,7 @@ import { AssessmentRepository } from '../../assessment/repository';
 import { IntelligenceRepository } from '../../intelligence/repository';
 import { generateUUID } from '../../../utils/uuid';
 import { MESSAGES } from '../../../shared/messages';
-import {
+import type {
   DashboardPreferenceRecord,
   DashboardSnapshotRecord,
   DashboardWidgetRecord,
@@ -14,10 +14,12 @@ import {
   UpdatePreferenceDTO,
   UpdateWidgetLayoutRequestDTO,
   GenerateExportRequestDTO,
-  DashboardOverviewDTO,
   DashboardStatisticsDTO,
   DashboardTimelineDTO,
   ExportStatus
+} from '../types';
+import {
+  DashboardOverviewDTO
 } from '../types';
 
 export class DashboardService {
@@ -223,7 +225,7 @@ export class DashboardService {
       export_id: generateUUID(),
       learner_id: learnerId,
       export_type: dto.export_type,
-      status: 'pending' as ExportStatus
+      status: 'pending'
     });
 
     // Fire & Forget background worker mock simulation
@@ -231,13 +233,13 @@ export class DashboardService {
     setTimeout(async () => {
       try {
         await this.dashboardRepo.updateExport(record.export_id, {
-          status: 'completed' as ExportStatus,
+          status: 'completed',
           generated_at: new Date(),
           file_name: 'export_' + record.export_id + '.' + dto.export_type
         });
       } catch (err) {
         await this.dashboardRepo.updateExport(record.export_id, {
-          status: 'failed' as ExportStatus
+          status: 'failed'
         });
       }
     }, 1000);

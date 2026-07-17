@@ -1,4 +1,5 @@
 import { Router } from 'express';
+
 import { IntelligenceController } from '../controller';
 import { authMiddleware } from '../../../middleware/auth.middleware';
 import { validateRequest } from '../../../middleware/validate.middleware';

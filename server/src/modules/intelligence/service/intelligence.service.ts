@@ -5,7 +5,7 @@ import { SessionRepository } from '../../session/repository';
 import { AdaptiveRuntimeRepository } from '../../adaptive/repository';
 import { generateUUID } from '../../../utils/uuid';
 import { MESSAGES } from '../../../shared/messages';
-import {
+import type {
   LearningAnalyticsRecord,
   LearnerMasteryRecord,
   MasteryStatus,

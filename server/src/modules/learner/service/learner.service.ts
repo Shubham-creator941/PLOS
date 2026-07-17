@@ -1,7 +1,7 @@
 import { LearnerRepository } from '../repository/learner.repository';
 import { generateUUID } from '../../../utils/uuid';
 import { MESSAGES } from '../../../shared/messages';
-import {
+import type {
   OnboardLearnerDTO,
   UpdateProfileRequestDTO,
   LearnerProfile,

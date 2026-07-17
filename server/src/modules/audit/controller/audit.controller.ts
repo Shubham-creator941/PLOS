@@ -1,6 +1,7 @@
-import { Response, NextFunction } from 'express';
+import type { Response, NextFunction } from 'express';
+
 import { AuditService } from '../service';
-import { AuthenticatedRequest } from '../../../shared/types';
+import type { AuthenticatedRequest } from '../../../shared/types';
 import { success } from '../../../shared/response';
 
 export class AuditController {

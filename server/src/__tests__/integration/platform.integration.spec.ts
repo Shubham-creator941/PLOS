@@ -9,12 +9,13 @@
 process.env.JWT_SECRET = 'test-secret';
 
 import request from 'supertest';
+
 import { buildApp } from './helpers/testApp';
 import { makeAuthToken, TEST_LEARNER_ID } from './helpers/auth.helper';
 
 jest.mock('../../modules/platform/repository/platform.repository');
 jest.mock('../../database/mysql', () => ({ pool: {} }));
-jest.mock('../../database/query', () => ({ query: jest.fn() }));
+jest.mock('../../database/query', () => ({ query: jest.fn().mockResolvedValue([]) }));
 
 import { PlatformRepository } from '../../modules/platform/repository/platform.repository';
 const PlatformRepoMock = PlatformRepository as jest.MockedClass<typeof PlatformRepository>;
@@ -79,14 +80,14 @@ describe('Platform Administration Integration', () => {
     jest.clearAllMocks();
     app = buildApp();
 
-    PlatformRepoMock.prototype.createSetting.mockResolvedValue(SETTING as any);
+    PlatformRepoMock.prototype.createSetting.mockResolvedValue(SETTING);
     PlatformRepoMock.prototype.findSettingByKey.mockResolvedValue(null);
-    PlatformRepoMock.prototype.listSettings.mockResolvedValue([SETTING] as any);
-    PlatformRepoMock.prototype.updateSetting.mockResolvedValue({ ...SETTING, setting_value: '#ffffff' } as any);
-    PlatformRepoMock.prototype.createFeatureFlag.mockResolvedValue(FLAG as any);
-    PlatformRepoMock.prototype.findFeatureFlagByName.mockResolvedValue(FLAG as any);
-    PlatformRepoMock.prototype.listFeatureFlags.mockResolvedValue([FLAG] as any);
-    PlatformRepoMock.prototype.updateFeatureFlag.mockResolvedValue({ ...FLAG, enabled: true } as any);
+    PlatformRepoMock.prototype.listSettings.mockResolvedValue([SETTING]);
+    PlatformRepoMock.prototype.updateSetting.mockResolvedValue({ ...SETTING, setting_value: '#ffffff' });
+    PlatformRepoMock.prototype.createFeatureFlag.mockResolvedValue(FLAG);
+    PlatformRepoMock.prototype.findFeatureFlagByName.mockResolvedValue(FLAG);
+    PlatformRepoMock.prototype.listFeatureFlags.mockResolvedValue([FLAG]);
+    PlatformRepoMock.prototype.updateFeatureFlag.mockResolvedValue({ ...FLAG, enabled: true });
     PlatformRepoMock.prototype.createAnnouncement.mockResolvedValue(ANNOUNCEMENT as any);
     PlatformRepoMock.prototype.findAnnouncement.mockResolvedValue(ANNOUNCEMENT as any);
     PlatformRepoMock.prototype.listAnnouncements.mockResolvedValue([ANNOUNCEMENT] as any);
@@ -127,7 +128,7 @@ describe('Platform Administration Integration', () => {
     });
 
     it('409 – duplicate key', async () => {
-      PlatformRepoMock.prototype.findSettingByKey.mockResolvedValue(SETTING as any);
+      PlatformRepoMock.prototype.findSettingByKey.mockResolvedValue(SETTING);
       const res = await request(app)
         .post('/api/platform/settings')
         .set('Authorization', ADMIN_TOKEN)
@@ -146,7 +147,7 @@ describe('Platform Administration Integration', () => {
 
   describe('PATCH /api/platform/settings/:setting_key', () => {
     it('200 – updates setting (admin)', async () => {
-      PlatformRepoMock.prototype.findSettingByKey.mockResolvedValue(SETTING as any);
+      PlatformRepoMock.prototype.findSettingByKey.mockResolvedValue(SETTING);
       const res = await request(app)
         .patch('/api/platform/settings/THEME_COLOR')
         .set('Authorization', ADMIN_TOKEN)
@@ -155,7 +156,7 @@ describe('Platform Administration Integration', () => {
     });
 
     it('409 – optimistic locking conflict', async () => {
-      PlatformRepoMock.prototype.findSettingByKey.mockResolvedValue(SETTING as any);
+      PlatformRepoMock.prototype.findSettingByKey.mockResolvedValue(SETTING);
       PlatformRepoMock.prototype.updateSetting.mockRejectedValue(
         new Error('Concurrent update detected')
       );
@@ -237,7 +238,7 @@ describe('Platform Administration Integration', () => {
       const res = await request(app)
         .patch(`/api/platform/announcements/${ANNOUNCEMENT_ID}/publish`)
         .set('Authorization', ADMIN_TOKEN)
-        .send({ version: 0 });
+        .send({ version: 999 });
       expect(res.status).toBe(409);
     });
   });

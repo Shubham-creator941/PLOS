@@ -1,7 +1,8 @@
-import { Response, NextFunction } from 'express';
+import type { Response, NextFunction } from 'express';
+
 import { verifyToken } from '../utils/jwt';
 import { unauthorized } from '../shared/response';
-import { AuthenticatedRequest } from '../shared/types';
+import type { AuthenticatedRequest } from '../shared/types';
 import { MESSAGES } from '../shared/messages';
 import { logger } from '../utils/logger';
 

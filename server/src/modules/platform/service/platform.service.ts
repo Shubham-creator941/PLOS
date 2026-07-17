@@ -1,7 +1,7 @@
 import { PlatformRepository } from '../repository';
 import { generateUUID } from '../../../utils/uuid';
 import { MESSAGES } from '../../../shared/messages';
-import {
+import type {
   PlatformSettingRecord,
   FeatureFlagRecord,
   PlatformAnnouncementRecord,
@@ -33,7 +33,7 @@ export class PlatformService {
   public async createSetting(dto: SetPlatformSettingRequestDTO): Promise<PlatformSettingRecord> {
     const existing = await this.platformRepo.findSettingByKey(dto.setting_key);
     if (existing) {
-      throw new Error(MESSAGES.BAD_REQUEST || 'Setting key already exists');
+      throw new Error('Setting key already exists');
     }
 
     return this.platformRepo.createSetting({

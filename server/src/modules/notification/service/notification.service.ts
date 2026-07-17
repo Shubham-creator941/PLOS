@@ -1,7 +1,7 @@
 import { NotificationRepository } from '../repository';
 import { generateUUID } from '../../../utils/uuid';
 import { MESSAGES } from '../../../shared/messages';
-import {
+import type {
   NotificationRecord,
   NotificationPreferenceRecord,
   NotificationDeliveryRecord,

@@ -1,4 +1,5 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
+
 import { notFound } from '../shared/response';
 import { MESSAGES } from '../shared/messages';
 

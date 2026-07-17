@@ -2,7 +2,7 @@ import { generateUUID } from '../../../utils/uuid';
 import { MESSAGES } from '../../../shared/messages';
 import { PlanningRepository } from '../repository';
 import { JourneyRepository } from '../../journey/repository/journey.repository';
-import {
+import type {
   LearningPlanRecord,
   LearningPhaseRecord,
   LearningModuleRecord,

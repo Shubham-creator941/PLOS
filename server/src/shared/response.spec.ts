@@ -1,5 +1,6 @@
+import type { Response } from 'express';
+
 import { success, created } from './response';
-import { Response } from 'express';
 
 describe('Response Shared Helpers', () => {
   let mockRes: Partial<Response>;

@@ -1,7 +1,8 @@
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
+
 import { AuthService } from '../service/auth.service';
 import { created, success } from '../../../shared/response';
-import { AuthenticatedRequest } from '../../../shared/types';
+import type { AuthenticatedRequest } from '../../../shared/types';
 import { MESSAGES } from '../../../shared/messages';
 
 export class AuthController {

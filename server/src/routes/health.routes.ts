@@ -11,7 +11,9 @@
  *   503 → unhealthy / not ready (orchestrators will restart or stop traffic)
  */
 
-import { Router, Request, Response } from 'express';
+import type { Request, Response } from 'express';
+import { Router } from 'express';
+
 import { checkDatabaseHealth } from '../database/health';
 import { env } from '../config/env';
 import { logger } from '../utils/logger';

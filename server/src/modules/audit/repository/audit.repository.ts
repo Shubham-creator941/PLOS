@@ -1,7 +1,8 @@
-import { ResultSetHeader } from 'mysql2/promise';
+import type { ResultSetHeader } from 'mysql2/promise';
+
 import { query } from '../../../database/query';
 import { MESSAGES } from '../../../shared/messages';
-import {
+import type {
   AuditLogRecord,
   ActivityRecord,
   LoginHistoryRecord,

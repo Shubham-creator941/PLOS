@@ -1,4 +1,5 @@
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
+
 import { serverError } from '../shared/response';
 import { MESSAGES } from '../shared/messages';
 import { logger } from '../utils/logger';
@@ -9,7 +10,7 @@ export const errorMiddleware = (
   req: Request,
   res: Response,
   // Express requires 4 parameters for error handling middleware
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   next: NextFunction
 ): void => {
   logger.error('Unhandled Exception:', err);

@@ -4,7 +4,9 @@
  * expiresIn reads from env.JWT_EXPIRES_IN.
  */
 
-import jwt, { SignOptions } from 'jsonwebtoken';
+import type { SignOptions } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
+
 import { env } from '../config/env';
 
 export interface TokenPayload {

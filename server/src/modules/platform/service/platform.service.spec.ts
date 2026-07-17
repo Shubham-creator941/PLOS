@@ -1,6 +1,7 @@
-import { PlatformService } from './platform.service';
 import { PlatformRepository } from '../repository/platform.repository';
 import * as uuidUtils from '../../../utils/uuid';
+
+import { PlatformService } from './platform.service';
 
 jest.mock('../repository/platform.repository');
 jest.mock('../../../utils/uuid');
@@ -18,7 +19,7 @@ describe('PlatformService', () => {
   describe('createSetting', () => {
     it('should create a new setting with a generated UUID', async () => {
       (uuidUtils.generateUUID as jest.Mock).mockReturnValue('mock_uuid');
-      repoMock.createSetting.mockResolvedValue({} as any);
+      repoMock.createSetting.mockResolvedValue({ setting_id: 'mock_uuid' } as any);
 
       const dto = { setting_key: 'THEME', setting_value: 'dark', description: '', is_public: true };
       const result = await service.createSetting(dto);
@@ -28,8 +29,7 @@ describe('PlatformService', () => {
         setting_key: 'THEME',
         setting_value: 'dark',
         description: '',
-        is_public: true,
-        version: 1
+        is_public: true
       });
       expect(result).toHaveProperty('setting_id', 'mock_uuid');
     });
@@ -55,7 +55,7 @@ describe('PlatformService', () => {
   describe('recordSystemSnapshot', () => {
     it('should record system health with UUID', async () => {
       (uuidUtils.generateUUID as jest.Mock).mockReturnValue('snapshot_uuid');
-      repoMock.createSystemHealthSnapshot.mockResolvedValue({} as any);
+      repoMock.createSystemHealthSnapshot.mockResolvedValue({ snapshot_id: 'snapshot_uuid' } as any);
 
       const dto = {
         active_sessions: 10,

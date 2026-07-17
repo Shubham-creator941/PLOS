@@ -15,6 +15,7 @@ import { env }    from './config/env';
 import { logger } from './utils/logger';
 import app         from './app';
 import { pool }    from './database/mysql';
+
 import http        from 'http';
 
 const server = http.createServer(app);

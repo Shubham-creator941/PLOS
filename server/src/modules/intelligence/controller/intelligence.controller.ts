@@ -1,6 +1,7 @@
-import { Response, NextFunction } from 'express';
+import type { Response, NextFunction } from 'express';
+
 import { IntelligenceService } from '../service';
-import { AuthenticatedRequest } from '../../../shared/types';
+import type { AuthenticatedRequest } from '../../../shared/types';
 import { success, created } from '../../../shared/response';
 
 export class IntelligenceController {

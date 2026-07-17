@@ -1,8 +1,9 @@
 import { Router } from 'express';
+import { param } from 'express-validator';
+
 import { AssessmentController } from '../controller';
 import { authMiddleware } from '../../../middleware/auth.middleware';
 import { validateRequest } from '../../../middleware/validate.middleware';
-import { param } from 'express-validator';
 import {
   templateIdValidator,
   questionIdValidator,
@@ -110,7 +111,7 @@ router.delete(
 // ---- Attempts ----
 
 router.post(
-  '/attempts',
+  '/:template_id/attempts',
   authMiddleware,
   startAttemptValidator,
   validateRequest,

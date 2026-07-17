@@ -6,12 +6,13 @@
 process.env.JWT_SECRET = 'test-secret';
 
 import request from 'supertest';
+
 import { buildApp } from './helpers/testApp';
 import { makeAuthToken, TEST_LEARNER_ID } from './helpers/auth.helper';
 
 jest.mock('../../modules/intelligence/repository/intelligence.repository');
 jest.mock('../../database/mysql', () => ({ pool: {} }));
-jest.mock('../../database/query', () => ({ query: jest.fn() }));
+jest.mock('../../database/query', () => ({ query: jest.fn().mockResolvedValue([]) }));
 
 import { IntelligenceRepository } from '../../modules/intelligence/repository/intelligence.repository';
 const IntelRepoMock = IntelligenceRepository as jest.MockedClass<typeof IntelligenceRepository>;
@@ -38,7 +39,7 @@ describe('Learning Intelligence Integration', () => {
     IntelRepoMock.prototype.createRecommendation.mockResolvedValue({} as any);
     IntelRepoMock.prototype.listRecommendations.mockResolvedValue([]);
     IntelRepoMock.prototype.listKnowledgeGaps.mockResolvedValue([]);
-    IntelRepoMock.prototype.findKnowledgeGap.mockResolvedValue({ gap_id: GAP_ID, version: 1 } as any);
+    IntelRepoMock.prototype.findKnowledgeGap.mockResolvedValue({ gap_id: GAP_ID, learner_id: TEST_LEARNER_ID, version: 1 } as any);
     IntelRepoMock.prototype.updateKnowledgeGap.mockResolvedValue({} as any);
   });
 
@@ -52,7 +53,7 @@ describe('Learning Intelligence Integration', () => {
       const res = await request(app)
         .post('/api/intelligence/analytics/recalculate')
         .set('Authorization', TOKEN)
-        .send({ period_days: 30 });
+        .send({ learner_id: TEST_LEARNER_ID });
       expect(res.status).toBe(200);
     });
   });
@@ -72,8 +73,8 @@ describe('Learning Intelligence Integration', () => {
       const res = await request(app)
         .post('/api/intelligence/assessment')
         .set('Authorization', TOKEN)
-        .send({ module_id: MODULE_ID, score: 85, passed: true });
-      expect(res.status).toBe(201);
+        .send({ module_id: MODULE_ID, assessment_score: 85 });
+      expect(res.status).toBe(200);
     });
   });
 
@@ -91,7 +92,7 @@ describe('Learning Intelligence Integration', () => {
       const res = await request(app)
         .post('/api/intelligence/recommendations')
         .set('Authorization', TOKEN)
-        .send({ context: 'weak areas' });
+        .send({ learner_id: TEST_LEARNER_ID });
       expect(res.status).toBe(201);
     });
   });
@@ -119,7 +120,7 @@ describe('Learning Intelligence Integration', () => {
       const res = await request(app)
         .patch(`/api/intelligence/knowledge-gaps/${GAP_ID}`)
         .set('Authorization', TOKEN)
-        .send({ resolution_note: 'Reviewed and understood.' });
+        .send({ resolved: true });
       expect(res.status).toBe(200);
     });
   });

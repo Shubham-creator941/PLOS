@@ -1,4 +1,5 @@
-import { query, param, body, ValidationChain } from 'express-validator';
+import type { ValidationChain } from 'express-validator';
+import { query, param, body } from 'express-validator';
 
 // ---- UUID Validators ----
 

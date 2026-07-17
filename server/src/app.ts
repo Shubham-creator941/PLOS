@@ -13,9 +13,11 @@
  *   8. Global error handler (typed errors → correct HTTP status)
  */
 
-import express, { Application, Request, Response, NextFunction } from 'express';
+import type { Application, Request, Response, NextFunction } from 'express';
+import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
+
 import { env }           from './config/env';
 import { logger }        from './utils/logger';
 import { AppError }      from './shared/errors';

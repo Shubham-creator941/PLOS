@@ -3,7 +3,7 @@ import { MESSAGES } from '../../../shared/messages';
 import { SessionRepository } from '../repository';
 import { PlanningRepository } from '../../planning/repository';
 import { PlanningService } from '../../planning/service';
-import {
+import type {
   StartSessionRequestDTO,
   PauseSessionRequestDTO,
   ResumeSessionRequestDTO,

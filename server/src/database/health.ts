@@ -4,9 +4,11 @@
  * Uses structured logger instead of console.error.
  */
 
-import { query } from './query';
-import { RowDataPacket } from 'mysql2';
+import type { RowDataPacket } from 'mysql2';
+
 import { logger } from '../utils/logger';
+
+import { query } from './query';
 
 export interface DatabaseHealth {
   connected:        boolean;

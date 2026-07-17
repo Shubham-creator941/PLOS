@@ -1,4 +1,4 @@
-import { BaseEntity } from '../../../shared/types';
+import type { BaseEntity } from '../../../shared/types';
 
 export interface UserRecord extends BaseEntity {
   learner_id: string;

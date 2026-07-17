@@ -1,6 +1,7 @@
+import type { RowDataPacket, ResultSetHeader } from 'mysql2';
+
 import { query } from '../../../database/query';
-import { UserRecord, CreateUserDTO } from '../types/auth.types';
-import { RowDataPacket, ResultSetHeader } from 'mysql2';
+import type { UserRecord, CreateUserDTO } from '../types/auth.types';
 
 export class AuthRepository {
   private readonly USER_COLUMNS = `

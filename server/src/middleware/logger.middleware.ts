@@ -4,7 +4,8 @@
  * Kept for compatibility; delegates to the structured logger.
  */
 
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
+
 import { logger } from '../utils/logger';
 
 export const requestLogger = (req: Request, _res: Response, next: NextFunction): void => {

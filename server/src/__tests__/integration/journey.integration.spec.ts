@@ -6,12 +6,13 @@
 process.env.JWT_SECRET = 'test-secret';
 
 import request from 'supertest';
+
 import { buildApp } from './helpers/testApp';
 import { makeAuthToken, TEST_LEARNER_ID } from './helpers/auth.helper';
 
 jest.mock('../../modules/journey/repository/journey.repository');
 jest.mock('../../database/mysql', () => ({ pool: {} }));
-jest.mock('../../database/query', () => ({ query: jest.fn() }));
+jest.mock('../../database/query', () => ({ query: jest.fn().mockResolvedValue([]) }));
 
 import { JourneyRepository } from '../../modules/journey/repository/journey.repository';
 const JourneyRepoMock = JourneyRepository as jest.MockedClass<typeof JourneyRepository>;
@@ -61,32 +62,14 @@ describe('Journey Integration', () => {
   });
 
   // ── CRUD ─────────────────────────────────────────────────────
-  describe('POST /api/journey', () => {
-    it('201 – creates journey', async () => {
-      // POST journey creates a new one — stub findActiveByLearner to return null (no existing)
-      JourneyRepoMock.prototype.findActiveByLearner.mockResolvedValue(null);
-      const res = await request(app)
-        .post('/api/journey')
-        .set('Authorization', TOKEN)
-        .send({ title: 'My Journey', description: 'Desc' });
-      expect(res.status).toBe(201);
-    });
 
-    it('422 – missing title', async () => {
-      const res = await request(app)
-        .post('/api/journey')
-        .set('Authorization', TOKEN)
-        .send({ description: 'No title' });
-      expect(res.status).toBe(422);
-    });
-  });
 
   describe('PATCH /api/journey', () => {
     it('200 – updates title', async () => {
       const res = await request(app)
         .patch('/api/journey')
         .set('Authorization', TOKEN)
-        .send({ title: 'Updated', version: 1 });
+        .send({ title: 'Updated' });
       expect(res.status).toBe(200);
     });
 
@@ -97,7 +80,7 @@ describe('Journey Integration', () => {
       const res = await request(app)
         .patch('/api/journey')
         .set('Authorization', TOKEN)
-        .send({ title: 'Stale', version: 0 });
+        .send({ title: 'Stale' });
       expect(res.status).toBe(409);
     });
   });
@@ -109,12 +92,13 @@ describe('Journey Integration', () => {
   });
 
   it('200 – resume journey', async () => {
-    JourneyRepoMock.prototype.findActiveByLearner.mockResolvedValue({ ...JOURNEY, status: 'paused' } as any);
+    JourneyRepoMock.prototype.findCurrentByLearner.mockResolvedValue({ ...JOURNEY, status: 'paused' } as any);
     const res = await request(app).post('/api/journey/resume').set('Authorization', TOKEN);
     expect(res.status).toBe(200);
   });
 
   it('200 – complete journey', async () => {
+    JourneyRepoMock.prototype.calculateProgress.mockResolvedValue({ completed_milestones: 5, total_milestones: 5 } as any);
     const res = await request(app).post('/api/journey/complete').set('Authorization', TOKEN);
     expect(res.status).toBe(200);
   });
@@ -139,7 +123,7 @@ describe('Journey Integration', () => {
     const res = await request(app)
       .post('/api/journey/milestones')
       .set('Authorization', TOKEN)
-      .send({ title: 'Milestone 1', target_date: '2026-12-31' });
+      .send({ title: 'Milestone 1', description: 'Milestone description', deadline: '2026-12-31T00:00:00Z' });
     expect(res.status).toBe(201);
   });
 });

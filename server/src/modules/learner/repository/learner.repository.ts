@@ -1,6 +1,7 @@
+import type { RowDataPacket, ResultSetHeader } from 'mysql2';
+
 import { query } from '../../../database/query';
-import { RowDataPacket, ResultSetHeader } from 'mysql2';
-import { 
+import type { 
   LearnerProfile, 
   UpdateLearnerDTO, 
   JourneyRecord, 

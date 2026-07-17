@@ -6,15 +6,20 @@
 process.env.JWT_SECRET = 'test-secret';
 
 import request from 'supertest';
+
 import { buildApp } from './helpers/testApp';
 import { makeAuthToken, TEST_LEARNER_ID } from './helpers/auth.helper';
 
 jest.mock('../../modules/planning/repository/planning.repository');
+jest.mock('../../modules/journey/repository/journey.repository');
 jest.mock('../../database/mysql', () => ({ pool: {} }));
-jest.mock('../../database/query', () => ({ query: jest.fn() }));
+jest.mock('../../database/query', () => ({ query: jest.fn().mockResolvedValue([]) }));
 
 import { PlanningRepository } from '../../modules/planning/repository/planning.repository';
 const PlanRepoMock = PlanningRepository as jest.MockedClass<typeof PlanningRepository>;
+
+import { JourneyRepository } from '../../modules/journey/repository/journey.repository';
+const JourneyRepoMock = JourneyRepository as jest.MockedClass<typeof JourneyRepository>;
 
 const PLAN_ID   = 'cccccccc-cccc-4ccc-accc-cccccccccccc';
 const PHASE_ID  = 'ffffffff-ffff-4fff-afff-ffffffffffff';
@@ -65,6 +70,9 @@ describe('Planning Integration', () => {
     PlanRepoMock.prototype.updateObjective.mockResolvedValue(undefined);
     PlanRepoMock.prototype.completeObjective.mockResolvedValue(undefined);
     PlanRepoMock.prototype.deleteObjective.mockResolvedValue(undefined);
+    PlanRepoMock.prototype.deleteObjective.mockResolvedValue(undefined);
+
+    JourneyRepoMock.prototype.findById.mockResolvedValue({ journey_id: '11111111-1111-4111-a111-111111111111', learner_id: TEST_LEARNER_ID } as any);
   });
 
   // ── Auth guard ────────────────────────────────────────────────
@@ -79,7 +87,7 @@ describe('Planning Integration', () => {
       const res = await request(app)
         .post('/api/planning')
         .set('Authorization', TOKEN)
-        .send({ title: 'My Plan', journey_id: '11111111-1111-4111-a111-111111111111', description: 'Desc' });
+        .send({ title: 'My Plan', journey_id: '11111111-1111-4111-a111-111111111111', description: 'Description of my new plan' });
       expect(res.status).toBe(201);
     });
 
@@ -121,7 +129,7 @@ describe('Planning Integration', () => {
       const res = await request(app)
         .patch(`/api/planning/${PLAN_ID}`)
         .set('Authorization', TOKEN)
-        .send({ title: 'Updated', version: 1 });
+        .send({ title: 'Updated' });
       expect(res.status).toBe(200);
     });
   });
@@ -159,7 +167,7 @@ describe('Planning Integration', () => {
       const res = await request(app)
         .post(`/api/planning/${PLAN_ID}/phases`)
         .set('Authorization', TOKEN)
-        .send({ title: 'Phase 1', order_index: 1 });
+        .send({ title: 'Phase 1', description: 'Phase description', order_no: 1 });
       expect(res.status).toBe(201);
     });
   });
@@ -179,7 +187,7 @@ describe('Planning Integration', () => {
       const res = await request(app)
         .post(`/api/planning/phases/${PHASE_ID}/modules`)
         .set('Authorization', TOKEN)
-        .send({ title: 'Module 1', order_index: 1 });
+        .send({ title: 'Module 1', description: 'Module description', order_no: 1, estimated_minutes: 30 });
       expect(res.status).toBe(201);
     });
   });
@@ -190,7 +198,7 @@ describe('Planning Integration', () => {
       const res = await request(app)
         .post(`/api/planning/modules/${MODULE_ID}/objectives`)
         .set('Authorization', TOKEN)
-        .send({ title: 'Objective 1', order_index: 1 });
+        .send({ title: 'Objective 1', description: 'Objective description', order_no: 1 });
       expect(res.status).toBe(201);
     });
   });

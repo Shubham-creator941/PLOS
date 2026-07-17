@@ -2,7 +2,7 @@ import { AuthRepository } from '../repository/auth.repository';
 import { hashPassword, comparePassword } from '../../../utils/password';
 import { generateToken } from '../../../utils/jwt';
 import { generateUUID } from '../../../utils/uuid';
-import { 
+import type { 
   UserRecord, 
   CreateUserDTO, 
   LoginDTO, 

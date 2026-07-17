@@ -1,6 +1,7 @@
-import { Response, NextFunction } from 'express';
+import type { Response, NextFunction } from 'express';
+
 import { forbidden } from '../shared/response';
-import { AuthenticatedRequest } from '../shared/types';
+import type { AuthenticatedRequest } from '../shared/types';
 import { MESSAGES } from '../shared/messages';
 
 export const roleMiddleware = (allowedRoles: string[]) => {

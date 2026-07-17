@@ -3,7 +3,7 @@ import { PlanningRepository } from '../../planning/repository';
 import { SessionRepository } from '../../session/repository';
 import { generateUUID } from '../../../utils/uuid';
 import { MESSAGES } from '../../../shared/messages';
-import {
+import type {
   AssessmentTemplateRecord,
   AssessmentAttemptRecord,
   AssessmentAnswerRecord,

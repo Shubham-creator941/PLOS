@@ -1,6 +1,7 @@
+import type { RowDataPacket, ResultSetHeader } from 'mysql2';
+
 import { query } from '../../../database/query';
-import { RowDataPacket, ResultSetHeader } from 'mysql2';
-import {
+import type {
   JourneyRecord,
   MilestoneRecord,
   CreateMilestoneDTO,
@@ -8,7 +9,7 @@ import {
   UpdateJourneyDTO,
   JourneyProgressRecord
 } from '../types/journey.types';
-import { PurposeProfile, MemoryProfile } from '../../learner/types';
+import type { PurposeProfile, MemoryProfile } from '../../learner/types';
 import { MESSAGES } from '../../../shared/messages';
 
 const JOURNEY_COLUMNS = `

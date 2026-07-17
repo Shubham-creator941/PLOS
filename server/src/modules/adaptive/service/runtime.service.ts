@@ -3,7 +3,7 @@ import { MESSAGES } from '../../../shared/messages';
 import { AdaptiveRuntimeRepository } from '../repository';
 import { SessionRepository } from '../../session/repository';
 import { PlanningRepository } from '../../planning/repository';
-import {
+import type {
   AdaptiveRuntimeStateRecord,
   AdaptiveRuntimeDecisionRecord,
   AdaptiveReviewQueueRecord,

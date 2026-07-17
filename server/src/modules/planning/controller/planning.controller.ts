@@ -1,8 +1,9 @@
-import { Response, NextFunction } from 'express';
+import type { Response, NextFunction } from 'express';
+
 import { PlanningService } from '../service';
 import { success, created } from '../../../shared/response';
 import { MESSAGES } from '../../../shared/messages';
-import { AuthenticatedRequest } from '../../../shared/types';
+import type { AuthenticatedRequest } from '../../../shared/types';
 
 export class PlanningController {
   private readonly service = new PlanningService();

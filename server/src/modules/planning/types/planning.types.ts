@@ -1,4 +1,4 @@
-import { BaseEntity } from '../../../shared/types';
+import type { BaseEntity } from '../../../shared/types';
 
 export type PlanStatus = 'draft' | 'active' | 'completed' | 'archived';
 export type PhaseStatus = 'locked' | 'active' | 'completed';

@@ -6,15 +6,24 @@
 process.env.JWT_SECRET = 'test-secret';
 
 import request from 'supertest';
+
 import { buildApp } from './helpers/testApp';
 import { makeAuthToken, TEST_LEARNER_ID } from './helpers/auth.helper';
 
 jest.mock('../../modules/adaptive/repository/runtime.repository');
 jest.mock('../../database/mysql', () => ({ pool: {} }));
-jest.mock('../../database/query', () => ({ query: jest.fn() }));
+jest.mock('../../database/query', () => ({ query: jest.fn().mockResolvedValue([]) }));
+jest.mock('../../modules/session/repository/session.repository');
+jest.mock('../../modules/planning/repository/planning.repository');
 
 import { AdaptiveRuntimeRepository } from '../../modules/adaptive/repository/runtime.repository';
 const AdaptiveRepoMock = AdaptiveRuntimeRepository as jest.MockedClass<typeof AdaptiveRuntimeRepository>;
+
+import { SessionRepository } from '../../modules/session/repository/session.repository';
+const SessionRepoMock = SessionRepository as jest.MockedClass<typeof SessionRepository>;
+
+import { PlanningRepository } from '../../modules/planning/repository/planning.repository';
+const PlanningRepoMock = PlanningRepository as jest.MockedClass<typeof PlanningRepository>;
 
 const RUNTIME_ID = 'cccccccc-cccc-4ccc-accc-cccccccccccc';
 const SESSION_ID = 'cccccccc-cccc-4ccc-accc-cccccccccccc';
@@ -48,6 +57,18 @@ describe('Adaptive Runtime Integration', () => {
     AdaptiveRepoMock.prototype.listDecisionHistory.mockResolvedValue([]);
     AdaptiveRepoMock.prototype.listPendingReviews.mockResolvedValue([]);
     AdaptiveRepoMock.prototype.enqueueReview.mockResolvedValue({} as any);
+
+    SessionRepoMock.prototype.findById.mockResolvedValue({ 
+      session_id: SESSION_ID, 
+      learner_id: TEST_LEARNER_ID, 
+      status: 'active',
+      plan_id: 'plan-id'
+    } as any);
+
+    PlanningRepoMock.prototype.calculateProgress.mockResolvedValue({
+      total_objectives: 10,
+      completed_objectives: 5
+    } as any);
   });
 
   it('401 – unauthenticated', async () => {
@@ -95,16 +116,15 @@ describe('Adaptive Runtime Integration', () => {
     it('200 – evaluates runtime', async () => {
       const res = await request(app)
         .post(`/api/adaptive/${RUNTIME_ID}/evaluate`)
-        .set('Authorization', TOKEN)
-        .send({ performance_score: 0.75, completion_rate: 0.9, time_on_task_seconds: 300 });
+        .set('Authorization', TOKEN);
       expect(res.status).toBe(200);
     });
 
-    it('422 – missing required fields', async () => {
+    it('422 – body not allowed', async () => {
       const res = await request(app)
         .post(`/api/adaptive/${RUNTIME_ID}/evaluate`)
         .set('Authorization', TOKEN)
-        .send({});
+        .send({ extra: true });
       expect(res.status).toBe(422);
     });
   });
@@ -114,6 +134,7 @@ describe('Adaptive Runtime Integration', () => {
       const res = await request(app)
         .get(`/api/adaptive/${RUNTIME_ID}/decisions`)
         .set('Authorization', TOKEN);
+      if (res.status === 500) console.log("DECISIONS 500:", res.body);
       expect(res.status).toBe(200);
     });
   });

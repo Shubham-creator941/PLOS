@@ -1,4 +1,4 @@
-import { BaseEntity } from '../../../shared/types';
+import type { BaseEntity } from '../../../shared/types';
 
 // ---- String Unions ----
 

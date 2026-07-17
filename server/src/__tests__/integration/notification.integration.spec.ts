@@ -6,12 +6,13 @@
 process.env.JWT_SECRET = 'test-secret';
 
 import request from 'supertest';
+
 import { buildApp } from './helpers/testApp';
 import { makeAuthToken, TEST_LEARNER_ID } from './helpers/auth.helper';
 
 jest.mock('../../modules/notification/repository/notification.repository');
 jest.mock('../../database/mysql', () => ({ pool: {} }));
-jest.mock('../../database/query', () => ({ query: jest.fn() }));
+jest.mock('../../database/query', () => ({ query: jest.fn().mockResolvedValue([]) }));
 
 import { NotificationRepository } from '../../modules/notification/repository/notification.repository';
 const NotifRepoMock = NotificationRepository as jest.MockedClass<typeof NotificationRepository>;
@@ -28,7 +29,7 @@ describe('Notification Integration', () => {
 
     // Actual method names from NotificationRepository
     NotifRepoMock.prototype.listNotifications.mockResolvedValue([]);
-    NotifRepoMock.prototype.findNotification.mockResolvedValue(null);
+    NotifRepoMock.prototype.findNotification.mockResolvedValue({ notification_id: NOTIF_ID, learner_id: TEST_LEARNER_ID } as any);
     NotifRepoMock.prototype.markRead.mockResolvedValue({} as any);
     NotifRepoMock.prototype.archive.mockResolvedValue({} as any);
     NotifRepoMock.prototype.listEvents.mockResolvedValue([]);
