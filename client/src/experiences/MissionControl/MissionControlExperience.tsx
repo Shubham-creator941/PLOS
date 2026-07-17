@@ -1,10 +1,8 @@
 import React from 'react';
 import { dashboardData } from '../../tests/mocks/dashboard';
-import { ArrowRight, CheckSquare, Square, Zap, Clock, Brain } from 'lucide-react';
+import { ArrowRight, Zap, Clock, Brain } from 'lucide-react';
 import { Card, CardContent } from '../../primitives/Card';
 import { Button } from '../../primitives/Button';
-import { ProgressRing } from '../../primitives/ProgressRing';
-import { ActivityGraph } from '../../widgets/ActivityGraph';
 
 export const Dashboard: React.FC = () => {
  const data = dashboardData;
@@ -56,60 +54,9 @@ export const Dashboard: React.FC = () => {
  </CardContent>
  </Card>
 
- {/* LEARNING VELOCITY & METRICS */}
- <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+ </div>
  
- <Card>
- <CardContent className="p-8 h-full flex flex-col justify-between">
- <h3 className="text-sm font-semibold text-text-secondary mb-6 flex justify-between items-center">
- Learning Velocity 
- <span className="text-xs font-medium bg-surface-active px-2 py-1 rounded">Last 90 Days</span>
- </h3>
- <div className="flex-1 flex items-center justify-center">
- <ActivityGraph />
- </div>
- </CardContent>
- </Card>
-
- <Card>
- <CardContent className="p-8 h-full">
- <h3 className="text-sm font-semibold text-text-secondary mb-6">Current Progress</h3>
- <div className="flex items-center justify-around gap-4">
- <ProgressRing value={data.hero.overallProgress} size={110} strokeWidth={8} label="Mastery" />
- <ProgressRing value={data.momentum.learningConsistency} size={110} strokeWidth={8} label="Consistency" />
- </div>
- </CardContent>
- </Card>
-
- </div>
-
- {/* UPCOMING TASKS */}
- <div>
- <h3 className="text-sm font-semibold text-text-secondary mb-4 px-2">Upcoming Tasks</h3>
- <Card>
- <CardContent className="p-0">
- <div className="flex flex-col divide-y divide-border/50">
- {data.upcomingTasks.map(task => (
- <div key={task.id} className="group flex items-center justify-between p-4 hover:bg-surface-secondary transition-colors cursor-pointer">
- <div className="flex items-center gap-4">
- <div className="text-text-muted group-hover:text-primary transition-colors">
- {task.completed ? <CheckSquare className="w-5 h-5 text-primary" /> : <Square className="w-5 h-5" />}
- </div>
- <span className="font-medium text-text-primary">{task.title}</span>
- </div>
- <div className="flex items-center gap-4 text-sm text-text-muted font-medium opacity-60 group-hover:opacity-100 transition-opacity">
- <span>{task.time}</span>
- <span className="w-20 text-right">{task.due === 'Today' ? 'Today' : task.due === 'Tomorrow' ? 'Tomorrow' : task.due}</span>
- </div>
- </div>
- ))}
- </div>
- </CardContent>
- </Card>
- </div>
-
- </div>
-
  {/* INSIGHTS COLUMN */}
  <div className="space-y-6">
  

@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Play, Pause, RotateCcw, Check, CheckCircle2, Circle, Clock, Target, MessageSquare, BookOpen, ChevronRight, FileText, Video } from 'lucide-react';
+import { Play, Pause, RotateCcw, CheckCircle2, Circle, Clock, Target, BookOpen, ChevronRight, FileText, Video, MessageSquare } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../primitives/Card';
 import { Badge } from '../../primitives/Badge';
 import { Button } from '../../primitives/Button';
-import { Checkbox } from '../../primitives/Checkbox';
 import { sessionData } from '../../tests/mocks/session';
 
 // ==========================================
@@ -123,50 +122,13 @@ const Workspace = () => {
  );
 };
 
-const TeachBack = () => {
- const [text, setText] = useState('');
- const wordCount = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
- return (
- <Card className="border-l-4 border-l-accent-500">
- <CardHeader className="pb-3 border-b border-border bg-background ">
- <div className="flex items-start justify-between">
- <div>
- <CardTitle className="text-lg flex items-center gap-2 text-text-primary ">
- <MessageSquare className="w-5 h-5 text-accent-500" /> Teach Back
- </CardTitle>
- <p className="text-sm text-text-secondary mt-1">{sessionData.teachBack.prompt}</p>
- </div>
- <Badge variant="neutral" className="hidden sm:flex">{wordCount} Words</Badge>
- </div>
- </CardHeader>
- <CardContent className="p-5">
- <textarea className="w-full h-40 rounded-lg border border-border bg-surface p-4 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-500 "
- placeholder="Start explaining..."
- value={text}
- onChange={(e) => setText(e.target.value)}
- ></textarea>
- <div className="flex items-center justify-between mt-3">
- <p className="text-xs text-text-muted font-medium italic">{sessionData.teachBack.helperText}</p>
- <span className="sm:hidden text-xs font-semibold text-text-muted">{wordCount} Words</span>
- {wordCount > 20 && (
- <span className="flex items-center gap-1 text-xs font-bold text-success-600 animate-[fade-in_0.3s_ease-in-out]">
- <Check className="w-3 h-3" /> Looking good!
- </span>
- )}
- </div>
- </CardContent>
- </Card>
- );
-};
 
 // ==========================================
 // Main Page Component
 // ==========================================
 
-export const TaskDetails: React.FC = () => {
+ export const TaskDetails: React.FC = () => {
  const data = sessionData;
- const [confidence, setConfidence] = useState(5);
- const [difficulty, setDifficulty] = useState<string>('');
 
  return (
  <div className="min-h-screen bg-background pb-24">
@@ -208,68 +170,18 @@ export const TaskDetails: React.FC = () => {
  <Workspace />
  </section>
 
- {/* SECTION 4: Reflection */}
+ {/* Adaptive Nudge Placeholder */}
  <section>
- <h2 className="text-xl font-bold text-text-primary mb-4">Reflection</h2>
- <Card>
- <CardContent className="p-6 space-y-8">
- {data.reflection.questions.map((q, i) => (
- <div key={i}>
- <label className="block text-sm font-semibold text-text-primary mb-2">{q}</label>
- <textarea className="w-full h-24 rounded-lg border border-border bg-surface p-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 "
- ></textarea>
+ <Card className="bg-surface-secondary border-none">
+ <CardContent className="p-6 flex items-start gap-4">
+ <div className="bg-primary/10 text-primary p-2 rounded-full shrink-0">
+ <MessageSquare className="w-5 h-5" />
  </div>
- ))}
-
- <div className="pt-4 border-t border-border ">
- <label className="block text-sm font-semibold text-text-primary mb-4">
- How confident do you feel now? ({confidence}/10)
- </label>
- <div className="flex items-center gap-4">
- <span className="text-xs font-bold text-text-muted">1</span>
- <input type="range" min="1" max="10" value={confidence} onChange={(e) => setConfidence(parseInt(e.target.value))}
- className="w-full h-2 bg-surface-active rounded-lg appearance-none cursor-pointer accent-primary-600"
- />
- <span className="text-xs font-bold text-text-muted">10</span>
- </div>
- </div>
-
- <div className="pt-4 border-t border-border ">
- <label className="block text-sm font-semibold text-text-primary mb-3">Overall Difficulty</label>
- <div className="flex gap-3">
- {data.reflection.difficultyOptions.map(opt => (
- <button
- key={opt}
- onClick={() => setDifficulty(opt)}
- className={`px-4 py-2 rounded-md text-sm font-medium transition-colors border ${
- difficulty === opt ? 'bg-primary-50 border-primary-500 text-primary-700 ' : 'bg-surface border-border text-text-secondary hover:border-primary-300 '
- }`}
- >
- {opt}
- </button>
- ))}
- </div>
- </div>
- </CardContent>
- </Card>
- </section>
-
- {/* SECTION 5: Teach Back */}
- <section>
- <TeachBack />
- </section>
-
- {/* SECTION 6: Evidence */}
- <section>
- <h2 className="text-xl font-bold text-text-primary mb-4">Evidence</h2>
- <Card>
- <CardContent className="p-6">
- <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
- {data.evidence.options.map(opt => (
- <div key={opt}>
- <Checkbox id={`ev-${opt}`} label={opt} />
- </div>
- ))}
+ <div>
+ <h3 className="text-sm font-semibold text-text-primary mb-1">Adaptive Nudge</h3>
+ <p className="text-sm text-text-secondary">
+ Based on your previous performance, consider breaking this objective into smaller 10-minute intervals.
+ </p>
  </div>
  </CardContent>
  </Card>

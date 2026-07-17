@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { CheckCircle2, Clock, PlayCircle, BookOpen, MessageSquare, Target, Check, ChevronDown, ChevronUp, Brain } from 'lucide-react';
+import { Clock, BookOpen, MessageSquare, Target, Check, ChevronDown, ChevronUp, Brain } from 'lucide-react';
 import { Card, CardContent } from '../../primitives/Card';
-import { Button } from '../../primitives/Button';
 import { ProgressRing } from '../../primitives/ProgressRing';
 import { learningJourneyData } from '../../tests/mocks/learningJourney';
 
@@ -42,40 +41,6 @@ const RoadmapOverview = ({ weeks }: { weeks: typeof learningJourneyData.weeks })
  </div>
 );
 
-const HabitTracker = ({ habits }: { habits: typeof learningJourneyData.habits }) => {
- return (
- <Card>
- <div className="p-6 md:p-8 border-b border-border">
- <h3 className="font-semibold text-text-primary flex items-center gap-2">
- <CheckCircle2 className="w-5 h-5 text-primary" /> Habit Tracker
- </h3>
- </div>
- <CardContent className="p-6 md:p-8 space-y-8">
- <div className="flex items-center gap-6">
- <ProgressRing value={habits.dailyLearning.progress} size={64} strokeWidth={6} />
- <div>
- <div className="font-semibold text-text-primary mb-1">{habits.dailyLearning.label}</div>
- <div className="text-sm font-medium text-text-muted">{habits.dailyLearning.streak} Day Streak</div>
- </div>
- </div>
- <div className="flex items-center gap-6">
- <ProgressRing value={habits.weeklyReflection.progress} size={64} strokeWidth={6} />
- <div>
- <div className="font-semibold text-text-primary mb-1">{habits.weeklyReflection.label}</div>
- <div className="text-sm font-medium text-text-muted">{habits.weeklyReflection.streak}/{habits.weeklyReflection.maxStreak} Weeks</div>
- </div>
- </div>
- <div className="flex items-center gap-6">
- <ProgressRing value={habits.teachBack.progress} size={64} strokeWidth={6} />
- <div>
- <div className="font-semibold text-text-primary mb-1">{habits.teachBack.label}</div>
- <div className="text-sm font-medium text-text-muted">{habits.teachBack.streak}/{habits.teachBack.maxStreak} Sessions</div>
- </div>
- </div>
- </CardContent>
- </Card>
- );
-};
 
 const WeekCard = ({ week }: { week: typeof learningJourneyData.weeks[0] }) => {
  const [isExpanded, setIsExpanded] = useState(week.isCurrent || false);
@@ -192,56 +157,7 @@ export const Journey: React.FC = () => {
  {/* Left Column: Deep Learning Path */}
  <div className="space-y-12">
  
- {/* SECTION 1: WHY */}
- <section>
- <h3 className="text-xs font-bold uppercase tracking-widest text-text-muted mb-4">Why This Matters</h3>
- <Card className="border-l-4 border-l-primary">
- <CardContent className="p-8">
- <p className="text-xl font-medium text-text-primary leading-relaxed italic">
- "{data.why}"
- </p>
- </CardContent>
- </Card>
- </section>
 
- {/* SECTION 2 & 3: Identity & Success */}
- <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
- <div>
- <h3 className="text-xs font-bold uppercase tracking-widest text-text-muted mb-4">Identity</h3>
- <Card className="h-full">
- <CardContent className="p-8 h-full flex items-center">
- <p className="text-lg font-medium text-text-primary leading-relaxed">{data.identity}</p>
- </CardContent>
- </Card>
- </div>
- <div>
- <h3 className="text-xs font-bold uppercase tracking-widest text-text-muted mb-4">Success Looks Like</h3>
- <Card className="h-full">
- <CardContent className="p-8 h-full flex items-center">
- <p className="text-lg font-medium text-text-secondary leading-relaxed">{data.successDefinition}</p>
- </CardContent>
- </Card>
- </div>
- </section>
-
- {/* SECTION 4: System Principles */}
- <section>
- <h3 className="text-xs font-bold uppercase tracking-widest text-text-muted mb-4">System Principles</h3>
- <Card>
- <CardContent className="p-8">
- <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
- {data.systemPrinciples.map((principle, idx) => (
- <div key={idx} className="flex items-start gap-3">
- <div className="flex h-6 w-6 mt-0.5 items-center justify-center rounded-full bg-success/10 text-success shrink-0">
- <CheckCircle2 className="w-4 h-4" />
- </div>
- <span className="font-medium text-sm text-text-secondary leading-relaxed">{principle}</span>
- </div>
- ))}
- </div>
- </CardContent>
- </Card>
- </section>
 
  {/* SECTION 5: Weekly Learning Journey */}
  <section className="pt-8">
@@ -258,19 +174,12 @@ export const Journey: React.FC = () => {
  {/* Right Column: Sticky Sidebar (Desktop) */}
  <div className="space-y-8">
  <div className="sticky top-10 space-y-8">
- <HabitTracker habits={data.habits} />
- 
+ {/* Skill Radar Placeholder */}
  <Card className="bg-surface-secondary border-none">
- <CardContent className="p-8">
- <h3 className="font-semibold text-text-primary flex items-center gap-2 mb-4">
- <Target className="w-5 h-5 text-primary" /> Today's Mission
- </h3>
- <h4 className="text-lg font-bold text-text-primary mb-4">{data.todaysMission.title}</h4>
- <div className="space-y-3">
- <Button className="w-full" size="lg">
- <PlayCircle className="w-4 h-4 mr-2" /> Start Session
- </Button>
- </div>
+ <CardContent className="p-8 text-center flex flex-col items-center justify-center min-h-[300px]">
+ <Target className="w-8 h-8 text-primary mb-3 opacity-50" />
+ <h3 className="font-semibold text-text-primary mb-2">Skill Radar</h3>
+ <p className="text-sm text-text-muted">Skill visualization will appear here.</p>
  </CardContent>
  </Card>
  </div>

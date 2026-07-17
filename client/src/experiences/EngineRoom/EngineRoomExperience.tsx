@@ -1,30 +1,73 @@
 import React from 'react';
 import { PageHeader } from '../../widgets/PageHeader';
-import { Card, CardContent } from '../../primitives/Card';
+import { Card, CardContent, CardHeader, CardTitle } from '../../primitives/Card';
 import { Button } from '../../primitives/Button';
+import { User, Palette, Link as LinkIcon } from 'lucide-react';
 
 export const Settings: React.FC = () => {
  return (
- <div className="space-y-6">
- <PageHeader title="Settings" description="Manage your account and preferences." />
+ <div className="space-y-6 max-w-4xl mx-auto pb-24 pt-8">
+ <PageHeader title="Engine Room" description="Configure your workspace and integrations." />
+ 
+ {/* Profile Section */}
+ <section>
  <Card>
- <CardContent className="p-6 space-y-4">
- <div className="flex items-center justify-between border-b border-border pb-4 ">
+ <CardHeader className="pb-3 border-b border-border">
+ <CardTitle className="text-lg flex items-center gap-2">
+ <User className="w-5 h-5 text-primary" /> Profile
+ </CardTitle>
+ </CardHeader>
+ <CardContent className="p-6">
+ <div className="flex items-center justify-between">
  <div>
- <h3 className="font-medium text-text-primary ">Dark Mode</h3>
- <p className="text-sm text-text-muted ">Toggle dark mode appearance.</p>
+ <h3 className="font-medium text-text-primary">Account Details</h3>
+ <p className="text-sm text-text-muted">Manage your personal information.</p>
  </div>
- <Button variant="outline">Toggle</Button>
- </div>
- <div className="flex items-center justify-between border-b border-border pb-4 ">
- <div>
- <h3 className="font-medium text-text-primary ">Notifications</h3>
- <p className="text-sm text-text-muted ">Manage email notifications.</p>
- </div>
- <Button variant="outline">Manage</Button>
+ <Button variant="outline">Edit Profile</Button>
  </div>
  </CardContent>
  </Card>
+ </section>
+
+ {/* UI Preferences Section */}
+ <section>
+ <Card>
+ <CardHeader className="pb-3 border-b border-border">
+ <CardTitle className="text-lg flex items-center gap-2">
+ <Palette className="w-5 h-5 text-primary" /> UI Preferences
+ </CardTitle>
+ </CardHeader>
+ <CardContent className="p-6">
+ <div className="flex items-center justify-between">
+ <div>
+ <h3 className="font-medium text-text-primary">Dark Mode</h3>
+ <p className="text-sm text-text-muted">Toggle application theme appearance.</p>
+ </div>
+ <Button variant="outline">Toggle Theme</Button>
+ </div>
+ </CardContent>
+ </Card>
+ </section>
+
+ {/* Integrations Section */}
+ <section>
+ <Card>
+ <CardHeader className="pb-3 border-b border-border">
+ <CardTitle className="text-lg flex items-center gap-2">
+ <LinkIcon className="w-5 h-5 text-primary" /> Integrations
+ </CardTitle>
+ </CardHeader>
+ <CardContent className="p-6">
+ <div className="flex items-center justify-between">
+ <div>
+ <h3 className="font-medium text-text-primary">Connect Services</h3>
+ <p className="text-sm text-text-muted">Link your calendar and external tools.</p>
+ </div>
+ <Button variant="outline">Manage Integrations</Button>
+ </div>
+ </CardContent>
+ </Card>
+ </section>
  </div>
  );
 };

@@ -11,6 +11,7 @@ import { LearningPlan } from '../experiences/Map/LearningPlan';
 import { TaskDetails } from '../experiences/Studio/StudioExperience';
 import { Reflection } from '../experiences/Mirror/MirrorExperience';
 import { Settings } from '../experiences/EngineRoom/EngineRoomExperience';
+import { LibraryExperience } from '../experiences/Library/LibraryExperience';
 import { NotFound } from './NotFound';
 import { ErrorPage } from './Error';
 
@@ -46,6 +47,7 @@ export const router = createBrowserRouter([
  { path: 'tasks', element: <Dashboard /> }, // Fallback to dashboard for tasks list
  { path: 'tasks/:id', element: <TaskDetails /> },
  { path: 'reflection', element: <Reflection /> },
+ { path: 'library', element: <LibraryExperience /> },
  { path: 'settings', element: <Settings /> },
  ],
  },
