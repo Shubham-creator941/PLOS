@@ -1,0 +1,3398 @@
+### ALL FILES ###
+--- App.tsx ---
+
+import { RouterProvider } from 'react-router-dom';
+import { router } from './router';
+
+import { ThemeProvider } from './contexts/ThemeContext';
+
+function App() {
+  return (
+    <ThemeProvider>
+      <RouterProvider router={router} />
+    </ThemeProvider>
+  );
+}
+
+export default App;
+
+--- main.tsx ---
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './styles/index.css'
+import App from './App.tsx'
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+)
+
+--- components\ActivityGraph.tsx ---
+
+
+export const ActivityGraph = () => {
+  // Generate mock data for 16 weeks of 7 days to simulate a contribution graph
+  const weeks = Array.from({ length: 16 }, () =>
+    Array.from({ length: 7 }, () => Math.floor(Math.random() * 4))
+  );
+
+  const getColor = (level: number) => {
+    switch (level) {
+      case 0: return 'bg-border/30';
+      case 1: return 'bg-primary/30';
+      case 2: return 'bg-primary/60';
+      case 3: return 'bg-primary';
+      default: return 'bg-border/30';
+    }
+  };
+
+  return (
+    <div className="flex gap-1.5">
+      {weeks.map((week, i) => (
+        <div key={i} className="flex flex-col gap-1.5">
+          {week.map((level, j) => (
+            <div key={`${i}-${j}`} className={`w-3 h-3 rounded-[2px] transition-colors duration-300 hover:ring-1 hover:ring-primary ${getColor(level)}`} title={`Activity level: ${level}`} />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+};
+
+--- components\Avatar.tsx ---
+import React from 'react';
+
+interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
+ src?: string;
+ alt?: string;
+ initials?: string;
+ size?: 'sm' | 'md' | 'lg';
+}
+
+export const Avatar: React.FC<AvatarProps> = ({ className = '', src, alt, initials, size = 'md', ...props }) => {
+ const sizeClasses = {
+ sm: 'h-8 w-8 text-label',
+ md: 'h-10 w-10 text-caption',
+ lg: 'h-12 w-12 text-body',
+ };
+
+ return (
+ <div
+ className={`relative flex shrink-0 overflow-hidden rounded-full bg-surface-active ${sizeClasses[size]} ${className}`}
+ {...props}
+ >
+ {src ? (
+ <img className="aspect-square h-full w-full object-cover" src={src} alt={alt || 'Avatar'} />
+ ) : (
+ <span className="flex h-full w-full items-center justify-center text-text-secondary ">
+ {initials}
+ </span>
+ )}
+ </div>
+ );
+};
+
+--- components\Badge.tsx ---
+import React from 'react';
+
+interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
+ variant?: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'neutral';
+}
+
+export const Badge: React.FC<BadgeProps> = ({ className = '', variant = 'primary', children, ...props }) => {
+ const baseStyles = 'inline-flex items-center rounded-full px-2.5 py-0.5 text-label transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2';
+ const variants = {
+ primary: 'bg-primary-100 text-primary-800 ',
+ secondary: 'bg-surface-hover text-text-primary ',
+ success: 'bg-accent-100 text-accent-800 ',
+ warning: 'bg-warning-100 text-warning-800 ',
+ danger: 'bg-danger-100 text-danger-800 ',
+ neutral: 'bg-surface-active text-text-primary ',
+ };
+
+ const combinedClasses = `${baseStyles} ${variants[variant]} ${className}`;
+
+ return (
+ <div className={combinedClasses} {...props}>
+ {children}
+ </div>
+ );
+};
+
+--- components\Button.tsx ---
+import React from 'react';
+import { Loader2 } from 'lucide-react';
+
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
+  size?: 'sm' | 'md' | 'lg';
+  isLoading?: boolean;
+}
+
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className = '', variant = 'primary', size = 'md', isLoading = false, children, disabled, ...props }, ref) => {
+    const baseStyles = 'inline-flex items-center justify-center rounded-lg font-medium transition-colors duration-150 ease-in-out disabled:pointer-events-none disabled:opacity-50';
+    
+    const variants = {
+      primary: 'bg-primary text-white hover:bg-primary-hover',
+      secondary: 'bg-surface-secondary text-text-primary hover:bg-surface-active border border-border/50',
+      outline: 'border border-border bg-transparent hover:bg-surface-secondary text-text-primary',
+      ghost: 'bg-transparent hover:bg-surface-secondary text-text-primary',
+      danger: 'bg-danger text-white hover:opacity-90',
+    };
+
+    const sizes = {
+      sm: 'h-8 px-3 text-xs',
+      md: 'h-10 px-4 text-sm',
+      lg: 'h-12 px-6 text-base',
+    };
+
+    const combinedClasses = `${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`;
+
+    return (
+      <button ref={ref} className={combinedClasses} disabled={disabled || isLoading} {...props}>
+        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        {children}
+      </button>
+    );
+  }
+);
+
+Button.displayName = 'Button';
+
+--- components\Card.tsx ---
+import React from 'react';
+
+export const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className = '', ...props }, ref) => (
+    <div
+      ref={ref}
+      className={`rounded-2xl border border-border bg-surface ${className}`}
+      {...props}
+    />
+  )
+);
+Card.displayName = 'Card';
+
+export const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className = '', ...props }, ref) => (
+    <div ref={ref} className={`flex flex-col space-y-1.5 p-6 md:p-8 ${className}`} {...props} />
+  )
+);
+CardHeader.displayName = 'CardHeader';
+
+export const CardTitle = React.forwardRef<HTMLHeadingElement, React.HTMLAttributes<HTMLHeadingElement>>(
+  ({ className = '', ...props }, ref) => (
+    <h3 ref={ref} className={`font-semibold tracking-tight text-text-primary ${className}`} {...props} />
+  )
+);
+CardTitle.displayName = 'CardTitle';
+
+export const CardContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className = '', ...props }, ref) => (
+    <div ref={ref} className={`p-6 md:p-8 pt-0 md:pt-0 ${className}`} {...props} />
+  )
+);
+CardContent.displayName = 'CardContent';
+
+export const CardFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className = '', ...props }, ref) => (
+    <div ref={ref} className={`flex items-center p-6 md:p-8 pt-0 md:pt-0 ${className}`} {...props} />
+  )
+);
+CardFooter.displayName = 'CardFooter';
+
+--- components\Checkbox.tsx ---
+import React from 'react';
+import { Check } from 'lucide-react';
+
+interface CheckboxProps extends React.InputHTMLAttributes<HTMLInputElement> {
+ label: string;
+ description?: string;
+}
+
+export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
+ ({ className = '', label, description, ...props }, ref) => {
+ const id = props.id || props.name || label.replace(/\s+/g, '-').toLowerCase();
+
+ return (
+ <div className="flex items-start gap-3">
+ <div className="relative flex h-5 w-5 shrink-0 items-center justify-center rounded border border-border bg-surface transition-colors focus-within:ring-2 focus-within:ring-primary/50 focus-within:ring-offset-2 hover:bg-surface-hover has-[:checked]:border-primary has-[:checked]:bg-primary">
+ <input
+ ref={ref}
+ type="checkbox"
+ id={id}
+ className={`absolute inset-0 m-0 h-full w-full cursor-pointer opacity-0 ${className}`}
+ {...props}
+ />
+ <Check className="pointer-events-none hidden h-3.5 w-3.5 text-text-primary has-[:checked]:block" strokeWidth={3} />
+ </div>
+ <div className="flex flex-col gap-0.5">
+ <label htmlFor={id} className="cursor-pointer text-label text-text-primary ">
+ {label}
+ </label>
+ {description && (
+ <p className="text-caption text-text-muted">{description}</p>
+ )}
+ </div>
+ </div>
+ );
+ }
+);
+
+Checkbox.displayName = 'Checkbox';
+
+--- components\EmptyState.tsx ---
+import React from 'react';
+import { FileQuestion } from 'lucide-react';
+import { Button } from './Button';
+
+interface EmptyStateProps {
+ title: string;
+ description: string;
+ actionLabel?: string;
+ onAction?: () => void;
+ icon?: React.ReactNode;
+}
+
+export const EmptyState: React.FC<EmptyStateProps> = ({
+ title,
+ description,
+ actionLabel,
+ onAction,
+ icon = <FileQuestion className="h-12 w-12 text-text-muted" />,
+}) => {
+ return (
+ <div className="flex min-h-[300px] flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-surface-secondary p-8 text-center">
+ <div className="mb-4">{icon}</div>
+ <h3 className="mb-2 text-title">{title}</h3>
+ <p className="mb-6 max-w-sm text-body text-text-muted">{description}</p>
+ {actionLabel && onAction && (
+ <Button onClick={onAction}>{actionLabel}</Button>
+ )}
+ </div>
+ );
+};
+
+--- components\HabitCard.tsx ---
+import React from 'react';
+import { Card, CardContent } from './Card';
+import { Check } from 'lucide-react';
+
+interface HabitCardProps {
+ title: string;
+ streak: number;
+ isCompletedToday: boolean;
+ onToggle?: () => void;
+}
+
+export const HabitCard: React.FC<HabitCardProps> = ({ title, streak, isCompletedToday, onToggle }) => {
+ return (
+ <Card className="hover:-translate-y-[2px] transition-all duration-normal ease-standard hover:shadow-md hover:border-border-hover cursor-pointer bg-surface hover:bg-surface-hover">
+ <CardContent className="flex items-center justify-between p-6">
+ <div>
+ <h4 className="text-title">{title}</h4>
+ <p className="text-body text-text-muted mt-1">🔥 {streak} day streak</p>
+ </div>
+ <button
+ onClick={onToggle}
+ className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
+ isCompletedToday
+ ? 'bg-accent-500 text-text-primary hover:bg-accent-600'
+ : 'bg-surface-hover text-text-muted hover:bg-surface-active '
+ }`}
+ >
+ <Check className="h-4 w-4" />
+ </button>
+ </CardContent>
+ </Card>
+ );
+};
+
+--- components\Input.tsx ---
+import React from 'react';
+
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+ label?: string;
+ error?: string;
+ helperText?: string;
+}
+
+export const Input = React.forwardRef<HTMLInputElement, InputProps>(
+ ({ className = '', label, error, helperText, ...props }, ref) => {
+ const id = props.id || props.name;
+
+ return (
+ <div className="w-full flex flex-col gap-1.5">
+ {label && (
+ <label htmlFor={id} className="text-label text-text-secondary ">
+ {label}
+ </label>
+ )}
+ <input
+ ref={ref}
+ id={id}
+ className={`flex h-10 w-full rounded-md border bg-surface-secondary px-3 py-2 text-body text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors ${
+ error
+ ? 'border-danger focus:border-danger focus:ring-danger/50'
+ : 'border-border focus:border-primary focus:ring-primary/50'
+ } ${className}`}
+ {...props}
+ />
+ {error && <p className="text-caption text-danger-500">{error}</p>}
+ {helperText && !error && <p className="text-caption text-text-muted">{helperText}</p>}
+ </div>
+ );
+ }
+);
+
+Input.displayName = 'Input';
+
+--- components\JourneyTimeline.tsx ---
+import React from 'react';
+
+interface TimelineItem {
+ id: string;
+ title: string;
+ date: string;
+ description?: string;
+ isCompleted?: boolean;
+}
+
+interface JourneyTimelineProps {
+ items: TimelineItem[];
+}
+
+export const JourneyTimeline: React.FC<JourneyTimelineProps> = ({ items }) => {
+ return (
+ <div className="relative border-l border-border ml-3 py-2">
+ {items.map((item) => (
+ <div key={item.id} className="mb-8 ml-6 last:mb-0">
+ <span className={`absolute -left-3 flex h-6 w-6 items-center justify-center rounded-full ring-4 ring-surface ${
+ item.isCompleted ? 'bg-accent-100 text-accent-600 ' : 'bg-surface-secondary text-text-muted'
+ }`}>
+ <div className={`h-2.5 w-2.5 rounded-full ${item.isCompleted ? 'bg-accent-600 ' : 'bg-neutral-400'}`} />
+ </span>
+ <h3 className="mb-1 text-title">{item.title}</h3>
+ <time className="mb-2 block text-caption leading-none text-text-muted">
+ {item.date}
+ </time>
+ {item.description && (
+ <p className="text-body text-text-muted">
+ {item.description}
+ </p>
+ )}
+ </div>
+ ))}
+ </div>
+ );
+};
+
+--- components\Loader.tsx ---
+import React from 'react';
+import { Loader2 } from 'lucide-react';
+
+interface LoaderProps extends React.HTMLAttributes<HTMLDivElement> {
+ size?: 'sm' | 'md' | 'lg';
+ fullScreen?: boolean;
+}
+
+export const Loader: React.FC<LoaderProps> = ({ className = '', size = 'md', fullScreen = false, ...props }) => {
+ const sizeClasses = {
+ sm: 'h-4 w-4',
+ md: 'h-8 w-8',
+ lg: 'h-12 w-12',
+ };
+
+ const loaderContent = (
+ <div className={`flex flex-col items-center justify-center text-primary ${className}`} {...props}>
+ <Loader2 className={`animate-spin ${sizeClasses[size]}`} />
+ </div>
+ );
+
+ if (fullScreen) {
+ return (
+ <div className="fixed inset-0 z-50 flex items-center justify-center bg-surface/80 backdrop-blur-sm">
+ {loaderContent}
+ </div>
+ );
+ }
+
+ return loaderContent;
+};
+
+--- components\MilestoneCard.tsx ---
+import React from 'react';
+import { Card, CardContent } from './Card';
+import { ProgressBar } from './ProgressBar';
+
+interface MilestoneCardProps {
+ title: string;
+ targetDate: string;
+ progress: number;
+}
+
+export const MilestoneCard: React.FC<MilestoneCardProps> = ({ title, targetDate, progress }) => {
+ return (
+ <Card className="hover:-translate-y-[2px] transition-all duration-normal ease-standard hover:shadow-md hover:border-border-hover bg-surface hover:bg-surface-hover">
+ <CardContent className="p-6">
+ <h4 className="text-title mb-1">{title}</h4>
+ <p className="text-caption text-text-muted mb-4">Target: {targetDate}</p>
+ <ProgressBar value={progress} showLabel />
+ </CardContent>
+ </Card>
+ );
+};
+
+--- components\Modal.tsx ---
+import React from 'react';
+import { X } from 'lucide-react';
+
+interface ModalProps {
+ isOpen: boolean;
+ onClose: () => void;
+ title: string;
+ children: React.ReactNode;
+}
+
+export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
+ if (!isOpen) return null;
+
+ return (
+ <div className="fixed inset-0 z-50 flex items-center justify-center bg-surface/50 p-4 backdrop-blur-sm">
+ <div className="relative w-full max-w-lg rounded-2xl border border-border bg-surface-elevated p-6 shadow-xl">
+ <div className="mb-4 flex items-center justify-between">
+ <h2 className="text-title">{title}</h2>
+ <button
+ onClick={onClose}
+ className="rounded-full p-1 text-text-muted hover:bg-surface-hover "
+ >
+ <X className="h-5 w-5" />
+ </button>
+ </div>
+ <div className="text-text-secondary ">
+ {children}
+ </div>
+ </div>
+ </div>
+ );
+};
+
+--- components\PageHeader.tsx ---
+import React from 'react';
+
+interface PageHeaderProps {
+ title: string;
+ description?: string;
+ action?: React.ReactNode;
+}
+
+export const PageHeader: React.FC<PageHeaderProps> = ({ title, description, action }) => {
+ return (
+ <div className="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+ <div>
+ <h1 className="text-display tracking-tight text-text-primary ">
+ {title}
+ </h1>
+ {description && (
+ <p className="mt-1 text-body text-text-muted ">
+ {description}
+ </p>
+ )}
+ </div>
+ {action && <div>{action}</div>}
+ </div>
+ );
+};
+
+--- components\ProgressBar.tsx ---
+import React from 'react';
+
+interface ProgressBarProps extends React.HTMLAttributes<HTMLDivElement> {
+ value: number;
+ max?: number;
+ showLabel?: boolean;
+}
+
+export const ProgressBar: React.FC<ProgressBarProps> = ({ className = '', value, max = 100, showLabel = false, ...props }) => {
+ const percentage = Math.min(100, Math.max(0, (value / max) * 100));
+
+ return (
+ <div className={`w-full ${className}`} {...props}>
+ {showLabel && (
+ <div className="mb-1.5 flex justify-between text-label text-text-secondary ">
+ <span>Progress</span>
+ <span>{Math.round(percentage)}%</span>
+ </div>
+ )}
+ <div className="h-2 w-full overflow-hidden rounded-full bg-surface-active ">
+ <div
+ className="h-full bg-primary-600 transition-all duration-300 ease-in-out "
+ style={{ width: `${percentage}%` }}
+ />
+ </div>
+ </div>
+ );
+};
+
+--- components\ProgressRing.tsx ---
+
+
+export const ProgressRing = ({ value, size = 120, strokeWidth = 8, label }: { value: number, size?: number, strokeWidth?: number, label?: string }) => {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const offset = circumference - (value / 100) * circumference;
+
+  return (
+    <div className="relative flex flex-col items-center justify-center">
+      <svg width={size} height={size} className="transform -rotate-90">
+        {/* Background Track */}
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="currentColor"
+          strokeWidth={strokeWidth}
+          fill="transparent"
+          className="text-surface-active"
+        />
+        {/* Progress Track */}
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="currentColor"
+          strokeWidth={strokeWidth}
+          fill="transparent"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          strokeLinecap="round"
+          className="text-primary transition-all duration-1000 ease-in-out"
+        />
+      </svg>
+      <div className="absolute flex flex-col items-center justify-center">
+        <span className="text-2xl font-bold text-text-primary">{Math.round(value)}%</span>
+      </div>
+      {label && <span className="mt-4 text-sm font-medium text-text-secondary">{label}</span>}
+    </div>
+  );
+};
+
+--- components\RadioGroup.tsx ---
+import React from 'react';
+
+interface RadioOption {
+ value: string;
+ label: string;
+ description?: string;
+}
+
+interface RadioGroupProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
+ options: RadioOption[];
+ value?: string;
+ onChange?: (value: string) => void;
+ error?: string;
+}
+
+export const RadioGroup = React.forwardRef<HTMLInputElement, RadioGroupProps>(
+ ({ className = '', options, name, value, onChange, error, ...props }, ref) => {
+ return (
+ <div className="flex flex-col gap-3">
+ {options.map((option) => {
+ const id = `${name}-${option.value}`;
+ const isChecked = value === option.value;
+
+ return (
+ <div key={option.value} className="flex items-start gap-3">
+ <div
+ className={`relative flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-colors focus-within:ring-2 focus-within:ring-primary/50 focus-within:ring-offset-2 ${
+ isChecked
+ ? 'border-primary bg-primary'
+ : 'border-border bg-surface hover:bg-surface-hover'
+ }`}
+ >
+ <input
+ ref={ref}
+ type="radio"
+ id={id}
+ name={name}
+ value={option.value}
+ checked={isChecked}
+ onChange={(e) => onChange?.(e.target.value)}
+ className={`absolute inset-0 m-0 h-full w-full cursor-pointer opacity-0 ${className}`}
+ {...props}
+ />
+ {isChecked && <div className="h-2 w-2 rounded-full bg-surface" />}
+ </div>
+ <div className="flex flex-col gap-0.5">
+ <label htmlFor={id} className="cursor-pointer text-label text-text-primary ">
+ {option.label}
+ </label>
+ {option.description && (
+ <p className="text-caption text-text-muted">{option.description}</p>
+ )}
+ </div>
+ </div>
+ );
+ })}
+ {error && <p className="text-caption text-danger">{error}</p>}
+ </div>
+ );
+ }
+);
+
+RadioGroup.displayName = 'RadioGroup';
+
+--- components\ReasonCard.tsx ---
+import React from 'react';
+import { Card, CardContent } from './Card';
+
+interface ReasonCardProps {
+ reason: string;
+}
+
+export const ReasonCard: React.FC<ReasonCardProps> = ({ reason }) => {
+ return (
+ <Card className="hover:-translate-y-[2px] transition-all duration-normal ease-standard hover:shadow-md hover:border-border-hover border-l-4 border-l-primary bg-surface hover:bg-surface-hover">
+ <CardContent className="p-6">
+ <h3 className="text-label text-text-muted mb-2">My "Why"</h3>
+ <p className="text-body-large italic">
+ "{reason}"
+ </p>
+ </CardContent>
+ </Card>
+ );
+};
+
+--- components\Select.tsx ---
+import React from 'react';
+
+interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+ label?: string;
+ error?: string;
+ options: { label: string; value: string | number }[];
+}
+
+export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
+ ({ className = '', label, error, options, ...props }, ref) => {
+ const id = props.id || props.name;
+
+ return (
+ <div className="w-full flex flex-col gap-1.5">
+ {label && (
+ <label htmlFor={id} className="text-label text-text-secondary ">
+ {label}
+ </label>
+ )}
+ <select
+ ref={ref}
+ id={id}
+ className={`flex h-10 w-full rounded-md border bg-surface-secondary px-3 py-2 text-body text-text-primary focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors ${
+ error
+ ? 'border-danger focus:border-danger focus:ring-danger/50'
+ : 'border-border focus:border-primary focus:ring-primary/50'
+ } ${className}`}
+ {...props}
+ >
+ {options.map((opt) => (
+ <option key={opt.value} value={opt.value}>
+ {opt.label}
+ </option>
+ ))}
+ </select>
+ {error && <p className="text-caption text-danger">{error}</p>}
+ </div>
+ );
+ }
+);
+
+Select.displayName = 'Select';
+
+--- components\Sidebar.tsx ---
+import React from 'react';
+import { NavLink } from 'react-router-dom';
+import { LayoutDashboard, Target, Route, BookOpen, CheckSquare, BrainCircuit, Settings, LogOut } from 'lucide-react';
+
+export const Sidebar: React.FC = () => {
+  const navItems = [
+    { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard className="h-4 w-4" /> },
+    { name: 'Goal Setup', path: '/goals', icon: <Target className="h-4 w-4" /> },
+    { name: 'Journey', path: '/journey', icon: <Route className="h-4 w-4" /> },
+    { name: 'Learning Plan', path: '/plan', icon: <BookOpen className="h-4 w-4" /> },
+    { name: 'Tasks', path: '/tasks', icon: <CheckSquare className="h-4 w-4" /> },
+    { name: 'Reflection', path: '/reflection', icon: <BrainCircuit className="h-4 w-4" /> },
+  ];
+
+  return (
+    <aside className="hidden h-screen w-[240px] flex-col bg-background md:flex border-r border-border">
+      <div className="flex h-14 items-center px-6">
+        <h1 className="text-sm font-bold tracking-tight text-text-primary">PLOS</h1>
+      </div>
+      
+      <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
+        {navItems.map((item) => (
+          <NavLink
+            key={item.name}
+            to={item.path}
+            className={({ isActive }) =>
+              `group flex items-center gap-3 px-3 py-1.5 text-sm transition-colors rounded-sm ${
+                isActive
+                  ? 'text-text-primary font-semibold border-l-2 border-primary bg-transparent'
+                  : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover/50 border-l-2 border-transparent'
+              }`
+            }
+          >
+            {({ isActive }) => (
+              <>
+                <span className={`${isActive ? 'text-primary' : 'text-text-muted group-hover:text-text-primary'} transition-colors`}>
+                  {item.icon}
+                </span>
+                {item.name}
+              </>
+            )}
+          </NavLink>
+        ))}
+      </nav>
+
+      <div className="p-3">
+        <NavLink
+          to="/settings"
+          className={({ isActive }) =>
+            `group flex items-center gap-3 px-3 py-1.5 text-sm transition-colors mb-1 rounded-sm ${
+              isActive
+                ? 'text-text-primary font-semibold border-l-2 border-primary bg-transparent'
+                : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover/50 border-l-2 border-transparent'
+            }`
+          }
+        >
+          <Settings className="h-4 w-4 text-text-muted group-hover:text-text-primary transition-colors" />
+          Settings
+        </NavLink>
+        <button
+          className="group flex w-full items-center gap-3 px-3 py-1.5 text-sm text-text-secondary hover:text-danger hover:bg-surface-hover/50 border-l-2 border-transparent transition-colors rounded-sm"
+        >
+          <LogOut className="h-4 w-4 text-text-muted group-hover:text-danger transition-colors" />
+          Logout
+        </button>
+      </div>
+    </aside>
+  );
+};
+
+--- components\StatCard.tsx ---
+import React from 'react';
+import { Card, CardContent } from './Card';
+
+interface StatCardProps {
+ title: string;
+ value: string | number;
+ icon?: React.ReactNode;
+ trend?: {
+ value: number;
+ isPositive: boolean;
+ };
+}
+
+export const StatCard: React.FC<StatCardProps> = ({ title, value, icon, trend }) => {
+ return (
+ <Card className="hover:-translate-y-[2px] transition-all duration-normal ease-standard hover:shadow-md hover:border-border-hover bg-surface hover:bg-surface-hover">
+ <CardContent className="p-6">
+ <div className="flex items-center justify-between">
+ <div>
+ <p className="text-label text-text-muted">{title}</p>
+ <p className="mt-2 text-h2">{value}</p>
+ </div>
+ {icon && (
+ <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary-100 text-primary-600 ">
+ {icon}
+ </div>
+ )}
+ </div>
+ {trend && (
+ <div className="mt-4 flex items-center text-sm">
+ <span
+ className={`font-medium ${
+ trend.isPositive ? 'text-accent-600 ' : 'text-danger-600 '
+ }`}
+ >
+ {trend.isPositive ? '+' : '-'}
+ {trend.value}%
+ </span>
+ <span className="ml-2 text-text-muted ">vs last month</span>
+ </div>
+ )}
+ </CardContent>
+ </Card>
+ );
+};
+
+--- components\StreakCard.tsx ---
+import React from 'react';
+import { Card, CardContent } from './Card';
+import { Flame } from 'lucide-react';
+
+interface StreakCardProps {
+ currentStreak: number;
+ longestStreak: number;
+}
+
+export const StreakCard: React.FC<StreakCardProps> = ({ currentStreak, longestStreak }) => {
+ return (
+ <Card className="hover:-translate-y-[2px] transition-all duration-normal ease-standard hover:shadow-md hover:border-border-hover bg-surface hover:bg-surface-hover">
+ <CardContent className="p-6">
+ <div className="flex items-center gap-4">
+ <div className="flex h-14 w-14 items-center justify-center rounded-full bg-warning-500 text-text-primary shadow-sm">
+ <Flame className="h-7 w-7" />
+ </div>
+ <div>
+ <h3 className="text-label text-warning-800 ">Current Streak</h3>
+ <div className="flex items-baseline gap-2 mt-1">
+ <span className="text-h2 text-warning-900 ">{currentStreak}</span>
+ <span className="text-body text-warning-700 ">days</span>
+ </div>
+ <p className="text-caption text-warning-600 mt-1">Longest: {longestStreak} days</p>
+ </div>
+ </div>
+ </CardContent>
+ </Card>
+ );
+};
+
+--- components\TaskCard.tsx ---
+import React from 'react';
+import { Card, CardContent } from './Card';
+import { Badge } from './Badge';
+
+interface TaskCardProps {
+ title: string;
+ description?: string;
+ status: 'pending' | 'in_progress' | 'completed';
+ dueDate?: string;
+}
+
+export const TaskCard: React.FC<TaskCardProps> = ({ title, description, status, dueDate }) => {
+ const statusConfig = {
+ pending: { label: 'Pending', variant: 'neutral' as const },
+ in_progress: { label: 'In Progress', variant: 'primary' as const },
+ completed: { label: 'Completed', variant: 'success' as const },
+ };
+
+ return (
+ <Card className="hover:-translate-y-[2px] transition-all duration-normal ease-standard hover:shadow-md hover:border-border-hover cursor-pointer bg-surface hover:bg-surface-hover">
+ <CardContent className="p-6">
+ <div className="flex justify-between items-start mb-2">
+ <h4 className="text-title">{title}</h4>
+ <Badge variant={statusConfig[status].variant}>{statusConfig[status].label}</Badge>
+ </div>
+ {description && (
+ <p className="text-body text-text-muted line-clamp-2 mb-4">
+ {description}
+ </p>
+ )}
+ {dueDate && (
+ <div className="text-xs text-text-muted mt-auto">
+ Due: {dueDate}
+ </div>
+ )}
+ </CardContent>
+ </Card>
+ );
+};
+
+--- components\Textarea.tsx ---
+import React from 'react';
+
+interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+ label?: string;
+ error?: string;
+ helperText?: string;
+}
+
+export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
+ ({ className = '', label, error, helperText, ...props }, ref) => {
+ const id = props.id || props.name;
+
+ return (
+ <div className="w-full flex flex-col gap-1.5">
+ {label && (
+ <label htmlFor={id} className="text-label text-text-secondary ">
+ {label}
+ </label>
+ )}
+ <textarea
+ ref={ref}
+ id={id}
+ className={`flex min-h-[80px] w-full rounded-md border bg-surface-secondary px-3 py-2 text-body text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors ${
+ error
+ ? 'border-danger focus:border-danger focus:ring-danger/50'
+ : 'border-border focus:border-primary focus:ring-primary/50'
+ } ${className}`}
+ {...props}
+ />
+ {error && <p className="text-caption text-danger">{error}</p>}
+ {helperText && !error && <p className="text-caption text-text-muted">{helperText}</p>}
+ </div>
+ );
+ }
+);
+
+Textarea.displayName = 'Textarea';
+
+--- components\TopNavbar.tsx ---
+import React from 'react';
+import { Bell, Menu, Moon, Sun } from 'lucide-react';
+import { Avatar } from './Avatar';
+import { useTheme } from '../contexts/ThemeContext';
+
+interface TopNavbarProps {
+ onMenuClick?: () => void;
+}
+
+export const TopNavbar: React.FC<TopNavbarProps> = ({ onMenuClick }) => {
+ const { theme, toggleTheme } = useTheme();
+
+ return (
+ <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-border bg-surface/80 px-4 backdrop-blur-md md:px-6">
+ <div className="flex items-center gap-4">
+ <button
+ onClick={onMenuClick}
+ className="inline-flex items-center justify-center rounded-md p-2 text-text-secondary hover:bg-surface-hover focus:outline-none focus:ring-2 focus:ring-primary/50 md:hidden"
+ >
+ <Menu className="h-5 w-5" />
+ </button>
+ <h2 className="text-title text-text-primary md:hidden">PLOS</h2>
+ </div>
+
+ <div className="flex items-center gap-4">
+ <button onClick={toggleTheme} className="relative rounded-full p-2 text-text-secondary hover:bg-surface-hover focus:outline-none focus:ring-2 focus:ring-primary/50">
+ {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+ </button>
+ <button className="relative rounded-full p-2 text-text-secondary hover:bg-surface-hover focus:outline-none focus:ring-2 focus:ring-primary/50">
+ <Bell className="h-5 w-5" />
+ <span className="absolute top-1.5 right-1.5 block h-2 w-2 rounded-full bg-danger ring-2 ring-surface" />
+ </button>
+
+ <Avatar initials="JD" size="sm" className="cursor-pointer" />
+ </div>
+ </header>
+ );
+};
+
+--- contexts\ThemeContext.tsx ---
+import React, { createContext, useContext, useEffect, useState } from 'react';
+
+type Theme = 'light' | 'dark';
+
+interface ThemeContextType {
+  theme: Theme;
+  toggleTheme: () => void;
+  setTheme: (theme: Theme) => void;
+}
+
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+
+export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [theme, setThemeState] = useState<Theme>(() => {
+    const savedTheme = localStorage.getItem('plos-theme');
+    if (savedTheme === 'light' || savedTheme === 'dark') {
+      return savedTheme;
+    }
+    // Default to light as per requirements
+    return 'light';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('plos-theme', theme);
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setThemeState((prev) => (prev === 'light' ? 'dark' : 'light'));
+  };
+
+  const setTheme = (newTheme: Theme) => {
+    setThemeState(newTheme);
+  };
+
+  return (
+    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+};
+
+export const useTheme = () => {
+  const context = useContext(ThemeContext);
+  if (context === undefined) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  return context;
+};
+
+--- layout\AuthLayout.tsx ---
+import React from 'react';
+import { Outlet } from 'react-router-dom';
+
+export const AuthLayout: React.FC = () => {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-neutral-50 p-4 dark:bg-neutral-950">
+      <div className="w-full max-w-md">
+        <div className="mb-8 text-center">
+          <h1 className="text-3xl font-bold text-primary-600 dark:text-primary-500">PLOS</h1>
+          <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">Personal Learning Operating System</p>
+        </div>
+        <Outlet />
+      </div>
+    </div>
+  );
+};
+
+--- layout\DashboardLayout.tsx ---
+import React from 'react';
+import { Outlet } from 'react-router-dom';
+import { Sidebar } from '../components/Sidebar';
+import { TopNavbar } from '../components/TopNavbar';
+
+export const DashboardLayout: React.FC = () => {
+  return (
+    <div className="flex min-h-screen bg-neutral-50 dark:bg-neutral-900">
+      <Sidebar />
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <TopNavbar />
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
+          <div className="mx-auto max-w-7xl">
+            <Outlet />
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+};
+
+--- mocks\dashboard.ts ---
+export const dashboardData = {
+  hero: {
+    greeting: "Good Morning, Priya",
+    currentGoal: "Build a Portfolio of Data Science Projects",
+    status: "On Track",
+    statusIndicator: "🟢",
+    estimatedCompletion: "Week 4 of 12",
+    overallProgress: 32,
+  },
+  purpose: {
+    why: "I want to transition into AI Engineering.",
+    identity: "I am becoming a disciplined AI Engineer.",
+    success: "Successfully build three production-ready AI projects."
+  },
+  mission: {
+    title: "Finish Feature Engineering Module",
+    estimatedTime: "45 Minutes",
+    difficulty: "Medium",
+    focusReady: true
+  },
+  upcomingTasks: [
+    { id: 1, title: "Read Chapter 4 of AI Engineering", due: "Today, 8:00 PM", time: "30m", completed: false },
+    { id: 2, title: "Complete NumPy Assignment", due: "Tomorrow, 10:00 AM", time: "1h", completed: false },
+    { id: 3, title: "Review Gradient Descent", due: "Friday", time: "45m", completed: false },
+    { id: 4, title: "Project Setup: House Prices", due: "Saturday", time: "2h", completed: false }
+  ],
+  momentum: {
+    currentStreak: 12,
+    learningConsistency: 85, // percentage
+    weeklyCompletion: 4,     // tasks completed this week
+    weeklyTotal: 5,          // total tasks this week
+    monthlyCompletion: 18,
+    monthlyTotal: 20
+  },
+  intelligence: {
+    title: "Learning Intelligence",
+    status: "🟢",
+    heading: "You are on track.",
+    messages: [
+      "Your consistency is excellent.",
+      "Next milestone is achievable."
+    ]
+  },
+  smartNudges: [
+    "Remember why you started.",
+    "Teaching today's topic to someone will improve retention.",
+    "You are only 18 hours away from completing this milestone.",
+    "Yesterday's consistency puts you ahead of schedule."
+  ],
+  health: {
+    consistency: { label: "Consistency", status: "green", value: 90 },
+    motivation: { label: "Motivation", status: "green", value: 85 },
+    knowledgeGrowth: { label: "Knowledge Growth", status: "yellow", value: 70 },
+    energy: { label: "Energy", status: "green", value: 80 }
+  }
+};
+
+--- mocks\learningJourney.ts ---
+export const learningJourneyData = {
+  header: {
+    goal: 'AWS Solutions Architect',
+    status: 'On Track',
+    estimatedCompletion: '12 Weeks',
+    progress: 15,
+  },
+  why: 'I want to transition from a generalist developer to a specialized cloud architect to gain financial freedom and work on scalable distributed systems.',
+  identity: 'I am becoming a Cloud Engineer who designs resilient and secure systems.',
+  successDefinition: 'Passing the AWS Certified Solutions Architect - Associate exam with a score above 800.',
+  systemPrinciples: [
+    'Learn Daily',
+    'Practice Deliberately',
+    'Teach Others',
+    'Reflect Frequently',
+    'Stay Consistent'
+  ],
+  habits: {
+    dailyLearning: { label: 'Daily Learning', streak: 5, maxStreak: 30, progress: 40 },
+    weeklyReflection: { label: 'Weekly Reflection', streak: 2, maxStreak: 4, progress: 50 },
+    teachBack: { label: 'Teach Back', streak: 1, maxStreak: 4, progress: 25 },
+    projectProgress: { label: 'Project Progress', progress: 15 },
+  },
+  todaysMission: {
+    title: 'Complete the VPC lesson',
+    estimatedTime: '45 Minutes',
+    difficulty: 'Medium',
+    focusModeStatus: 'Ready'
+  },
+  weeks: [
+    {
+      id: 1,
+      title: 'Week 1',
+      milestone: 'Cloud Concepts & IAM',
+      isCompleted: true,
+      tasks: [
+        'Understand cloud computing models (IaaS, PaaS, SaaS)',
+        'Master IAM basics (Users, Groups, Roles, Policies)',
+        'Set up AWS free tier account & billing alarms'
+      ],
+      estimatedHours: 8,
+      cognitiveWorkload: 'Light',
+      teachBackActivity: 'Explain IAM Roles vs Policies to a peer or in a blog post.',
+      reflectionPrompt: 'What was the most counterintuitive part of AWS permissions?',
+    },
+    {
+      id: 2,
+      title: 'Week 2',
+      milestone: 'Virtual Private Cloud (VPC)',
+      isCompleted: false,
+      isCurrent: true,
+      tasks: [
+        'Understand subnets, route tables, and internet gateways',
+        'Configure NAT Gateways and Bastion Hosts',
+        'Build a custom 3-tier VPC architecture from scratch'
+      ],
+      estimatedHours: 10,
+      cognitiveWorkload: 'Intensive',
+      teachBackActivity: 'Draw a VPC diagram and explain traffic flow from the internet to a private subnet.',
+      reflectionPrompt: 'How does VPC peering simplify network architecture?',
+    },
+    {
+      id: 3,
+      title: 'Week 3',
+      milestone: 'EC2 & Compute Services',
+      isCompleted: false,
+      tasks: [
+        'Deep dive into EC2 instance types and purchasing options',
+        'Configure Application Load Balancers and Auto Scaling Groups',
+        'Deploy a scalable web application'
+      ],
+      estimatedHours: 12,
+      cognitiveWorkload: 'Moderate',
+      teachBackActivity: 'Explain the difference between ALB, NLB, and GLB.',
+      reflectionPrompt: 'When would you choose Spot instances over On-Demand?',
+    },
+    {
+      id: 4,
+      title: 'Week 4',
+      milestone: 'Storage Solutions (S3, EBS, EFS)',
+      isCompleted: false,
+      tasks: [
+        'Master S3 storage classes and lifecycle policies',
+        'Understand EBS volume types and snapshots',
+        'Mount EFS across multiple EC2 instances'
+      ],
+      estimatedHours: 9,
+      cognitiveWorkload: 'Moderate',
+      teachBackActivity: 'Compare object storage (S3) vs block storage (EBS) with real-world examples.',
+      reflectionPrompt: 'Why is S3 considered highly durable?',
+    }
+  ],
+  motivationalQuotes: [
+    "You wanted to become a Cloud Engineer. Today's lesson moves you one step closer.",
+    "You defined success as passing the AWS Certification. Stay consistent.",
+    "Remember why you started: Financial freedom and scalable systems.",
+    "Every study session reinforces your new identity."
+  ]
+};
+
+--- mocks\session.ts ---
+export const sessionData = {
+  header: {
+    missionTitle: "Master React State Management",
+    currentWeek: "Week 4",
+    estimatedDuration: "45 Minutes",
+    difficulty: "Medium",
+    focusStatus: "Ready"
+  },
+  workspace: {
+    objectives: [
+      "Understand the difference between local and global state",
+      "Implement useState and useReducer hooks",
+      "Refactor prop drilling using Context API"
+    ],
+    resources: [
+      { id: 1, title: "React Docs: State: A Component's Memory", url: "#" },
+      { id: 2, title: "Video: Advanced useReducer patterns", url: "#" }
+    ]
+  },
+  reflection: {
+    questions: [
+      "What did you learn today?",
+      "What felt difficult?"
+    ],
+    difficultyOptions: [
+      "Easy",
+      "Medium",
+      "Hard"
+    ]
+  },
+  teachBack: {
+    prompt: "Explain today's topic as if you were teaching a beginner.",
+    helperText: "Teaching improves long-term retention."
+  },
+  evidence: {
+    options: [
+      "Completed",
+      "Project Built",
+      "Quiz Attempted",
+      "Notes Uploaded",
+      "Resource Reviewed"
+    ]
+  }
+};
+
+--- pages\Dashboard.tsx ---
+import React from 'react';
+import { dashboardData } from '../mocks/dashboard';
+import { ArrowRight, CheckSquare, Square, Zap, Clock, Brain } from 'lucide-react';
+import { Card, CardContent } from '../components/Card';
+import { Button } from '../components/Button';
+import { ProgressRing } from '../components/ProgressRing';
+import { ActivityGraph } from '../components/ActivityGraph';
+
+export const Dashboard: React.FC = () => {
+  const data = dashboardData;
+
+  return (
+    <div className="min-h-screen bg-background text-text-primary px-8 md:px-12 py-12">
+      <div className="max-w-7xl mx-auto space-y-16">
+        
+        {/* HEADER */}
+        <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <h1 className="text-sm font-semibold tracking-widest uppercase text-text-muted mb-2">Workspace Overview</h1>
+            <h2 className="text-3xl font-bold tracking-tight text-text-primary">Good Morning, Priya</h2>
+          </div>
+          <div className="flex items-center gap-3 text-sm font-medium">
+            <span className="text-text-secondary">Current Goal:</span>
+            <span className="text-text-primary px-3 py-1.5 bg-surface-secondary rounded-md border border-border">{data.hero.currentGoal}</span>
+          </div>
+        </header>
+
+        {/* PRIMARY LAYOUT GRID */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-12">
+          
+          {/* MAIN CONTENT AREA */}
+          <div className="space-y-12">
+            
+            {/* TODAY'S MISSION (Hero Card) */}
+            <Card className="bg-surface border-border overflow-hidden relative">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
+              <CardContent className="p-8 md:p-10 relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+                <div>
+                  <div className="flex items-center gap-2 mb-3 text-xs font-bold uppercase tracking-widest text-primary">
+                    <Zap className="w-4 h-4" /> Today's Focus
+                  </div>
+                  <h3 className="text-2xl md:text-3xl font-bold tracking-tight mb-4">{data.mission.title}</h3>
+                  <div className="flex items-center gap-4 text-sm font-medium text-text-secondary">
+                    <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" /> {data.mission.estimatedTime}</span>
+                    <span className="text-border">•</span>
+                    <span>{data.mission.difficulty}</span>
+                    <span className="text-border">•</span>
+                    <span className={data.mission.focusReady ? "text-success" : ""}>
+                      {data.mission.focusReady ? 'Focus Mode Ready' : 'Focus Mode Inactive'}
+                    </span>
+                  </div>
+                </div>
+                <Button size="lg" className="shrink-0 group">
+                  Start Session <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* LEARNING VELOCITY & METRICS */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              
+              <Card>
+                <CardContent className="p-8 h-full flex flex-col justify-between">
+                  <h3 className="text-sm font-semibold text-text-secondary mb-6 flex justify-between items-center">
+                    Learning Velocity 
+                    <span className="text-xs font-medium bg-surface-active px-2 py-1 rounded">Last 90 Days</span>
+                  </h3>
+                  <div className="flex-1 flex items-center justify-center">
+                    <ActivityGraph />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-8 h-full">
+                  <h3 className="text-sm font-semibold text-text-secondary mb-6">Current Progress</h3>
+                  <div className="flex items-center justify-around gap-4">
+                    <ProgressRing value={data.hero.overallProgress} size={110} strokeWidth={8} label="Mastery" />
+                    <ProgressRing value={data.momentum.learningConsistency} size={110} strokeWidth={8} label="Consistency" />
+                  </div>
+                </CardContent>
+              </Card>
+
+            </div>
+
+            {/* UPCOMING TASKS */}
+            <div>
+              <h3 className="text-sm font-semibold text-text-secondary mb-4 px-2">Upcoming Tasks</h3>
+              <Card>
+                <CardContent className="p-0">
+                  <div className="flex flex-col divide-y divide-border/50">
+                    {data.upcomingTasks.map(task => (
+                      <div key={task.id} className="group flex items-center justify-between p-4 hover:bg-surface-secondary transition-colors cursor-pointer">
+                        <div className="flex items-center gap-4">
+                          <div className="text-text-muted group-hover:text-primary transition-colors">
+                            {task.completed ? <CheckSquare className="w-5 h-5 text-primary" /> : <Square className="w-5 h-5" />}
+                          </div>
+                          <span className="font-medium text-text-primary">{task.title}</span>
+                        </div>
+                        <div className="flex items-center gap-4 text-sm text-text-muted font-medium opacity-60 group-hover:opacity-100 transition-opacity">
+                          <span>{task.time}</span>
+                          <span className="w-20 text-right">{task.due === 'Today' ? 'Today' : task.due === 'Tomorrow' ? 'Tomorrow' : task.due}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+          </div>
+
+          {/* INSIGHTS COLUMN */}
+          <div className="space-y-6">
+            
+            <Card className="bg-surface-secondary border-none">
+              <CardContent className="p-8">
+                <div className="flex items-center gap-2 mb-4">
+                  <Brain className="w-5 h-5 text-primary" />
+                  <h3 className="text-sm font-semibold text-text-primary">AI Insight</h3>
+                </div>
+                <div className="space-y-4">
+                  {data.intelligence.messages.map((msg, i) => (
+                    <p key={i} className="text-sm text-text-secondary leading-relaxed font-medium">
+                      {msg}
+                    </p>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-8">
+                <h3 className="text-sm font-semibold text-text-secondary mb-6">Momentum</h3>
+                <div className="space-y-5 text-sm font-medium">
+                  <div className="flex justify-between items-center">
+                    <span className="text-text-muted">Current Streak</span>
+                    <span className="text-text-primary text-base">{data.momentum.currentStreak} Days 🔥</span>
+                  </div>
+                  <div className="w-full h-px bg-border/50" />
+                  <div className="flex justify-between items-center">
+                    <span className="text-text-muted">This Week</span>
+                    <span className="text-text-primary text-base">{data.momentum.weeklyCompletion} <span className="text-text-muted text-sm">/ {data.momentum.weeklyTotal}</span></span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="grid grid-cols-2 gap-3 pt-4">
+              {['+ Goal', '+ Task', 'Journal', 'Coach'].map(action => (
+                <button key={action} className="text-xs font-semibold bg-surface hover:bg-surface-secondary text-text-secondary hover:text-text-primary py-3 rounded-lg transition-colors border border-border shadow-sm">
+                  {action}
+                </button>
+              ))}
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+};
+
+--- pages\Error.tsx ---
+import React from 'react';
+import { EmptyState } from '../components/EmptyState';
+import { AlertOctagon } from 'lucide-react';
+
+export const ErrorPage: React.FC = () => {
+ return (
+ <div className="flex min-h-screen items-center justify-center p-4">
+ <EmptyState
+ title="Something went wrong"
+ description="An unexpected error occurred. Please try again later."
+ icon={<AlertOctagon className="h-12 w-12 text-danger-500" />}
+ actionLabel="Refresh Page"
+ onAction={() => window.location.reload()}
+ />
+ </div>
+ );
+};
+
+--- pages\GoalSetup.tsx ---
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { ArrowLeft, ArrowRight, CheckCircle2 } from 'lucide-react';
+
+import { PageHeader } from '../components/PageHeader';
+import { Button } from '../components/Button';
+import { Input } from '../components/Input';
+import { Textarea } from '../components/Textarea';
+import { Select } from '../components/Select';
+
+import { RadioGroup } from '../components/RadioGroup';
+import { Card, CardContent } from '../components/Card';
+
+// ==========================================
+// Zod Schema
+// ==========================================
+const goalSetupSchema = z.object({
+ name: z.string().min(2, 'Name must be at least 2 characters'),
+ role: z.string().min(2, 'Role is required'),
+ skillLevel: z.string().min(1, 'Skill level is required'),
+ goal: z.string().min(5, 'Learning goal must be at least 5 characters'),
+ excitement: z.string().optional(),
+ why: z.string().min(20, 'Please write at least 20 characters about your motivation'),
+ identity: z.string().min(5, 'Identity must be at least 5 characters'),
+ hoursPerWeek: z.string().refine((val) => !isNaN(Number(val)) && Number(val) >= 1, 'Must commit at least 1 hour per week'),
+ preferredTime: z.string().min(1, 'Please select a preferred learning time'),
+ sessionDuration: z.string(),
+ targetDate: z.string().refine((dateStr) => {
+ const selectedDate = new Date(dateStr);
+ const today = new Date();
+ today.setHours(0, 0, 0, 0);
+ return selectedDate > today;
+ }, { message: 'Target completion date must be in the future' }),
+ learningStyles: z.array(z.string()).min(1, 'Please select at least one learning style'),
+});
+
+type GoalSetupFormValues = z.infer<typeof goalSetupSchema>;
+
+const TOTAL_STEPS = 6;
+
+export const GoalSetup: React.FC = () => {
+ const navigate = useNavigate();
+ const [currentStep, setCurrentStep] = useState(1);
+
+ const {
+ register,
+ control,
+ handleSubmit,
+ trigger,
+ watch,
+ formState: { errors, isValid },
+ } = useForm<GoalSetupFormValues>({
+ resolver: zodResolver(goalSetupSchema),
+ mode: 'onChange',
+ defaultValues: {
+ name: '',
+ role: '',
+ skillLevel: '',
+ goal: '',
+ excitement: '',
+ why: '',
+ identity: '',
+ hoursPerWeek: '',
+ preferredTime: '',
+ sessionDuration: '30 Minutes',
+ targetDate: '',
+ learningStyles: [],
+ },
+ });
+
+ const nextStep = async () => {
+ let fieldsToValidate: (keyof GoalSetupFormValues)[] = [];
+ if (currentStep === 1) fieldsToValidate = ['name', 'role', 'skillLevel'];
+ if (currentStep === 2) fieldsToValidate = ['goal', 'excitement'];
+ if (currentStep === 3) fieldsToValidate = ['why'];
+ if (currentStep === 4) fieldsToValidate = ['identity'];
+ if (currentStep === 5) fieldsToValidate = ['hoursPerWeek', 'preferredTime', 'sessionDuration', 'targetDate'];
+ if (currentStep === 6) fieldsToValidate = ['learningStyles'];
+
+ const isStepValid = await trigger(fieldsToValidate);
+ if (isStepValid) {
+ setCurrentStep((prev) => Math.min(prev + 1, TOTAL_STEPS + 1));
+ }
+ };
+
+ const prevStep = () => {
+ setCurrentStep((prev) => Math.max(prev - 1, 1));
+ };
+
+ const onSubmit = (data: GoalSetupFormValues) => {
+ console.log('Final Data:', data);
+ // In a real app, make API call here
+ navigate('/dashboard');
+ };
+
+ const progressPercentage = (currentStep / (TOTAL_STEPS + 1)) * 100;
+
+ return (
+ <div className="mx-auto max-w-3xl py-8">
+ {/* Progress Indicator */}
+ <div className="mb-12">
+ <div className="mb-2 flex items-center justify-between text-sm font-medium text-text-muted">
+ <span>Step {currentStep} of {TOTAL_STEPS + 1}</span>
+ <span>{Math.round(progressPercentage)}%</span>
+ </div>
+ <div className="h-2 w-full overflow-hidden rounded-full bg-surface-active ">
+ <div
+ className="h-full bg-primary-600 transition-all duration-500 ease-in-out "
+ style={{ width: `${progressPercentage}%` }}
+ />
+ </div>
+ </div>
+
+ <div className="relative min-h-[400px]">
+ {/* Animated Wrapper for steps */}
+ <div key={currentStep} className="animate-[fade-in_0.5s_ease-out]">
+ <form onSubmit={handleSubmit(onSubmit)}>
+ {currentStep === 1 && (
+ <StepOne register={register} errors={errors} />
+ )}
+ {currentStep === 2 && (
+ <StepTwo register={register} errors={errors} />
+ )}
+ {currentStep === 3 && (
+ <StepThree register={register} errors={errors} />
+ )}
+ {currentStep === 4 && (
+ <StepFour register={register} errors={errors} />
+ )}
+ {currentStep === 5 && (
+ <StepFive register={register} errors={errors} control={control} />
+ )}
+ {currentStep === 6 && (
+ <StepSix errors={errors} control={control} />
+ )}
+ {currentStep === 7 && (
+ <FinalReview formData={watch()} />
+ )}
+
+ {/* Navigation Actions */}
+ <div className="mt-12 flex items-center justify-between border-t border-border pt-6 ">
+ {currentStep > 1 ? (
+ <Button type="button" variant="ghost" onClick={prevStep}>
+ <ArrowLeft className="mr-2 h-4 w-4" /> Back
+ </Button>
+ ) : (
+ <div />
+ )}
+
+ {currentStep <= TOTAL_STEPS ? (
+ <Button type="button" size="lg" onClick={nextStep} className="min-w-[120px]">
+ Continue <ArrowRight className="ml-2 h-4 w-4" />
+ </Button>
+ ) : (
+ <Button type="submit" size="lg" className="min-w-[120px]" disabled={!isValid}>
+ Build My Learning System <CheckCircle2 className="ml-2 h-4 w-4" />
+ </Button>
+ )}
+ </div>
+ </form>
+ </div>
+ </div>
+ </div>
+ );
+};
+
+// ==========================================
+// Step Components
+// ==========================================
+
+const StepOne = ({ register, errors }: any) => (
+ <div className="space-y-8">
+ <PageHeader title="Who are you?" description="Let's personalize your learning experience." />
+ <div className="space-y-6">
+ <Input
+ label="Name"
+ placeholder="e.g. Alex"
+ {...register('name')}
+ error={errors.name?.message}
+ />
+ <Input
+ label="Current Role / Student"
+ placeholder="e.g. Computer Science Student"
+ {...register('role')}
+ error={errors.role?.message}
+ />
+ <Select
+ label="Current Skill Level"
+ options={[
+ { label: 'Select Level...', value: '' },
+ { label: 'Beginner', value: 'beginner' },
+ { label: 'Intermediate', value: 'intermediate' },
+ { label: 'Advanced', value: 'advanced' },
+ ]}
+ {...register('skillLevel')}
+ error={errors.skillLevel?.message}
+ />
+ </div>
+ </div>
+);
+
+const StepTwo = ({ register, errors }: any) => (
+ <div className="space-y-8">
+ <PageHeader title="What do you want to achieve?" description="Set a clear and actionable learning goal." />
+ <div className="space-y-6">
+ <Input
+ label="Learning Goal"
+ placeholder="e.g. Pass AWS Solutions Architect, Become React Developer..."
+ {...register('goal')}
+ error={errors.goal?.message}
+ />
+ <Textarea
+ label="What excites you most about learning this?"
+ placeholder="e.g. I enjoy solving problems. I love building software. I've always wanted to understand AI."
+ className="min-h-[100px]"
+ {...register('excitement')}
+ helperText="This helps your learning companion keep you motivated."
+ />
+ </div>
+ </div>
+);
+
+const StepThree = ({ register, errors }: any) => (
+ <div className="space-y-8">
+ <PageHeader title="Imagine yourself one year from now." description="What changes in your life if you achieve this goal?" />
+ <div className="space-y-6">
+ <Textarea
+ label="Your 'Why'"
+ placeholder="e.g. I want to switch careers. I want financial freedom. I want to build confidence..."
+ className="min-h-[150px] text-lg"
+ {...register('why')}
+ error={errors.why?.message}
+ helperText="This becomes your anchor whenever learning gets difficult."
+ />
+ </div>
+ </div>
+);
+
+const StepFour = ({ register, errors }: any) => (
+ <div className="space-y-8">
+ <PageHeader title="Complete this sentence" description="Identity-based habits create lasting change." />
+ <div className="space-y-6">
+ <Input
+ label="I am becoming..."
+ placeholder="e.g. I am becoming a Cloud Engineer."
+ className="text-lg"
+ {...register('identity')}
+ error={errors.identity?.message}
+ />
+ </div>
+ </div>
+);
+
+const StepFive = ({ register, errors, control }: any) => (
+ <div className="space-y-8">
+ <PageHeader title="Learning Availability" description="When and how much can you commit?" />
+ <div className="space-y-8">
+ <Input
+ type="number"
+ label="Hours per week"
+ placeholder="e.g. 10"
+ {...register('hoursPerWeek')}
+ error={errors.hoursPerWeek?.message}
+ />
+
+ <Controller
+ name="preferredTime"
+ control={control}
+ render={({ field }) => (
+ <RadioGroup
+ options={[
+ { label: 'Morning', value: 'morning' },
+ { label: 'Afternoon', value: 'afternoon' },
+ { label: 'Evening', value: 'evening' },
+ { label: 'Night', value: 'night' },
+ ]}
+ error={errors.preferredTime?.message}
+ {...field}
+ />
+ )}
+ />
+
+ <Controller
+ name="sessionDuration"
+ control={control}
+ render={({ field }) => (
+ <RadioGroup
+ options={[
+ { label: '15 Minutes', value: '15 Minutes' },
+ { label: '30 Minutes', value: '30 Minutes' },
+ { label: '45 Minutes', value: '45 Minutes' },
+ { label: '60 Minutes', value: '60 Minutes' },
+ ]}
+ error={errors.sessionDuration?.message}
+ {...field}
+ />
+ )}
+ />
+
+ <Input
+ type="date"
+ label="Target completion date"
+ {...register('targetDate')}
+ error={errors.targetDate?.message}
+ />
+ </div>
+ </div>
+);
+
+const StepSix = ({ errors, control }: any) => (
+ <div className="space-y-8">
+ <PageHeader title="Learning Preferences" description="How do you learn best? Select all that apply." />
+ <Controller
+ name="learningStyles"
+ control={control}
+ render={({ field }) => {
+ const styles = ['Video', 'Reading', 'Projects', 'Practice', 'Teach Back', 'Reflection'];
+ return (
+ <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+ {styles.map((style) => (
+ <label
+ key={style}
+ className={`flex cursor-pointer items-center justify-between rounded-xl border p-4 transition-all hover:bg-background ${
+ field.value.includes(style)
+ ? 'border-primary-500 bg-primary-50/50 '
+ : 'border-border '
+ }`}
+ >
+ <span className="font-medium text-text-primary ">{style}</span>
+ <input
+ type="checkbox"
+ className="hidden"
+ checked={field.value.includes(style)}
+ onChange={(e) => {
+ const newValue = e.target.checked
+ ? [...field.value, style]
+ : field.value.filter((v: string) => v !== style);
+ field.onChange(newValue);
+ }}
+ />
+ <div className={`flex h-5 w-5 items-center justify-center rounded-full border ${
+ field.value.includes(style) ? 'border-primary-600 bg-primary-600 ' : 'border-border '
+ }`}>
+ {field.value.includes(style) && <CheckCircle2 className="h-3 w-3 text-text-primary" strokeWidth={3} />}
+ </div>
+ </label>
+ ))}
+ {errors.learningStyles && (
+ <p className="col-span-full text-sm text-danger-500">{errors.learningStyles.message}</p>
+ )}
+ </div>
+ );
+ }}
+ />
+ </div>
+);
+
+const FinalReview = ({ formData }: { formData: GoalSetupFormValues }) => (
+ <div className="space-y-8">
+ <div className="text-center">
+ <h2 className="mb-2 text-3xl font-bold tracking-tight text-text-primary ">Review Your Journey</h2>
+ <p className="text-text-muted ">Everything looks great. Ready to start?</p>
+ </div>
+
+ <Card className="overflow-hidden border-2 border-primary-100 ">
+ <div className="bg-primary-50 p-6 ">
+ <h3 className="text-sm font-semibold uppercase tracking-wider text-primary-600 ">Identity</h3>
+ <p className="mt-2 text-xl font-medium italic text-text-primary ">"{formData.identity}"</p>
+ </div>
+ <CardContent className="divide-y divide-neutral-100 p-0 ">
+ <div className="p-6">
+ <h4 className="text-xs font-semibold uppercase text-text-muted">The Goal</h4>
+ <p className="mt-1 font-medium text-text-primary ">{formData.goal}</p>
+ </div>
+ <div className="p-6">
+ <h4 className="text-xs font-semibold uppercase text-text-muted">The Why</h4>
+ <p className="mt-1 text-text-secondary ">{formData.why}</p>
+ </div>
+
+ <div className="grid grid-cols-2 divide-x divide-neutral-100 ">
+ <div className="p-6">
+ <h4 className="text-xs font-semibold uppercase text-text-muted">Commitment</h4>
+ <p className="mt-1 font-medium text-text-primary ">{formData.hoursPerWeek}h / week ({formData.preferredTime})</p>
+ <p className="mt-1 text-sm text-text-muted">{formData.sessionDuration} sessions</p>
+ </div>
+ <div className="p-6">
+ <h4 className="text-xs font-semibold uppercase text-text-muted">Target Date</h4>
+ <p className="mt-1 font-medium text-text-primary ">{new Date(formData.targetDate).toLocaleDateString()}</p>
+ </div>
+ </div>
+
+ <div className="p-6">
+ <h4 className="text-xs font-semibold uppercase text-text-muted">Learning Styles</h4>
+ <div className="mt-2 flex flex-wrap gap-2">
+ {formData.learningStyles.map(style => (
+ <span key={style} className="inline-flex items-center rounded-full bg-surface-hover px-2.5 py-0.5 text-xs font-semibold text-text-primary ">
+ {style}
+ </span>
+ ))}
+ </div>
+ </div>
+ </CardContent>
+ </Card>
+ </div>
+);
+
+--- pages\Journey.tsx ---
+import React, { useState } from 'react';
+import { CheckCircle2, Clock, PlayCircle, BookOpen, MessageSquare, Target, Check, ChevronDown, ChevronUp, Brain } from 'lucide-react';
+import { Card, CardContent } from '../components/Card';
+import { Button } from '../components/Button';
+import { ProgressRing } from '../components/ProgressRing';
+import { learningJourneyData } from '../mocks/learningJourney';
+
+// ==========================================
+// Sub-components
+// ==========================================
+
+const RoadmapOverview = ({ weeks }: { weeks: typeof learningJourneyData.weeks }) => (
+  <div className="mb-12 overflow-x-auto pb-4 scrollbar-hide border-b border-border">
+    <div className="max-w-7xl mx-auto px-6 md:px-12">
+      <h3 className="text-xs font-bold uppercase tracking-widest text-text-muted mb-6">Learning Roadmap</h3>
+      <div className="flex items-center min-w-max">
+        {weeks.map((week, index) => (
+          <React.Fragment key={week.id}>
+            <div className="flex flex-col items-center w-16">
+              <div className={`h-8 w-8 rounded-full flex items-center justify-center border transition-colors ${
+                week.isCompleted ? 'bg-primary border-primary text-white' : week.isCurrent ? 'bg-surface-secondary border-primary text-primary shadow-sm' : 'bg-surface border-border text-text-muted'
+              }`}>
+                {week.isCompleted ? <Check className="w-4 h-4" /> : <span className="text-xs font-bold">{index + 1}</span>}
+              </div>
+              <span className={`text-[11px] font-semibold uppercase tracking-wider mt-2 whitespace-nowrap ${week.isCurrent ? 'text-primary' : 'text-text-muted'}`}>
+                Week {index + 1}
+              </span>
+            </div>
+            <div className={`w-12 sm:w-20 h-px mx-2 ${
+              week.isCompleted ? 'bg-primary' : 'bg-border'
+            }`} />
+          </React.Fragment>
+        ))}
+        <div className="flex flex-col items-center w-16">
+          <div className="h-8 w-8 rounded-full flex items-center justify-center border border-border bg-surface text-text-muted">
+            <Target className="w-4 h-4" />
+          </div>
+          <span className="text-[11px] font-semibold uppercase tracking-wider mt-2 text-text-muted whitespace-nowrap">Final Goal</span>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const HabitTracker = ({ habits }: { habits: typeof learningJourneyData.habits }) => {
+  return (
+    <Card>
+      <div className="p-6 md:p-8 border-b border-border">
+        <h3 className="font-semibold text-text-primary flex items-center gap-2">
+          <CheckCircle2 className="w-5 h-5 text-primary" /> Habit Tracker
+        </h3>
+      </div>
+      <CardContent className="p-6 md:p-8 space-y-8">
+        <div className="flex items-center gap-6">
+          <ProgressRing value={habits.dailyLearning.progress} size={64} strokeWidth={6} />
+          <div>
+            <div className="font-semibold text-text-primary mb-1">{habits.dailyLearning.label}</div>
+            <div className="text-sm font-medium text-text-muted">{habits.dailyLearning.streak} Day Streak</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-6">
+          <ProgressRing value={habits.weeklyReflection.progress} size={64} strokeWidth={6} />
+          <div>
+            <div className="font-semibold text-text-primary mb-1">{habits.weeklyReflection.label}</div>
+            <div className="text-sm font-medium text-text-muted">{habits.weeklyReflection.streak}/{habits.weeklyReflection.maxStreak} Weeks</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-6">
+          <ProgressRing value={habits.teachBack.progress} size={64} strokeWidth={6} />
+          <div>
+            <div className="font-semibold text-text-primary mb-1">{habits.teachBack.label}</div>
+            <div className="text-sm font-medium text-text-muted">{habits.teachBack.streak}/{habits.teachBack.maxStreak} Sessions</div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+const WeekCard = ({ week }: { week: typeof learningJourneyData.weeks[0] }) => {
+  const [isExpanded, setIsExpanded] = useState(week.isCurrent || false);
+
+  return (
+    <div className="relative pl-8 pb-10 group">
+      {/* Timeline connector and dot */}
+      <div className="absolute left-0 top-5 bottom-0 w-px bg-border group-last:bg-transparent"></div>
+      <div className={`absolute -left-[5px] top-4 h-3 w-3 rounded-full border-2 bg-surface z-10 ${
+        week.isCompleted ? 'border-primary bg-primary' : week.isCurrent
+        ? 'border-primary ring-4 ring-primary/20'
+        : 'border-border'
+      }`}></div>
+
+      <Card className={`transition-all duration-300 ${isExpanded ? 'shadow-sm border-primary/30' : 'hover:border-border-hover'}`}>
+        <div className="p-6 md:p-8 flex items-center justify-between cursor-pointer"
+             onClick={() => setIsExpanded(!isExpanded)}
+        >
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <span className="text-xs font-bold tracking-widest uppercase text-primary">{week.title}</span>
+              {week.isCurrent && <span className="text-[10px] font-bold uppercase tracking-wider bg-primary/10 text-primary px-2 py-0.5 rounded">Current</span>}
+              {week.isCompleted && <span className="text-[10px] font-bold uppercase tracking-wider bg-success/10 text-success px-2 py-0.5 rounded">Done</span>}
+            </div>
+            <h4 className="text-xl font-bold text-text-primary">{week.milestone}</h4>
+          </div>
+          <button className="p-2 text-text-muted hover:text-text-primary rounded-lg hover:bg-surface-secondary transition-colors">
+            {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+          </button>
+        </div>
+
+        {isExpanded && (
+          <div className="px-6 md:px-8 pb-8 pt-2 border-t border-border animate-[fade-in_0.3s_ease-out]">
+            <div className="mb-6 flex flex-wrap items-center gap-4 text-sm text-text-secondary font-medium">
+              <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" /> {week.estimatedHours} Hours</span>
+              <span className="text-border">•</span>
+              <span className="flex items-center gap-1.5">
+                {week.cognitiveWorkload === 'Light' ? '🟢' : week.cognitiveWorkload === 'Moderate' ? '🟡' : '🔴'} {week.cognitiveWorkload} Workload
+              </span>
+            </div>
+            <div className="space-y-6">
+              <div>
+                <h5 className="text-xs font-bold uppercase tracking-widest text-text-muted mb-3 flex items-center gap-2">
+                  <BookOpen className="w-4 h-4" /> Daily Tasks
+                </h5>
+                <ul className="space-y-3">
+                  {week.tasks.map((task, idx) => (
+                    <li key={idx} className="flex items-start gap-3 text-sm font-medium text-text-secondary">
+                      <Check className={`w-4 h-4 mt-0.5 shrink-0 ${week.isCompleted ? 'text-success' : 'text-border-hover'}`} />
+                      {task}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              
+              <div className="bg-surface-secondary rounded-xl p-5 border border-border">
+                <h5 className="text-xs font-bold uppercase tracking-widest text-text-primary mb-2 flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4 text-primary" /> Teach Back Activity
+                </h5>
+                <p className="text-sm font-medium text-text-secondary">{week.teachBackActivity}</p>
+              </div>
+
+              <div className="bg-surface rounded-xl p-5 border border-border">
+                <h5 className="text-xs font-bold uppercase tracking-widest text-text-primary mb-2 flex items-center gap-2">
+                  <Brain className="w-4 h-4 text-text-muted" /> Reflection Prompt
+                </h5>
+                <p className="text-sm text-text-secondary italic">"{week.reflectionPrompt}"</p>
+              </div>
+            </div>
+          </div>
+        )}
+      </Card>
+    </div>
+  );
+};
+
+// ==========================================
+// Main Page Component
+// ==========================================
+
+export const Journey: React.FC = () => {
+  const data = learningJourneyData;
+
+  return (
+    <div className="min-h-screen bg-background pb-20">
+      
+      {/* Header Section */}
+      <div className="bg-surface border-b border-border pt-12 pb-12 mb-10">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 flex flex-col md:flex-row md:items-center justify-between gap-8">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-text-primary mb-3">Your Learning System</h1>
+            <div className="flex flex-wrap items-center gap-3">
+              <h2 className="text-lg font-medium text-text-secondary">{data.header.goal}</h2>
+              <span className="text-[10px] font-bold uppercase tracking-wider bg-success/10 text-success px-2 py-0.5 rounded">{data.header.status}</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-6">
+            <div className="text-right">
+              <div className="text-sm font-medium text-text-secondary mb-1">Overall Progress</div>
+              <div className="text-xs text-text-muted">Est. {data.header.estimatedCompletion}</div>
+            </div>
+            <ProgressRing value={data.header.progress} size={80} strokeWidth={6} />
+          </div>
+        </div>
+      </div>
+
+      {/* Roadmap Overview */}
+      <RoadmapOverview weeks={data.weeks} />
+
+      {/* Main Two-Column Layout */}
+      <div className="max-w-7xl mx-auto px-6 md:px-12">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-16">
+          
+          {/* Left Column: Deep Learning Path */}
+          <div className="space-y-12">
+            
+            {/* SECTION 1: WHY */}
+            <section>
+              <h3 className="text-xs font-bold uppercase tracking-widest text-text-muted mb-4">Why This Matters</h3>
+              <Card className="border-l-4 border-l-primary">
+                <CardContent className="p-8">
+                  <p className="text-xl font-medium text-text-primary leading-relaxed italic">
+                    "{data.why}"
+                  </p>
+                </CardContent>
+              </Card>
+            </section>
+
+            {/* SECTION 2 & 3: Identity & Success */}
+            <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-widest text-text-muted mb-4">Identity</h3>
+                <Card className="h-full">
+                  <CardContent className="p-8 h-full flex items-center">
+                    <p className="text-lg font-medium text-text-primary leading-relaxed">{data.identity}</p>
+                  </CardContent>
+                </Card>
+              </div>
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-widest text-text-muted mb-4">Success Looks Like</h3>
+                <Card className="h-full">
+                  <CardContent className="p-8 h-full flex items-center">
+                    <p className="text-lg font-medium text-text-secondary leading-relaxed">{data.successDefinition}</p>
+                  </CardContent>
+                </Card>
+              </div>
+            </section>
+
+            {/* SECTION 4: System Principles */}
+            <section>
+              <h3 className="text-xs font-bold uppercase tracking-widest text-text-muted mb-4">System Principles</h3>
+              <Card>
+                <CardContent className="p-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                    {data.systemPrinciples.map((principle, idx) => (
+                      <div key={idx} className="flex items-start gap-3">
+                        <div className="flex h-6 w-6 mt-0.5 items-center justify-center rounded-full bg-success/10 text-success shrink-0">
+                          <CheckCircle2 className="w-4 h-4" />
+                        </div>
+                        <span className="font-medium text-sm text-text-secondary leading-relaxed">{principle}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </section>
+
+            {/* SECTION 5: Weekly Learning Journey */}
+            <section className="pt-8">
+              <h3 className="text-2xl font-bold tracking-tight text-text-primary mb-8">Weekly Learning Journey</h3>
+              <div className="ml-2">
+                {data.weeks.map(week => (
+                  <WeekCard key={week.id} week={week} />
+                ))}
+              </div>
+            </section>
+
+          </div>
+
+          {/* Right Column: Sticky Sidebar (Desktop) */}
+          <div className="space-y-8">
+            <div className="sticky top-10 space-y-8">
+              <HabitTracker habits={data.habits} />
+              
+              <Card className="bg-surface-secondary border-none">
+                <CardContent className="p-8">
+                  <h3 className="font-semibold text-text-primary flex items-center gap-2 mb-4">
+                    <Target className="w-5 h-5 text-primary" /> Today's Mission
+                  </h3>
+                  <h4 className="text-lg font-bold text-text-primary mb-4">{data.todaysMission.title}</h4>
+                  <div className="space-y-3">
+                    <Button className="w-full" size="lg">
+                      <PlayCircle className="w-4 h-4 mr-2" /> Start Session
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  );
+};
+
+--- pages\Landing.tsx ---
+import React from 'react';
+
+import { Button } from '../components/Button';
+import { Link } from 'react-router-dom';
+
+export const Landing: React.FC = () => {
+ return (
+ <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
+ <div className="max-w-3xl text-center">
+ <h1 className="mb-6 text-5xl font-bold tracking-tight text-text-primary ">
+ Welcome to <span className="text-primary-600 ">PLOS</span>
+ </h1>
+ <p className="mb-8 text-lg text-text-secondary ">
+ Your Personal Learning Operating System. Act as a tutor and accountability partner.
+ </p>
+ <div className="flex gap-4 justify-center">
+ <Link to="/login">
+ <Button size="lg">Get Started</Button>
+ </Link>
+ </div>
+ </div>
+ </div>
+ );
+};
+
+--- pages\LearningPlan.tsx ---
+import React from 'react';
+import { PageHeader } from '../components/PageHeader';
+import { MilestoneCard } from '../components/MilestoneCard';
+
+export const LearningPlan: React.FC = () => {
+ return (
+ <div className="space-y-6">
+ <PageHeader title="Learning Plan" description="Your structured path to mastery." />
+ <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+ <MilestoneCard title="Frontend Basics" targetDate="Feb 28, 2026" progress={100} />
+ <MilestoneCard title="React Mastery" targetDate="April 15, 2026" progress={65} />
+ <MilestoneCard title="Fullstack Integration" targetDate="June 1, 2026" progress={10} />
+ </div>
+ </div>
+ );
+};
+
+--- pages\Loading.tsx ---
+import React from 'react';
+import { Loader } from '../components/Loader';
+
+export const Loading: React.FC = () => {
+ return (
+ <div className="flex min-h-screen items-center justify-center bg-background ">
+ <Loader size="lg" />
+ </div>
+ );
+};
+
+--- pages\Login.tsx ---
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/Card';
+import { Input } from '../components/Input';
+import { Button } from '../components/Button';
+import { Link, useNavigate } from 'react-router-dom';
+
+export const Login: React.FC = () => {
+ const navigate = useNavigate();
+
+ const handleSubmit = (e: React.FormEvent) => {
+ e.preventDefault();
+ navigate('/dashboard');
+ };
+
+ return (
+ <Card>
+ <CardHeader>
+ <CardTitle className="text-2xl text-center">Login</CardTitle>
+ </CardHeader>
+ <CardContent>
+ <form onSubmit={handleSubmit} className="space-y-4">
+ <Input label="Email" type="email" placeholder="you@example.com" required />
+ <Input label="Password" type="password" placeholder="••••••••" required />
+ <Button type="submit" className="w-full">Sign In</Button>
+ </form>
+ <p className="mt-4 text-center text-sm text-text-muted ">
+ Don't have an account? <Link to="#" className="text-primary-600 hover:underline ">Sign up</Link>
+ </p>
+ </CardContent>
+ </Card>
+ );
+};
+
+--- pages\NotFound.tsx ---
+import React from 'react';
+import { EmptyState } from '../components/EmptyState';
+
+import { FileWarning } from 'lucide-react';
+
+export const NotFound: React.FC = () => {
+ return (
+ <div className="flex min-h-screen items-center justify-center p-4">
+ <EmptyState
+ title="Page Not Found"
+ description="The page you are looking for does not exist or has been moved."
+ icon={<FileWarning className="h-12 w-12 text-warning-500" />}
+ actionLabel="Go Home"
+ onAction={() => window.location.href = '/'}
+ />
+ </div>
+ );
+};
+
+--- pages\Reflection.tsx ---
+import React from 'react';
+import { PageHeader } from '../components/PageHeader';
+import { Textarea } from '../components/Textarea';
+import { Button } from '../components/Button';
+import { Card, CardContent } from '../components/Card';
+
+export const Reflection: React.FC = () => {
+ return (
+ <div className="space-y-6">
+ <PageHeader title="Daily Reflection" description="Take a moment to review what you learned." />
+ <Card>
+ <CardContent className="p-6 space-y-4">
+ <Textarea label="What did you learn today?" placeholder="Write your thoughts..." />
+ <Textarea label="What challenges did you face?" placeholder="Be honest with yourself..." />
+ <Button>Save Reflection</Button>
+ </CardContent>
+ </Card>
+ </div>
+ );
+};
+
+--- pages\Settings.tsx ---
+import React from 'react';
+import { PageHeader } from '../components/PageHeader';
+import { Card, CardContent } from '../components/Card';
+import { Button } from '../components/Button';
+
+export const Settings: React.FC = () => {
+ return (
+ <div className="space-y-6">
+ <PageHeader title="Settings" description="Manage your account and preferences." />
+ <Card>
+ <CardContent className="p-6 space-y-4">
+ <div className="flex items-center justify-between border-b border-border pb-4 ">
+ <div>
+ <h3 className="font-medium text-text-primary ">Dark Mode</h3>
+ <p className="text-sm text-text-muted ">Toggle dark mode appearance.</p>
+ </div>
+ <Button variant="outline">Toggle</Button>
+ </div>
+ <div className="flex items-center justify-between border-b border-border pb-4 ">
+ <div>
+ <h3 className="font-medium text-text-primary ">Notifications</h3>
+ <p className="text-sm text-text-muted ">Manage email notifications.</p>
+ </div>
+ <Button variant="outline">Manage</Button>
+ </div>
+ </CardContent>
+ </Card>
+ </div>
+ );
+};
+
+--- pages\TaskDetails.tsx ---
+import React, { useState, useEffect } from 'react';
+import { Play, Pause, RotateCcw, Check, CheckCircle2, Circle, Clock, Target, MessageSquare, BookOpen, ChevronRight, FileText, Video } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/Card';
+import { Badge } from '../components/Badge';
+import { Button } from '../components/Button';
+import { Checkbox } from '../components/Checkbox';
+import { sessionData } from '../mocks/session';
+
+// ==========================================
+// Sub-components
+// ==========================================
+
+const FocusTimer = () => {
+ const [timeLeft, setTimeLeft] = useState(25 * 60);
+ const [isRunning, setIsRunning] = useState(false);
+
+ useEffect(() => {
+ let interval: ReturnType<typeof setInterval>;
+ if (isRunning && timeLeft > 0) {
+ interval = setInterval(() => {
+ setTimeLeft((prev) => prev - 1);
+ }, 1000);
+ } else if (timeLeft === 0) {
+ setIsRunning(false);
+ }
+ return () => clearInterval(interval);
+ }, [isRunning, timeLeft]);
+
+ const toggleTimer = () => setIsRunning(!isRunning);
+ const resetTimer = () => {
+ setIsRunning(false);
+ setTimeLeft(25 * 60);
+ };
+
+ const minutes = Math.floor(timeLeft / 60);
+ const seconds = timeLeft % 60;
+ const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+ return (
+ <Card className="bg-primary-900 text-text-primary border-0 shadow-lg overflow-hidden relative">
+ <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-5 pointer-events-none">
+ <Clock className="w-64 h-64" />
+ </div>
+ <CardContent className="p-8 md:p-12 flex flex-col items-center justify-center relative z-10 text-center">
+ <p className="text-primary-200 text-sm font-semibold uppercase tracking-widest mb-4">Focus Session</p>
+ <div className="text-7xl md:text-8xl font-black tracking-tighter tabular-nums mb-8">
+ {timeString}
+ </div>
+ <div className="flex items-center gap-4">
+ <Button variant={isRunning ? "secondary" : "primary"} size="lg" className={`w-40 rounded-full font-bold ${!isRunning ? 'bg-surface text-primary-900 hover:bg-surface-hover' : 'bg-primary-800 text-text-primary border-0 hover:bg-primary-700'}`}
+ onClick={toggleTimer}
+ >
+ {isRunning ? <><Pause className="w-5 h-5 mr-2" /> Pause</> : <><Play className="w-5 h-5 mr-2" /> Focus</>}
+ </Button>
+ <button onClick={resetTimer} className="p-3 rounded-full text-primary-200 hover:text-text-primary hover:bg-primary-800 transition-colors"
+ title="Reset Timer"
+ >
+ <RotateCcw className="w-5 h-5" />
+ </button>
+ </div>
+ </CardContent>
+ </Card>
+ );
+};
+
+const Workspace = () => {
+ const [checkedTasks, setCheckedTasks] = useState<number[]>([]);
+ const toggleTask = (index: number) => {
+ setCheckedTasks(prev => prev.includes(index) ? prev.filter(i => i !== index) : [...prev, index]
+ );
+ };
+
+ return (
+ <Card>
+ <CardHeader className="pb-4 border-b border-border ">
+ <CardTitle className="text-lg flex items-center gap-2">
+ <Target className="w-5 h-5 text-primary-500" /> Objectives
+ </CardTitle>
+ </CardHeader>
+ <CardContent className="p-5 space-y-6">
+ <div className="space-y-3">
+ {sessionData.workspace.objectives.map((obj, i) => {
+ const isChecked = checkedTasks.includes(i);
+ return (
+ <label key={i} className={`flex items-start gap-3 p-3 rounded-lg border transition-colors cursor-pointer ${
+ isChecked ? 'bg-primary-50/50 border-primary-200 ' : 'bg-surface border-border hover:border-primary-300 '
+ }`}>
+ <div className="mt-0.5" onClick={() => toggleTask(i)}>
+ {isChecked ? <CheckCircle2 className="w-5 h-5 text-primary-600 " /> : <Circle className="w-5 h-5 text-text-muted" />}
+ </div>
+ <span className={`text-sm font-medium ${isChecked ? 'text-text-muted line-through ' : 'text-text-primary '}`}>
+ {obj}
+ </span>
+ </label>
+ );
+ })}
+ </div>
+ <div>
+ <h4 className="text-sm font-semibold text-text-primary mb-3 flex items-center gap-2">
+ <BookOpen className="w-4 h-4 text-text-muted" /> Resources
+ </h4>
+ <div className="flex flex-col gap-2">
+ {sessionData.workspace.resources.map((res) => (
+ <a key={res.id} href={res.url} className="flex items-center justify-between p-3 rounded-md bg-background hover:bg-surface-hover transition-colors group">
+ <div className="flex items-center gap-3">
+ {res.title.includes('Video') ? <Video className="w-4 h-4 text-accent-500" /> : <FileText className="w-4 h-4 text-primary-500" />}
+ <span className="text-sm font-medium text-text-secondary group-hover:text-primary-600 ">{res.title}</span>
+ </div>
+ <ChevronRight className="w-4 h-4 text-text-muted group-hover:text-primary-500" />
+ </a>
+ ))}
+ </div>
+ </div>
+
+ <div>
+ <h4 className="text-sm font-semibold text-text-primary mb-3">Workspace Notes</h4>
+ <textarea className="w-full h-32 rounded-lg border border-border bg-surface p-4 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary-500 "
+ placeholder="Jot down rough notes, code snippets, or thoughts as you learn..."
+ ></textarea>
+ </div>
+ </CardContent>
+ </Card>
+ );
+};
+
+const TeachBack = () => {
+ const [text, setText] = useState('');
+ const wordCount = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+ return (
+ <Card className="border-l-4 border-l-accent-500">
+ <CardHeader className="pb-3 border-b border-border bg-background ">
+ <div className="flex items-start justify-between">
+ <div>
+ <CardTitle className="text-lg flex items-center gap-2 text-text-primary ">
+ <MessageSquare className="w-5 h-5 text-accent-500" /> Teach Back
+ </CardTitle>
+ <p className="text-sm text-text-secondary mt-1">{sessionData.teachBack.prompt}</p>
+ </div>
+ <Badge variant="neutral" className="hidden sm:flex">{wordCount} Words</Badge>
+ </div>
+ </CardHeader>
+ <CardContent className="p-5">
+ <textarea className="w-full h-40 rounded-lg border border-border bg-surface p-4 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-500 "
+ placeholder="Start explaining..."
+ value={text}
+ onChange={(e) => setText(e.target.value)}
+ ></textarea>
+ <div className="flex items-center justify-between mt-3">
+ <p className="text-xs text-text-muted font-medium italic">{sessionData.teachBack.helperText}</p>
+ <span className="sm:hidden text-xs font-semibold text-text-muted">{wordCount} Words</span>
+ {wordCount > 20 && (
+ <span className="flex items-center gap-1 text-xs font-bold text-success-600 animate-[fade-in_0.3s_ease-in-out]">
+ <Check className="w-3 h-3" /> Looking good!
+ </span>
+ )}
+ </div>
+ </CardContent>
+ </Card>
+ );
+};
+
+// ==========================================
+// Main Page Component
+// ==========================================
+
+export const TaskDetails: React.FC = () => {
+ const data = sessionData;
+ const [confidence, setConfidence] = useState(5);
+ const [difficulty, setDifficulty] = useState<string>('');
+
+ return (
+ <div className="min-h-screen bg-background pb-24">
+ {/* SECTION 1: Session Header */}
+ <div className="bg-surface border-b border-border pt-8 pb-8 mb-8 sticky top-0 z-20 shadow-sm">
+ <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+ <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+ <div>
+ <div className="flex items-center gap-3 mb-2">
+ <Badge variant="primary">{data.header.currentWeek}</Badge>
+ <span className="text-sm font-semibold uppercase tracking-wider text-text-muted">Today's Mission</span>
+ </div>
+ <h1 className="text-2xl sm:text-3xl font-bold text-text-primary ">{data.header.missionTitle}</h1>
+ </div>
+ <div className="flex flex-wrap items-center gap-3 text-sm font-medium text-text-secondary ">
+ <span className="flex items-center gap-1.5"><Clock className="w-4 h-4 text-text-muted" /> {data.header.estimatedDuration}</span>
+ <span className="w-px h-4 bg-neutral-300 hidden sm:block"></span>
+ <span className="flex items-center gap-1.5">
+ {data.header.difficulty === 'Easy' ? '🟢' : data.header.difficulty === 'Medium' ? '🟡' : '🔴'} {data.header.difficulty}
+ </span>
+ <span className="w-px h-4 bg-neutral-300 hidden sm:block"></span>
+ <span className="flex items-center gap-1.5 text-success-600 ">
+ 🟢 {data.header.focusStatus}
+ </span>
+ </div>
+ </div>
+ </div>
+ </div>
+
+ <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+ {/* SECTION 2: Focus Timer */}
+ <section>
+ <FocusTimer />
+ </section>
+
+ {/* SECTION 3: Learning Workspace */}
+ <section>
+ <h2 className="text-xl font-bold text-text-primary mb-4">Workspace</h2>
+ <Workspace />
+ </section>
+
+ {/* SECTION 4: Reflection */}
+ <section>
+ <h2 className="text-xl font-bold text-text-primary mb-4">Reflection</h2>
+ <Card>
+ <CardContent className="p-6 space-y-8">
+ {data.reflection.questions.map((q, i) => (
+ <div key={i}>
+ <label className="block text-sm font-semibold text-text-primary mb-2">{q}</label>
+ <textarea className="w-full h-24 rounded-lg border border-border bg-surface p-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 "
+ ></textarea>
+ </div>
+ ))}
+
+ <div className="pt-4 border-t border-border ">
+ <label className="block text-sm font-semibold text-text-primary mb-4">
+ How confident do you feel now? ({confidence}/10)
+ </label>
+ <div className="flex items-center gap-4">
+ <span className="text-xs font-bold text-text-muted">1</span>
+ <input type="range" min="1" max="10" value={confidence} onChange={(e) => setConfidence(parseInt(e.target.value))}
+ className="w-full h-2 bg-surface-active rounded-lg appearance-none cursor-pointer accent-primary-600"
+ />
+ <span className="text-xs font-bold text-text-muted">10</span>
+ </div>
+ </div>
+
+ <div className="pt-4 border-t border-border ">
+ <label className="block text-sm font-semibold text-text-primary mb-3">Overall Difficulty</label>
+ <div className="flex gap-3">
+ {data.reflection.difficultyOptions.map(opt => (
+ <button
+ key={opt}
+ onClick={() => setDifficulty(opt)}
+ className={`px-4 py-2 rounded-md text-sm font-medium transition-colors border ${
+ difficulty === opt ? 'bg-primary-50 border-primary-500 text-primary-700 ' : 'bg-surface border-border text-text-secondary hover:border-primary-300 '
+ }`}
+ >
+ {opt}
+ </button>
+ ))}
+ </div>
+ </div>
+ </CardContent>
+ </Card>
+ </section>
+
+ {/* SECTION 5: Teach Back */}
+ <section>
+ <TeachBack />
+ </section>
+
+ {/* SECTION 6: Evidence */}
+ <section>
+ <h2 className="text-xl font-bold text-text-primary mb-4">Evidence</h2>
+ <Card>
+ <CardContent className="p-6">
+ <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+ {data.evidence.options.map(opt => (
+ <div key={opt}>
+ <Checkbox id={`ev-${opt}`} label={opt} />
+ </div>
+ ))}
+ </div>
+ </CardContent>
+ </Card>
+ </section>
+
+ {/* SECTION 7: Session Summary CTA */}
+ <section className="pt-8 text-center border-t border-border ">
+ <Button size="lg" className="w-full sm:w-auto px-12 py-6 text-lg font-bold rounded-xl shadow-md">
+ Finish Session
+ </Button>
+ <p className="text-sm text-text-muted mt-4">Your progress will be logged and your dashboard updated.</p>
+ </section>
+
+ </div>
+ </div>
+ );
+};
+
+--- router\index.tsx ---
+import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { AuthLayout } from '../layout/AuthLayout';
+import { DashboardLayout } from '../layout/DashboardLayout';
+
+import { Landing } from '../pages/Landing';
+import { Login } from '../pages/Login';
+import { Dashboard } from '../pages/Dashboard';
+import { GoalSetup } from '../pages/GoalSetup';
+import { Journey } from '../pages/Journey';
+import { LearningPlan } from '../pages/LearningPlan';
+import { TaskDetails } from '../pages/TaskDetails';
+import { Reflection } from '../pages/Reflection';
+import { Settings } from '../pages/Settings';
+import { NotFound } from '../pages/NotFound';
+import { ErrorPage } from '../pages/Error';
+
+// Protected Route placeholder logic
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const isAuthenticated = true; // Placeholder for real auth logic
+  return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
+};
+
+export const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <Landing />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    element: <AuthLayout />,
+    children: [
+      { path: 'login', element: <Login /> },
+    ],
+  },
+  {
+    element: (
+      <ProtectedRoute>
+        <DashboardLayout />
+      </ProtectedRoute>
+    ),
+    children: [
+      { path: 'dashboard', element: <Dashboard /> },
+      { path: 'goals', element: <GoalSetup /> },
+      { path: 'journey', element: <Journey /> },
+      { path: 'plan', element: <LearningPlan /> },
+      { path: 'tasks', element: <Dashboard /> }, // Fallback to dashboard for tasks list
+      { path: 'tasks/:id', element: <TaskDetails /> },
+      { path: 'reflection', element: <Reflection /> },
+      { path: 'settings', element: <Settings /> },
+    ],
+  },
+  {
+    path: '*',
+    element: <NotFound />,
+  },
+]);
+
+--- services\api.ts ---
+import axios from 'axios';
+
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+export default api;
+
+--- styles\design-tokens.css ---
+/* ==========================================================================
+   PLOS DESIGN TOKENS
+   Contains ONLY raw primitive values. No semantic meaning.
+   ========================================================================== */
+
+:root {
+  /* Raw Color Primitives - Slate/Neutral */
+  --primitive-slate-50: #fafafa;
+  --primitive-slate-100: #f4f4f5;
+  --primitive-slate-200: #e4e4e7;
+  --primitive-slate-300: #d4d4d8;
+  --primitive-slate-400: #a1a1aa;
+  --primitive-slate-500: #71717a;
+  --primitive-slate-600: #52525b;
+  --primitive-slate-700: #3f3f46;
+  --primitive-slate-800: #27272a;
+  --primitive-slate-900: #18181b;
+  --primitive-slate-950: #121212; /* Softer premium dark */
+
+  /* Raw Color Primitives - Blue (Primary) */
+  --primitive-blue-50: #eff6ff;
+  --primitive-blue-100: #dbeafe;
+  --primitive-blue-200: #bfdbfe;
+  --primitive-blue-300: #93c5fd;
+  --primitive-blue-400: #60a5fa;
+  --primitive-blue-500: #3b82f6;
+  --primitive-blue-600: #2563eb;
+  --primitive-blue-700: #1d4ed8;
+  --primitive-blue-800: #1e40af;
+  --primitive-blue-900: #1e3a8a;
+  --primitive-blue-950: #172554;
+
+  /* Raw Color Primitives - Green (Accent/Success) */
+  --primitive-green-50: #f0fdf4;
+  --primitive-green-100: #dcfce7;
+  --primitive-green-200: #bbf7d0;
+  --primitive-green-300: #86efac;
+  --primitive-green-400: #4ade80;
+  --primitive-green-500: #22c55e;
+  --primitive-green-600: #16a34a;
+  --primitive-green-700: #15803d;
+  --primitive-green-800: #166534;
+  --primitive-green-900: #14532d;
+  --primitive-green-950: #052e16;
+
+  /* Raw Color Primitives - Orange (Warning) */
+  --primitive-orange-50: #fff7ed;
+  --primitive-orange-100: #ffedd5;
+  --primitive-orange-200: #fed7aa;
+  --primitive-orange-300: #fdba74;
+  --primitive-orange-400: #fb923c;
+  --primitive-orange-500: #f97316;
+  --primitive-orange-600: #ea580c;
+  --primitive-orange-700: #c2410c;
+  --primitive-orange-800: #9a3412;
+  --primitive-orange-900: #7c2d12;
+  --primitive-orange-950: #431407;
+
+  /* Raw Color Primitives - Red (Danger) */
+  --primitive-red-50: #fef2f2;
+  --primitive-red-100: #fee2e2;
+  --primitive-red-200: #fecaca;
+  --primitive-red-300: #fca5a5;
+  --primitive-red-400: #f87171;
+  --primitive-red-500: #ef4444;
+  --primitive-red-600: #dc2626;
+  --primitive-red-700: #b91c1c;
+  --primitive-red-800: #991b1b;
+  --primitive-red-900: #7f1d1d;
+  --primitive-red-950: #450a0a;
+
+  /* Spacing Primitives (px to rem) */
+  --primitive-space-4: 0.25rem;
+  --primitive-space-8: 0.5rem;
+  --primitive-space-12: 0.75rem;
+  --primitive-space-16: 1rem;
+  --primitive-space-20: 1.25rem;
+  --primitive-space-24: 1.5rem;
+  --primitive-space-32: 2rem;
+  --primitive-space-40: 2.5rem;
+  --primitive-space-48: 3rem;
+  --primitive-space-64: 4rem;
+
+  /* Font Families */
+  --primitive-font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --primitive-font-display: "Outfit", "Inter", system-ui, sans-serif;
+  --primitive-font-mono: "JetBrains Mono", "Fira Code", monospace;
+
+  /* Font Weights */
+  --primitive-weight-normal: 400;
+  --primitive-weight-medium: 500;
+  --primitive-weight-semibold: 600;
+  --primitive-weight-bold: 700;
+
+  /* Font Sizes */
+  --primitive-text-xs: 0.75rem;
+  --primitive-text-sm: 0.875rem;
+  --primitive-text-base: 1rem;
+  --primitive-text-lg: 1.125rem;
+  --primitive-text-xl: 1.25rem;
+  --primitive-text-2xl: 1.5rem;
+  --primitive-text-3xl: 1.875rem;
+  --primitive-text-4xl: 2.25rem;
+  --primitive-text-5xl: 3rem;
+
+  /* Line Heights */
+  --primitive-leading-none: 1;
+  --primitive-leading-tight: 1.25;
+  --primitive-leading-snug: 1.375;
+  --primitive-leading-normal: 1.5;
+  --primitive-leading-relaxed: 1.625;
+  --primitive-leading-loose: 2;
+
+  /* Letter Spacing */
+  --primitive-tracking-tighter: -0.05em;
+  --primitive-tracking-tight: -0.025em;
+  --primitive-tracking-normal: 0em;
+  --primitive-tracking-wide: 0.025em;
+  --primitive-tracking-wider: 0.05em;
+  --primitive-tracking-widest: 0.1em;
+
+  /* Motion Primitives */
+  --primitive-duration-fast: 150ms;
+  --primitive-duration-normal: 300ms;
+  --primitive-duration-slow: 500ms;
+  
+  --primitive-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --primitive-ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --primitive-ease-decelerate: cubic-bezier(0, 0, 0, 1);
+  --primitive-ease-accelerate: cubic-bezier(0.3, 0, 1, 1);
+
+  /* Radius Primitives */
+  --primitive-radius-xs: 0.125rem;
+  --primitive-radius-sm: 0.25rem;
+  --primitive-radius-md: 0.375rem;
+  --primitive-radius-lg: 0.5rem;
+  --primitive-radius-xl: 0.75rem;
+  --primitive-radius-2xl: 1rem;
+  --primitive-radius-full: 9999px;
+
+  /* Z-Index Primitives */
+  --primitive-z-base: 0;
+  --primitive-z-dropdown: 40;
+  --primitive-z-sticky: 50;
+  --primitive-z-overlay: 100;
+  --primitive-z-modal: 200;
+  --primitive-z-toast: 300;
+  --primitive-z-tooltip: 400;
+
+  /* Layout Widths */
+  --primitive-width-reading: 65ch;
+  --primitive-width-content: 800px;
+  --primitive-width-dashboard: 1200px;
+  --primitive-width-wide: 1440px;
+  --primitive-width-full: 100%;
+
+  /* Breakpoints */
+  --primitive-bp-sm: 640px;
+  --primitive-bp-md: 768px;
+  --primitive-bp-lg: 1024px;
+  --primitive-bp-xl: 1280px;
+  --primitive-bp-2xl: 1536px;
+}
+
+--- styles\elevation.css ---
+/* ==========================================================================
+   ELEVATION & RADII
+   Maps shadow primitives and border radii.
+   ========================================================================== */
+
+:root {
+  /* Radii */
+  --radius-xs: var(--primitive-radius-xs);
+  --radius-sm: var(--primitive-radius-sm);
+  --radius-md: var(--primitive-radius-md);
+  --radius-lg: var(--primitive-radius-lg);
+  --radius-xl: var(--primitive-radius-xl);
+  --radius-2xl: var(--primitive-radius-2xl);
+  --radius-full: var(--primitive-radius-full);
+
+  /* Shadows 
+     Utilizes --shadow-color set in theme.css based on light/dark mode */
+  --shadow-none: 0 0 #0000;
+  
+  --shadow-sm: 0 1px 2px 0 var(--shadow-color);
+  
+  --shadow-md: 0 4px 6px -1px var(--shadow-color), 
+               0 2px 4px -2px var(--shadow-color);
+               
+  --shadow-lg: 0 10px 15px -3px var(--shadow-color), 
+               0 4px 6px -4px var(--shadow-color);
+               
+  --shadow-xl: 0 20px 25px -5px var(--shadow-color-strong), 
+               0 8px 10px -6px var(--shadow-color-strong);
+}
+
+--- styles\index.css ---
+@import "tailwindcss";
+
+/* 
+  ==========================================================================
+  PLOS DESIGN SYSTEM
+  ========================================================================== 
+*/
+@import "./design-tokens.css";
+@import "./theme.css";
+@import "./typography.css";
+@import "./spacing.css";
+@import "./elevation.css";
+@import "./motion.css";
+@import "./layout.css";
+
+/* 
+  ==========================================================================
+  TAILWIND V4 THEME MAPPING
+  Maps the CSS variables from our Design System directly into Tailwind's utility generation.
+  ========================================================================== 
+*/
+@theme {
+  /* Fonts */
+  --font-sans: var(--font-family-body);
+  --font-display: var(--font-family-display);
+  --font-mono: var(--font-family-mono);
+
+  /* Semantic Colors */
+  --color-background: var(--color-bg-primary);
+  --color-surface: var(--color-surface);
+  --color-surface-secondary: var(--color-surface-secondary);
+  --color-surface-elevated: var(--color-surface-elevated);
+  --color-surface-hover: var(--color-surface-hover);
+  --color-surface-active: var(--color-surface-active);
+  
+  --color-border: var(--color-border);
+  --color-border-hover: var(--color-border-hover);
+
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-muted: var(--color-text-muted);
+  --color-text-inverse: var(--color-text-inverse);
+
+  --color-primary: var(--color-primary);
+  --color-primary-hover: var(--color-primary-hover);
+  --color-primary-active: var(--color-primary-active);
+
+  --color-success: var(--color-success);
+  --color-warning: var(--color-warning);
+  --color-danger: var(--color-danger);
+  --color-info: var(--color-info);
+
+  /* Legacy Colors mapped for backward compatibility */
+  --color-primary-50: var(--color-primary-50);
+  --color-primary-100: var(--color-primary-100);
+  --color-primary-200: var(--color-primary-200);
+  --color-primary-300: var(--color-primary-300);
+  --color-primary-400: var(--color-primary-400);
+  --color-primary-500: var(--color-primary-500);
+  --color-primary-600: var(--color-primary-600);
+  --color-primary-700: var(--color-primary-700);
+  --color-primary-800: var(--color-primary-800);
+  --color-primary-900: var(--color-primary-900);
+
+  --color-accent-50: var(--color-accent-50);
+  --color-accent-100: var(--color-accent-100);
+  --color-accent-200: var(--color-accent-200);
+  --color-accent-300: var(--color-accent-300);
+  --color-accent-400: var(--color-accent-400);
+  --color-accent-500: var(--color-accent-500);
+  --color-accent-600: var(--color-accent-600);
+  --color-accent-700: var(--color-accent-700);
+  --color-accent-800: var(--color-accent-800);
+  --color-accent-900: var(--color-accent-900);
+
+  --color-warning-50: var(--color-warning-50);
+  --color-warning-100: var(--color-warning-100);
+  --color-warning-200: var(--color-warning-200);
+  --color-warning-300: var(--color-warning-300);
+  --color-warning-400: var(--color-warning-400);
+  --color-warning-500: var(--color-warning-500);
+  --color-warning-600: var(--color-warning-600);
+  --color-warning-700: var(--color-warning-700);
+  --color-warning-800: var(--color-warning-800);
+  --color-warning-900: var(--color-warning-900);
+
+  --color-danger-50: var(--color-danger-50);
+  --color-danger-100: var(--color-danger-100);
+  --color-danger-200: var(--color-danger-200);
+  --color-danger-300: var(--color-danger-300);
+  --color-danger-400: var(--color-danger-400);
+  --color-danger-500: var(--color-danger-500);
+  --color-danger-600: var(--color-danger-600);
+  --color-danger-700: var(--color-danger-700);
+  --color-danger-800: var(--color-danger-800);
+  --color-danger-900: var(--color-danger-900);
+
+  --color-neutral-50: var(--color-neutral-50);
+  --color-neutral-100: var(--color-neutral-100);
+  --color-neutral-200: var(--color-neutral-200);
+  --color-neutral-300: var(--color-neutral-300);
+  --color-neutral-400: var(--color-neutral-400);
+  --color-neutral-500: var(--color-neutral-500);
+  --color-neutral-600: var(--color-neutral-600);
+  --color-neutral-700: var(--color-neutral-700);
+  --color-neutral-800: var(--color-neutral-800);
+  --color-neutral-900: var(--color-neutral-900);
+  --color-neutral-950: var(--color-neutral-950);
+
+  /* Shadows */
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+
+  /* Radii */
+  --radius-xs: var(--radius-xs);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-2xl: var(--radius-2xl);
+  --radius-full: var(--radius-full);
+}
+
+@layer base {
+  body {
+    /* Migrate away from tailwind hardcoded classes, use our pure semantic variables */
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    font-family: var(--font-family-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color var(--motion-duration-normal) var(--motion-ease-standard);
+  }
+}
+
+--- styles\layout.css ---
+/* ==========================================================================
+   LAYOUT
+   Maps z-indices, container widths, and breakpoints.
+   ========================================================================== */
+
+:root {
+  /* Z-Index Scale */
+  --z-index-base: var(--primitive-z-base);
+  --z-index-sticky: var(--primitive-z-sticky);
+  --z-index-dropdown: var(--primitive-z-dropdown);
+  --z-index-overlay: var(--primitive-z-overlay);
+  --z-index-modal: var(--primitive-z-modal);
+  --z-index-toast: var(--primitive-z-toast);
+  --z-index-tooltip: var(--primitive-z-tooltip);
+
+  /* Container Widths */
+  --container-width-reading: var(--primitive-width-reading);
+  --container-width-content: var(--primitive-width-content);
+  --container-width-dashboard: var(--primitive-width-dashboard);
+  --container-width-wide: var(--primitive-width-wide);
+  --container-width-full: var(--primitive-width-full);
+
+  /* Breakpoints */
+  --breakpoint-sm: var(--primitive-bp-sm);
+  --breakpoint-md: var(--primitive-bp-md);
+  --breakpoint-lg: var(--primitive-bp-lg);
+  --breakpoint-xl: var(--primitive-bp-xl);
+  --breakpoint-2xl: var(--primitive-bp-2xl);
+}
+
+--- styles\motion.css ---
+/* ==========================================================================
+   MOTION
+   Maps transition durations and easing curves.
+   ========================================================================== */
+
+:root {
+  /* Durations */
+  --motion-duration-fast: var(--primitive-duration-fast);
+  --motion-duration-normal: var(--primitive-duration-normal);
+  --motion-duration-slow: var(--primitive-duration-slow);
+
+  /* Easings */
+  --motion-ease-standard: var(--primitive-ease-standard);
+  --motion-ease-emphasized: var(--primitive-ease-emphasized);
+  --motion-ease-decelerate: var(--primitive-ease-decelerate);
+  --motion-ease-accelerate: var(--primitive-ease-accelerate);
+}
+
+--- styles\spacing.css ---
+/* ==========================================================================
+   SPACING
+   Maps spacing primitives to layout/component semantics.
+   ========================================================================== */
+
+:root {
+  /* Generic spacing scale */
+  --spacing-4: var(--primitive-space-4);
+  --spacing-8: var(--primitive-space-8);
+  --spacing-12: var(--primitive-space-12);
+  --spacing-16: var(--primitive-space-16);
+  --spacing-20: var(--primitive-space-20);
+  --spacing-24: var(--primitive-space-24);
+  --spacing-32: var(--primitive-space-32);
+  --spacing-40: var(--primitive-space-40);
+  --spacing-48: var(--primitive-space-48);
+  --spacing-64: var(--primitive-space-64);
+
+  /* Semantic spacing (Optional architecture for future use) */
+  --spacing-component-padding-sm: var(--spacing-8);
+  --spacing-component-padding-md: var(--spacing-16);
+  --spacing-component-padding-lg: var(--spacing-24);
+  
+  --spacing-gap-sm: var(--spacing-8);
+  --spacing-gap-md: var(--spacing-16);
+  --spacing-gap-lg: var(--spacing-24);
+  
+  --spacing-section-y: var(--spacing-48);
+}
+
+--- styles\theme.css ---
+/* ==========================================================================
+   THEME SEMANTICS & COLORS
+   Maps primitives to semantic variables and establishes theme selectors.
+   ========================================================================== */
+
+/* Base & Light Theme */
+:root, [data-theme="light"] {
+  /* Semantic Colors - Backgrounds & Surfaces */
+  --color-bg-primary: #FFFFFF;
+  --color-surface: #FFFFFF;
+  --color-surface-secondary: #F9FAFB;
+  --color-surface-elevated: #FFFFFF;
+  --color-surface-hover: #F3F4F6;
+  --color-surface-active: #E5E7EB;
+  
+  /* Semantic Colors - Borders */
+  --color-border: #E5E7EB;
+  --color-border-hover: #D1D5DB;
+
+  /* Semantic Colors - Text */
+  --color-text-primary: #111827;
+  --color-text-secondary: #4B5563;
+  --color-text-muted: #9CA3AF;
+  --color-text-inverse: #FFFFFF;
+
+  /* Semantic Colors - Action (Brand) */
+  --color-primary: #4F46E5;
+  --color-primary-hover: #4338CA;
+  --color-primary-active: #3730A3;
+
+  /* Semantic Colors - Feedback */
+  --color-success: var(--primitive-green-500);
+  --color-warning: var(--primitive-orange-500);
+  --color-danger: var(--primitive-red-500);
+  --color-info: var(--primitive-blue-500);
+
+  /* Shadow Variables */
+  --shadow-color: rgba(0, 0, 0, 0.08);
+  --shadow-color-strong: rgba(0, 0, 0, 0.12);
+
+  /* LEGACY TAILWIND COLOR MAPPING (To ensure existing UI doesn't break) */
+  --color-neutral-50: var(--primitive-slate-50);
+  --color-neutral-100: var(--primitive-slate-100);
+  --color-neutral-200: var(--primitive-slate-200);
+  --color-neutral-300: var(--primitive-slate-300);
+  --color-neutral-400: var(--primitive-slate-400);
+  --color-neutral-500: var(--primitive-slate-500);
+  --color-neutral-600: var(--primitive-slate-600);
+  --color-neutral-700: var(--primitive-slate-700);
+  --color-neutral-800: var(--primitive-slate-800);
+  --color-neutral-900: var(--primitive-slate-900);
+  --color-neutral-950: var(--primitive-slate-950);
+
+  --color-primary-50: var(--primitive-blue-50);
+  --color-primary-100: var(--primitive-blue-100);
+  --color-primary-200: var(--primitive-blue-200);
+  --color-primary-300: var(--primitive-blue-300);
+  --color-primary-400: var(--primitive-blue-400);
+  --color-primary-500: var(--primitive-blue-500);
+  --color-primary-600: var(--primitive-blue-600);
+  --color-primary-700: var(--primitive-blue-700);
+  --color-primary-800: var(--primitive-blue-800);
+  --color-primary-900: var(--primitive-blue-900);
+
+  --color-accent-50: var(--primitive-green-50);
+  --color-accent-100: var(--primitive-green-100);
+  --color-accent-200: var(--primitive-green-200);
+  --color-accent-300: var(--primitive-green-300);
+  --color-accent-400: var(--primitive-green-400);
+  --color-accent-500: var(--primitive-green-500);
+  --color-accent-600: var(--primitive-green-600);
+  --color-accent-700: var(--primitive-green-700);
+  --color-accent-800: var(--primitive-green-800);
+  --color-accent-900: var(--primitive-green-900);
+
+  --color-warning-50: var(--primitive-orange-50);
+  --color-warning-100: var(--primitive-orange-100);
+  --color-warning-200: var(--primitive-orange-200);
+  --color-warning-300: var(--primitive-orange-300);
+  --color-warning-400: var(--primitive-orange-400);
+  --color-warning-500: var(--primitive-orange-500);
+  --color-warning-600: var(--primitive-orange-600);
+  --color-warning-700: var(--primitive-orange-700);
+  --color-warning-800: var(--primitive-orange-800);
+  --color-warning-900: var(--primitive-orange-900);
+
+  --color-danger-50: var(--primitive-red-50);
+  --color-danger-100: var(--primitive-red-100);
+  --color-danger-200: var(--primitive-red-200);
+  --color-danger-300: var(--primitive-red-300);
+  --color-danger-400: var(--primitive-red-400);
+  --color-danger-500: var(--primitive-red-500);
+  --color-danger-600: var(--primitive-red-600);
+  --color-danger-700: var(--primitive-red-700);
+  --color-danger-800: var(--primitive-red-800);
+  --color-danger-900: var(--primitive-red-900);
+}
+
+/* Dark Theme */
+[data-theme="dark"] {
+  /* Semantic Colors - Backgrounds & Surfaces */
+  --color-bg-primary: var(--primitive-slate-950);
+  --color-surface: var(--primitive-slate-900);
+  --color-surface-secondary: var(--primitive-slate-950);
+  --color-surface-elevated: var(--primitive-slate-800);
+  --color-surface-hover: var(--primitive-slate-800);
+  --color-surface-active: var(--primitive-slate-700);
+  
+  /* Semantic Colors - Borders */
+  --color-border: var(--primitive-slate-800);
+  --color-border-hover: var(--primitive-slate-700);
+
+  /* Semantic Colors - Text */
+  --color-text-primary: var(--primitive-slate-50);
+  --color-text-secondary: var(--primitive-slate-300);
+  --color-text-muted: var(--primitive-slate-500);
+  --color-text-inverse: var(--primitive-slate-950);
+
+  /* Semantic Colors - Action (Brand) */
+  --color-primary: var(--primitive-blue-500);
+  --color-primary-hover: var(--primitive-blue-400);
+  --color-primary-active: var(--primitive-blue-300);
+
+  /* Shadow Variables - Stronger for dark mode */
+  --shadow-color: rgba(0, 0, 0, 0.5);
+  --shadow-color-strong: rgba(0, 0, 0, 0.7);
+}
+
+--- styles\typography.css ---
+/* ==========================================================================
+   TYPOGRAPHY
+   Maps typography primitives into semantic variables and utility classes.
+   ========================================================================== */
+
+@layer utilities {
+  .text-display {
+    font-size: var(--text-display-size);
+    line-height: var(--text-display-leading);
+    font-weight: var(--text-display-weight);
+    letter-spacing: var(--text-display-tracking);
+    font-family: var(--font-family-display);
+  }
+
+  .text-h1 {
+    font-size: var(--text-h1-size);
+    line-height: var(--text-h1-leading);
+    font-weight: var(--text-h1-weight);
+    letter-spacing: var(--text-h1-tracking);
+    font-family: var(--font-family-display);
+  }
+
+  .text-h2 {
+    font-size: var(--text-h2-size);
+    line-height: var(--text-h2-leading);
+    font-weight: var(--text-h2-weight);
+    letter-spacing: var(--text-h2-tracking);
+    font-family: var(--font-family-display);
+  }
+
+  .text-h3 {
+    font-size: var(--text-h3-size);
+    line-height: var(--text-h3-leading);
+    font-weight: var(--text-h3-weight);
+    letter-spacing: var(--text-h3-tracking);
+    font-family: var(--font-family-display);
+  }
+
+  .text-title {
+    font-size: var(--text-title-size);
+    line-height: var(--text-title-leading);
+    font-weight: var(--text-title-weight);
+    letter-spacing: var(--text-title-tracking);
+  }
+
+  .text-body-large {
+    font-size: var(--text-body-large-size);
+    line-height: var(--text-body-large-leading);
+    font-weight: var(--text-body-large-weight);
+    letter-spacing: var(--text-body-large-tracking);
+  }
+
+  .text-body {
+    font-size: var(--text-body-size);
+    line-height: var(--text-body-leading);
+    font-weight: var(--text-body-weight);
+    letter-spacing: var(--text-body-tracking);
+  }
+
+  .text-small {
+    font-size: var(--primitive-text-sm);
+    line-height: var(--primitive-leading-relaxed);
+    font-weight: var(--primitive-weight-normal);
+  }
+
+  .text-caption {
+    font-size: var(--text-caption-size);
+    line-height: var(--text-caption-leading);
+    font-weight: var(--text-caption-weight);
+    letter-spacing: var(--text-caption-tracking);
+  }
+
+  .text-label {
+    font-size: var(--text-label-size);
+    line-height: var(--text-label-leading);
+    font-weight: var(--text-label-weight);
+    letter-spacing: var(--text-label-tracking);
+  }
+}
+
+:root {
+  /* Font Stacks - Strict NO SERIF */
+  --font-family-display: var(--primitive-font-sans);
+  --font-family-body: var(--primitive-font-sans);
+  --font-family-mono: var(--primitive-font-mono);
+
+  /* Font Weights - Restrained */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600; /* Used sparingly */
+  --font-weight-bold: 700; /* Reserved for Display/H1 only */
+
+  /* Text Styles - Semantic Roles */
+  
+  /* Display: Huge headings, marketing (Weight ~700) */
+  --text-display-size: var(--primitive-text-5xl);
+  --text-display-leading: var(--primitive-leading-tight);
+  --text-display-tracking: var(--primitive-tracking-tighter);
+  --text-display-weight: 700;
+
+  /* H1: Main page titles (Weight ~700) */
+  --text-h1-size: var(--primitive-text-4xl);
+  --text-h1-leading: var(--primitive-leading-tight);
+  --text-h1-tracking: var(--primitive-tracking-tight);
+  --text-h1-weight: 700;
+
+  /* H2: Section titles (Weight ~650/600 fallback) */
+  --text-h2-size: var(--primitive-text-3xl);
+  --text-h2-leading: var(--primitive-leading-snug);
+  --text-h2-tracking: var(--primitive-tracking-tight);
+  --text-h2-weight: 600;
+
+  /* H3: Sub-section titles */
+  --text-h3-size: var(--primitive-text-2xl);
+  --text-h3-leading: var(--primitive-leading-snug);
+  --text-h3-tracking: var(--primitive-tracking-normal);
+  --text-h3-weight: 500;
+
+  /* Title: Component headers (Cards, Modals) */
+  --text-title-size: var(--primitive-text-xl);
+  --text-title-leading: var(--primitive-leading-relaxed);
+  --text-title-tracking: var(--primitive-tracking-normal);
+  --text-title-weight: 500;
+
+  /* Body Large: Intro text, important paragraphs */
+  --text-body-large-size: var(--primitive-text-lg);
+  --text-body-large-leading: 1.7; /* Increased whitespace */
+  --text-body-large-tracking: var(--primitive-tracking-normal);
+  --text-body-large-weight: 400;
+
+  /* Body: Standard reading text (Weight 400-500) */
+  --text-body-size: var(--primitive-text-base);
+  --text-body-leading: 1.7; /* Increased whitespace */
+  --text-body-tracking: var(--primitive-tracking-normal);
+  --text-body-weight: 400;
+
+  /* Caption: Helper text, secondary info */
+  --text-caption-size: var(--primitive-text-sm);
+  --text-caption-leading: var(--primitive-leading-relaxed);
+  --text-caption-tracking: var(--primitive-tracking-normal);
+  --text-caption-weight: 400;
+
+  /* Label: Microcopy, buttons, badges (Weight 500) */
+  --text-label-size: var(--primitive-text-xs);
+  --text-label-leading: var(--primitive-leading-none);
+  --text-label-tracking: var(--primitive-tracking-wide);
+  --text-label-weight: 500;
+}
+
+--- types\index.ts ---
+export interface BaseEntity {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Pagination {
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+  itemsPerPage: number;
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  message?: string;
+  data?: T;
+  pagination?: Pagination;
+  error?: string;
+}
+
