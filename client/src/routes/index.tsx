@@ -16,41 +16,41 @@ import { ErrorPage } from './Error';
 
 // Protected Route placeholder logic
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const isAuthenticated = true; // Placeholder for real auth logic
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
+ const isAuthenticated = true; // Placeholder for real auth logic
+ return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
 };
 
 export const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <Landing />,
-    errorElement: <ErrorPage />,
-  },
-  {
-    element: <AuthLayout />,
-    children: [
-      { path: 'login', element: <Login /> },
-    ],
-  },
-  {
-    element: (
-      <ProtectedRoute>
-        <DashboardLayout />
-      </ProtectedRoute>
-    ),
-    children: [
-      { path: 'dashboard', element: <Dashboard /> },
-      { path: 'goals', element: <GoalSetup /> },
-      { path: 'journey', element: <Journey /> },
-      { path: 'plan', element: <LearningPlan /> },
-      { path: 'tasks', element: <Dashboard /> }, // Fallback to dashboard for tasks list
-      { path: 'tasks/:id', element: <TaskDetails /> },
-      { path: 'reflection', element: <Reflection /> },
-      { path: 'settings', element: <Settings /> },
-    ],
-  },
-  {
-    path: '*',
-    element: <NotFound />,
-  },
+ {
+ path: '/',
+ element: <Landing />,
+ errorElement: <ErrorPage />,
+ },
+ {
+ element: <AuthLayout />,
+ children: [
+ { path: 'login', element: <Login /> },
+ ],
+ },
+ {
+ element: (
+ <ProtectedRoute>
+ <DashboardLayout />
+ </ProtectedRoute>
+ ),
+ children: [
+ { path: 'dashboard', element: <Dashboard /> },
+ { path: 'goals', element: <GoalSetup /> },
+ { path: 'journey', element: <Journey /> },
+ { path: 'plan', element: <LearningPlan /> },
+ { path: 'tasks', element: <Dashboard /> }, // Fallback to dashboard for tasks list
+ { path: 'tasks/:id', element: <TaskDetails /> },
+ { path: 'reflection', element: <Reflection /> },
+ { path: 'settings', element: <Settings /> },
+ ],
+ },
+ {
+ path: '*',
+ element: <NotFound />,
+ },
 ]);

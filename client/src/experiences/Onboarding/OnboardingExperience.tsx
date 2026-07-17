@@ -370,7 +370,7 @@ const FinalReview = ({ formData }: { formData: GoalSetupFormValues }) => (
  <h3 className="text-sm font-semibold uppercase tracking-wider text-primary-600 ">Identity</h3>
  <p className="mt-2 text-xl font-medium italic text-text-primary ">"{formData.identity}"</p>
  </div>
- <CardContent className="divide-y divide-neutral-100 p-0 ">
+ <CardContent className="divide-y divide-border p-0 ">
  <div className="p-6">
  <h4 className="text-xs font-semibold uppercase text-text-muted">The Goal</h4>
  <p className="mt-1 font-medium text-text-primary ">{formData.goal}</p>
@@ -380,7 +380,7 @@ const FinalReview = ({ formData }: { formData: GoalSetupFormValues }) => (
  <p className="mt-1 text-text-secondary ">{formData.why}</p>
  </div>
 
- <div className="grid grid-cols-2 divide-x divide-neutral-100 ">
+ <div className="grid grid-cols-2 divide-x divide-border ">
  <div className="p-6">
  <h4 className="text-xs font-semibold uppercase text-text-muted">Commitment</h4>
  <p className="mt-1 font-medium text-text-primary ">{formData.hoursPerWeek}h / week ({formData.preferredTime})</p>
