@@ -172,7 +172,7 @@ jobs:
   build:
     name: TypeScript build + Docker image
     runs-on: ubuntu-latest
-    needs: [typecheck, lint, test-unit]
+    needs: [typecheck, lint, test-unit, test-integration]
 
     steps:
       - uses: actions/checkout@v4
