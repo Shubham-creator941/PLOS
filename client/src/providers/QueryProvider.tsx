@@ -13,8 +13,8 @@ export const QueryProvider: React.FC<QueryProviderProps> = ({ children }) => {
         defaultOptions: {
           queries: {
             staleTime: 5 * 60 * 1000, // 5 minutes
-            retry: false,
-            refetchOnWindowFocus: true,
+            retry: 1,
+            refetchOnWindowFocus: false,
             // suspense: true, // React Query v5 uses Suspense via useSuspenseQuery
           },
         },

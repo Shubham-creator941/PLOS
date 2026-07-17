@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Clock, BookOpen, MessageSquare, Target, Check, ChevronDown, ChevronUp, Brain } from 'lucide-react';
 import { Card, CardContent } from '@/primitives';
-import { ProgressRing } from '@/primitives';
+import { ProgressRing, Skeleton } from '@/primitives';
+import { useMapQuery } from '@/hooks/queries/useMapQueries';
 import { learningJourneyData } from '../../tests/mocks/learningJourney';
 
 // ==========================================
@@ -122,7 +123,45 @@ const WeekCard = ({ week }: { week: typeof learningJourneyData.weeks[0] }) => {
 // ==========================================
 
 export const Journey: React.FC = () => {
- const data = learningJourneyData;
+ const { data, isLoading, isError } = useMapQuery();
+
+ if (isLoading || !data) {
+   return (
+     <div className="min-h-screen bg-background pb-20 px-6 md:px-12 pt-12">
+       <Skeleton className="h-40 w-full max-w-7xl mx-auto mb-10" />
+       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-16">
+         <Skeleton className="h-[600px] w-full" />
+         <Skeleton className="h-[300px] w-full" />
+       </div>
+     </div>
+   );
+ }
+
+ if (isError) {
+   return <div className="text-danger p-8">Failed to load learning map data.</div>;
+ }
+
+ // Merge backend data with mock structure for UI rendering
+ const displayData = {
+    ...learningJourneyData,
+    header: {
+      ...learningJourneyData.header,
+      goal: data.currentPhase || learningJourneyData.header.goal,
+    },
+    weeks: learningJourneyData.weeks.map((mockWeek, i) => {
+      const milestone = data.milestones[i];
+      if (milestone) {
+        return {
+          ...mockWeek,
+          id: parseInt(milestone.id, 10) || mockWeek.id,
+          title: milestone.title,
+          isCompleted: milestone.status === 'completed',
+          isCurrent: milestone.status === 'in-progress'
+        };
+      }
+      return mockWeek;
+    })
+  };
 
  return (
  <div className="min-h-screen bg-background pb-20">
@@ -133,22 +172,22 @@ export const Journey: React.FC = () => {
  <div>
  <h1 className="text-3xl font-bold tracking-tight text-text-primary mb-3">Your Learning System</h1>
  <div className="flex flex-wrap items-center gap-3">
- <h2 className="text-lg font-medium text-text-secondary">{data.header.goal}</h2>
- <span className="text-[10px] font-bold uppercase tracking-wider bg-success/10 text-success px-2 py-0.5 rounded">{data.header.status}</span>
+ <h2 className="text-lg font-medium text-text-secondary">{displayData.header.goal}</h2>
+ <span className="text-[10px] font-bold uppercase tracking-wider bg-success/10 text-success px-2 py-0.5 rounded">{displayData.header.status}</span>
  </div>
  </div>
  <div className="flex items-center gap-6">
  <div className="text-right">
  <div className="text-sm font-medium text-text-secondary mb-1">Overall Progress</div>
- <div className="text-xs text-text-muted">Est. {data.header.estimatedCompletion}</div>
+ <div className="text-xs text-text-muted">Est. {displayData.header.estimatedCompletion}</div>
  </div>
- <ProgressRing value={data.header.progress} size={80} strokeWidth={6} />
+ <ProgressRing value={displayData.header.progress} size={80} strokeWidth={6} />
  </div>
  </div>
  </div>
 
  {/* Roadmap Overview */}
- <RoadmapOverview weeks={data.weeks} />
+ <RoadmapOverview weeks={displayData.weeks} />
 
  {/* Main Two-Column Layout */}
  <div className="max-w-7xl mx-auto px-6 md:px-12">
@@ -163,7 +202,7 @@ export const Journey: React.FC = () => {
  <section className="pt-8">
  <h3 className="text-2xl font-bold tracking-tight text-text-primary mb-8">Weekly Learning Journey</h3>
  <div className="ml-2">
- {data.weeks.map(week => (
+ {displayData.weeks.map(week => (
  <WeekCard key={week.id} week={week} />
  ))}
  </div>

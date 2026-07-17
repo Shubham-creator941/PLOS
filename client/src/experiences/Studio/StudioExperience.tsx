@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Play, Pause, RotateCcw, CheckCircle2, Circle, Clock, Target, BookOpen, ChevronRight, FileText, Video, MessageSquare } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/primitives';
+import { Card, CardContent, CardHeader, CardTitle, Skeleton } from '@/primitives';
 import { Badge } from '@/primitives';
 import { Button } from '@/primitives';
 import { sessionData } from '../../tests/mocks/session';
@@ -127,8 +127,37 @@ const Workspace = () => {
 // Main Page Component
 // ==========================================
 
- export const TaskDetails: React.FC = () => {
- const data = sessionData;
+ import { useLearningSessionQuery } from '@/hooks/queries/useStudioQueries';
+
+export const TaskDetails: React.FC = () => {
+ const { data: backendData, isLoading, isError } = useLearningSessionQuery();
+
+ if (isLoading || !backendData) {
+   return (
+     <div className="min-h-screen bg-background pb-24 px-4 sm:px-6 lg:px-8">
+       <Skeleton className="h-32 w-full max-w-4xl mx-auto my-8" />
+       <Skeleton className="h-96 w-full max-w-4xl mx-auto my-8" />
+     </div>
+   );
+ }
+
+ if (isError) {
+   return <div className="text-danger p-8">Failed to load session data.</div>;
+ }
+
+ const data = {
+   ...sessionData,
+   header: {
+     ...sessionData.header,
+     missionTitle: backendData.task.title,
+     estimatedDuration: `${backendData.focusTimeTarget}m`
+   },
+   workspace: {
+     ...sessionData.workspace,
+     prompt: backendData.task.description,
+     objectives: sessionData.workspace.objectives.map((obj, i) => i === 0 ? `Focus: ${backendData.task.type}` : obj)
+   }
+ };
 
  return (
  <div className="min-h-screen bg-background pb-24">

@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { PageHeader } from '@/widgets';
-import { Card, CardContent, CardHeader, CardTitle } from '@/primitives';
+import { Card, CardContent, CardHeader, CardTitle, Skeleton } from '@/primitives';
 import { Badge } from '@/primitives';
 import { Button } from '@/primitives';
 import { MessageSquare, Check, Brain, Trophy } from 'lucide-react';
+import { useAssessmentQuery, useSubmitAssessmentMutation } from '@/hooks/queries/useMirrorQueries';
 import { sessionData } from '../../tests/mocks/session';
 
-const TeachBack = () => {
+const TeachBack = ({ data }: { data: typeof sessionData }) => {
  const [text, setText] = useState('');
  const wordCount = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
  return (
@@ -17,7 +18,7 @@ const TeachBack = () => {
  <CardTitle className="text-lg flex items-center gap-2 text-text-primary ">
  <MessageSquare className="w-5 h-5 text-accent-500" /> Teach Back
  </CardTitle>
- <p className="text-sm text-text-secondary mt-1">{sessionData.teachBack.prompt}</p>
+ <p className="text-sm text-text-secondary mt-1">{data.teachBack.prompt}</p>
  </div>
  <Badge variant="neutral" className="hidden sm:flex">{wordCount} Words</Badge>
  </div>
@@ -29,7 +30,7 @@ const TeachBack = () => {
  onChange={(e) => setText(e.target.value)}
  ></textarea>
  <div className="flex items-center justify-between mt-3">
- <p className="text-xs text-text-muted font-medium italic">{sessionData.teachBack.helperText}</p>
+ <p className="text-xs text-text-muted font-medium italic">{data.teachBack.helperText}</p>
  <span className="sm:hidden text-xs font-semibold text-text-muted">{wordCount} Words</span>
  {wordCount > 20 && (
  <span className="flex items-center gap-1 text-xs font-bold text-success-600 animate-[fade-in_0.3s_ease-in-out]">
@@ -42,10 +43,9 @@ const TeachBack = () => {
  );
 };
 
-const ReflectionPrompt = () => {
+const ReflectionPrompt = ({ data }: { data: typeof sessionData }) => {
  const [confidence, setConfidence] = useState(5);
  const [difficulty, setDifficulty] = useState<string>('');
- const data = sessionData;
 
  return (
  <Card>
@@ -98,18 +98,41 @@ const ReflectionPrompt = () => {
 };
 
 export const Reflection: React.FC = () => {
+ const { data, isLoading, isError } = useAssessmentQuery();
+ const submitMutation = useSubmitAssessmentMutation();
+
+ if (isLoading || !data) {
+   return (
+     <div className="space-y-6 max-w-4xl mx-auto pb-24 pt-8">
+       <PageHeader title="Mirror" description="Reflect on your learning and validate your understanding." />
+       <Skeleton className="h-64 w-full" />
+       <Skeleton className="h-96 w-full" />
+     </div>
+   );
+ }
+
+ if (isError) {
+   return <div className="text-danger p-8">Failed to load reflection data.</div>;
+ }
+
+ const displayData = sessionData;
+
+ const handleSubmit = () => {
+   submitMutation.mutate({ id: data.id, answer: 'Submitted from UI' });
+ };
+
  return (
  <div className="space-y-6 max-w-4xl mx-auto pb-24 pt-8">
  <PageHeader title="Mirror" description="Reflect on your learning and validate your understanding." />
  
  {/* Teach-back Assessment */}
  <section>
- <TeachBack />
+ <TeachBack data={displayData} />
  </section>
 
  {/* Reflection Prompt */}
  <section>
- <ReflectionPrompt />
+ <ReflectionPrompt data={displayData} />
  </section>
 
  {/* Previous Mastery Summary Placeholder */}
@@ -124,7 +147,9 @@ export const Reflection: React.FC = () => {
  </section>
 
  <div className="pt-8 flex justify-end">
- <Button size="lg">Save Reflection</Button>
+ <Button size="lg" onClick={handleSubmit} disabled={submitMutation.isPending}>
+   {submitMutation.isPending ? 'Saving...' : 'Save Reflection'}
+ </Button>
  </div>
  </div>
  );
