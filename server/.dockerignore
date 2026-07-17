@@ -8,9 +8,6 @@ yarn-error.log*
 dist/
 build/
 
-# ── TypeScript source (compiled in builder stage; not needed in final image) ──
-src/
-
 # ── Tests (never ship to production image) ─────────────────────────────────────
 **/*.spec.ts
 **/*.test.ts
